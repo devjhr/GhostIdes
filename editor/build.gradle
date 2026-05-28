@@ -1,0 +1,29 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    compileSdk 34
+    namespace 'ir.hanzodev1375.ghostide.codeeditors'
+    defaultConfig {
+        minSdkVersion 26
+        targetSdkVersion 34
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+dependencies {
+    //add your dependencies
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.androidx.constraintlayout
+    api(libs.other.sora.editor.code)
+    api(libs.other.sora.editor.lsp)
+}

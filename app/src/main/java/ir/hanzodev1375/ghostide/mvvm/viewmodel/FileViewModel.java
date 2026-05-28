@@ -27,7 +27,7 @@ public class FileViewModel extends AndroidViewModel {
   public FileViewModel(Application app) {
     super(app);
     pathManager = new PathManager(app.getApplicationContext());
-    
+
     // تعیین مسیر اولیه
     String initialPath;
     if (pathManager.isSaveEnabled()) {
@@ -40,7 +40,7 @@ public class FileViewModel extends AndroidViewModel {
     } else {
       initialPath = Environment.getExternalStorageDirectory().getAbsolutePath();
     }
-    
+
     currentPath.setValue(initialPath);
     loadFiles(initialPath);
   }
@@ -71,7 +71,7 @@ public class FileViewModel extends AndroidViewModel {
     if (file.exists() && file.isDirectory()) {
       currentPath.setValue(path);
       loadFiles(path);
-      
+
       if (pathManager.isSaveEnabled()) {
         pathManager.setLastPath(path);
       }
@@ -87,28 +87,32 @@ public class FileViewModel extends AndroidViewModel {
 
   private void loadFiles(String dirPath) {
     isLoading.setValue(true);
-    new Thread(() -> {
-      List<FileManagerModel> list = new ArrayList<>();
-      File dir = new File(dirPath);
-      File[] files = dir.listFiles();
-      if (files != null) {
-        Arrays.sort(files,
-            Comparator.comparing(File::isDirectory)
-                .reversed()
-                .thenComparing(File::getName));
-        for (File file : files) {
-          String name = file.getName();
-          if (!name.startsWith(".")) {
-            FileState state = file.isDirectory() ? FileState.CREATOR : FileState.SERACH;
-            FileManagerModel model = new FileManagerModel(
-                file.getAbsolutePath(), name, state, file.lastModified());
-            list.add(model);
-          }
-        }
-      }
-      filesLiveData.postValue(list);
-      isLoading.postValue(false);
-    }).start();
+    new Thread(
+            () -> {
+              List<FileManagerModel> list = new ArrayList<>();
+              File dir = new File(dirPath);
+              File[] files = dir.listFiles();
+              if (files != null) {
+                Arrays.sort(
+                    files,
+                    Comparator.comparing(File::isDirectory)
+                        .reversed()
+                        .thenComparing(File::getName));
+                for (File file : files) {
+                  String name = file.getName();
+                  if (!name.startsWith(".")) {
+                    FileState state = file.isDirectory() ? FileState.CREATOR : FileState.SERACH;
+                    FileManagerModel model =
+                        new FileManagerModel(
+                            file.getAbsolutePath(), name, state, file.lastModified());
+                    list.add(model);
+                  }
+                }
+              }
+              filesLiveData.postValue(list);
+              isLoading.postValue(false);
+            })
+        .start();
   }
 
   public void renameFile(FileManagerModel model, String newName) {

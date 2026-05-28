@@ -10,7 +10,7 @@ android {
  
     defaultConfig {
         applicationId 'ir.hanzodev1375.ghostide'
-        minSdk 21
+        minSdk 26
         targetSdk 34
         versionCode 1
         versionName '1.0'
@@ -34,8 +34,11 @@ android {
 }
 
 dependencies {
+    implementation project(path: ":editor")
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.material
+    implementation libs.gson
     implementation libs.androidx.constraintlayout
+  
 }

@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import androidx.activity.OnBackPressedCallback;
@@ -42,6 +43,11 @@ public class FileManagerActivity extends AppCompatActivity {
         (item, pos) -> {
           if (item.isDirectory()) {
             viewModel.navigateTo(item.getPath());
+          } else {
+            Intent intent = new Intent(FileManagerActivity.this, EditorActivity.class);
+            intent.putExtra("file_path", item.getPath());
+            intent.putExtra("file_name", item.getName());
+            startActivity(intent);
           }
         });
 
