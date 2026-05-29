@@ -26,4 +26,6 @@ dependencies {
     implementation libs.androidx.constraintlayout
     api(libs.other.sora.editor.code)
     api(libs.other.sora.editor.lsp)
+    implementation libs.utilcode
+    implementation libs.gson
 }

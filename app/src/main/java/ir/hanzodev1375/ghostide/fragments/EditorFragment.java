@@ -11,12 +11,15 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
 import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
+import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
 
 public class EditorFragment extends Fragment {
   private EditorFragmentBinding binding;
   private EditorViewModel viewModel;
   private IdeEditor editor;
   private String filePath;
+  private ThemeUtils theme;
 
   public static EditorFragment newInstance(String path) {
     EditorFragment f = new EditorFragment();
@@ -39,7 +42,9 @@ public class EditorFragment extends Fragment {
     filePath = getArguments().getString("file_path");
     viewModel = new ViewModelProvider(this).get(EditorViewModel.class);
     editor = binding.editor;
-
+    var manager = new ThemeManager(requireActivity());
+    theme = new ThemeUtils(manager);
+    theme.applyEditor(editor);
     viewModel
         .getLoading()
         .observe(
@@ -60,7 +65,7 @@ public class EditorFragment extends Fragment {
     if (filePath.endsWith(".java")) {
       editor.setEditorLanguage(new JavaLanguage());
     }
-    editor.setColorScheme(new SchemeDarcula());
+  //  editor.setColorScheme(new SchemeDarcula());
   }
 
   @Override

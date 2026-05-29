@@ -12,6 +12,9 @@ soraEditorVersion = "0.23.5"          # ← added
 # Gson 
 gsonversion = "2.13.1"
 
+#Android util code 
+utilcodev = "1.31.1"
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -27,3 +30,4 @@ other-sora-editor-code = { group = "io.github.Rosemoe.sora-editor", name = "edit
 other-sora-editor-lsp = { group = "io.github.Rosemoe.sora-editor", name = "editor-lsp", version.ref = "soraEditorVersion" }
 
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gsonversion" }
+utilcode = { group = "com.blankj", name = "utilcodex",version.ref = "utilcodev" }

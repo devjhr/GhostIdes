@@ -393,6 +393,7 @@ public class JavaIncrementalAnalyzeManager
         case LINE_COMMENT:
         case LONG_COMMENT_COMPLETE:
         case LONG_COMMENT_INCOMPLETE:
+        
           span =
               SpanFactory.obtain(
                   offset,
