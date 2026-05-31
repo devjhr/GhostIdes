@@ -8,23 +8,22 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.HashSet;
 import android.preference.PreferenceManager;
-import androidx.appcompat.app.AppCompatDelegate;
 import android.content.Context;
 
 public class PreferencesUtils {
 
   private final String TAG = PreferencesUtils.class.getSimpleName();
-
-  /**
-   * Check if editor automatically saves files.
-   *
-   * @return true if files are automatically saved, otherwise false.
-   */
-  Context c;
+  private Context c;
 
   public PreferencesUtils(Context c) {
     this.c = c;
   }
+
+  public SharedPreferences getDefaultPreferences() {
+    return PreferenceManager.getDefaultSharedPreferences(c);
+  }
+
+  // ========== Getter ==========
 
   public boolean autoSaveFiles() {
     return getDefaultPreferences()
@@ -36,22 +35,8 @@ public class PreferencesUtils {
         getDefaultPreferences()
             .getString(
                 Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_RELATIVE_CLOSE_DEPTH, "First");
-    if (depth.equalsIgnoreCase("All")) {
-      return false;
-    } else if (depth.equalsIgnoreCase("First")) {
-      return true;
-    }
-    return true; // default to first tab
-  }
-
-  public void clearPreference(@NonNull SharedPreferences pref, String key) {
-    Map<String, ?> cues = pref.getAll();
-    cues.forEach(
-        (k, v) -> {
-          if (Objects.equals(key, k)) {
-            emptyEditorValue(pref.edit(), k, v);
-          }
-        });
+    if (depth.equalsIgnoreCase("All")) return false;
+    return true;
   }
 
   public int getCursorBlinkPeriod() {
@@ -59,203 +44,106 @@ public class PreferencesUtils {
         .getInt(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_CURSOR_BLINK_PERIOD, 500);
   }
 
-  private void emptyEditorValue(
-      SharedPreferences.Editor editor, @NonNull String key, @NonNull Object value) {
-    try {
-      if (value instanceof Boolean) {
-        editor.putBoolean(key, false).apply();
-      } else if (value instanceof Float) {
-        editor.putFloat(key, 0.0f);
-      } else if (value instanceof String) {
-        editor.putString(key, "");
-      } else if (value instanceof Integer) {
-        editor.putInt(key, 0);
-      } else if (value instanceof Long) {
-        editor.putLong(key, 0L);
-      } else if (value instanceof Set<?>) {
-        editor.putStringSet(key, new HashSet<>());
-      }
-      Log.d(TAG, String.format(" Key-Value: %s -> %s", key, value));
-      editor.apply();
-    } catch (Exception e) {
-      Log.e(TAG, "Failed to clear preference value", e);
-    }
-  }
-
   public boolean enableAutoComplete() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_AUTO_COMPLETE, false);
   }
 
-  /**
-   * Check if auto-complete window animation is enabled.
-   *
-   * @return true if auto-complete window animation is enabled, otherwise false.
-   */
   public boolean enableAutoCompleteWindowAnimation() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_ANIMATE_AUTO_COMP_WINDOW, false);
   }
 
-  /**
-   * Check if bracket auto-closing is enabled.
-   *
-   * @return true if bracket auto-closing is enabled, otherwise false.
-   */
   public boolean enableBracketAutoClosing() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_AUTO_CLOSE_BRACKET, false);
   }
 
-  /**
-   * Check if bracket highlighting is enabled.
-   *
-   * @return true if bracket highlighting is enabled, otherwise false.
-   */
   public boolean enableBracketHighlight() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_HIGHLIGHT_BRACKET, true);
   }
 
-  /**
-   * Check if deleting empty lines is enabled.
-   *
-   * @return true if deleting empty lines is enabled, otherwise false.
-   */
   public boolean enableDeleteEmptyLine() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_DELETE_EMPTY_LINE, false);
   }
 
-  /**
-   * Check if deleting tabs is enabled.
-   *
-   * @return true if deleting tabs is enabled, otherwise false.
-   */
   public boolean enableDeleteTab() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_DELETE_TAB, false);
   }
 
-  /**
-   * Check if hardware acceleration is enabled.
-   *
-   * @return true if hardware acceleration is enabled, otherwise false.
-   */
   public boolean enableHardWareAcceleration() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_HARDWARE_ACCELERATION, false);
   }
 
-  /**
-   * Check if line numbers are enabled.
-   *
-   * @return true if line numbers are enabled, otherwise false.
-   */
   public boolean enableLineNumbers() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_LINE_NUMBERS, true);
   }
 
-  /**
-   * Check if the magnifier is enabled.
-   *
-   * @return true if the magnifier is enabled, otherwise false.
-   */
   public boolean enableMagnifier() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_MAGNIFIER, true);
   }
 
-  /**
-   * Check if the scroll bar is enabled.
-   *
-   * @return true if the scroll bar is enabled, otherwise false.
-   */
   public boolean enableScrollBar() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_SCROLL_BAR, false);
   }
 
-  /**
-   * Check if sticky scroll is enabled.
-   *
-   * @return true if sticky scroll is enabled, otherwise false.
-   */
   public boolean enableStickyScroll() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_STICKY_SCROLL, false);
   }
 
-  /**
-   * Check if the selected np-painting flag is "empty-line".
-   *
-   * @return true if the selected np-painting flag is "empty-line", otherwise false.
-   */
+  public boolean enableMiniMap() {
+    return getDefaultPreferences()
+        .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITORMINIMAP, false);
+  }
+
   public boolean flagEmptyLine() {
-    Set<String> selectedValues =
+    Set<String> values =
         getDefaultPreferences()
             .getStringSet(
                 Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS, new HashSet<>());
-    return selectedValues.contains("4");
+    return values.contains("4");
   }
 
-  /**
-   * Check if the selected np-painting flag is "inner".
-   *
-   * @return true if the selected np-painting flag is "inner", otherwise false.
-   */
   public boolean flagInner() {
-    Set<String> selectedValues =
+    Set<String> values =
         getDefaultPreferences()
             .getStringSet(
                 Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS, new HashSet<>());
-    return selectedValues.contains("1");
+    return values.contains("1");
   }
 
-  /**
-   * Check if the selected np-painting flag is "leading".
-   *
-   * @return true if the selected np-painting flag is "leading", otherwise false.
-   */
   public boolean flagLeading() {
-    Set<String> selectedValues =
+    Set<String> values =
         getDefaultPreferences()
             .getStringSet(
                 Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS, new HashSet<>());
-    return selectedValues.contains("2");
+    return values.contains("2");
   }
 
-  /**
-   * Check if the selected np-painting flag is "line-breaks".
-   *
-   * @return true if the selected np-painting flag is "line-breaks", otherwise false.
-   */
   public boolean flagLineBreaks() {
-    Set<String> selectedValues =
+    Set<String> values =
         getDefaultPreferences()
             .getStringSet(
                 Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS, new HashSet<>());
-    return selectedValues.contains("5");
+    return values.contains("5");
   }
 
-  /**
-   * Check if the selected np-painting flag is "trailing".
-   *
-   * @return true if the selected np-painting flag is "trailing", otherwise false.
-   */
   public boolean flagTrailing() {
-    Set<String> selectedValues =
+    Set<String> values =
         getDefaultPreferences()
             .getStringSet(
                 Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS, new HashSet<>());
-    return selectedValues.contains("3");
+    return values.contains("3");
   }
-  /**
-   * Get the selected tab size for the code editor.
-   *
-   * @return The selected tab size.
-   */
+
   public int getCodeEditorTabSize() {
     return getCodeEditorTabSize(2);
   }
@@ -265,43 +153,17 @@ public class PreferencesUtils {
         .getInt(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_TAB_SIZE, size);
   }
 
-  public SharedPreferences getDefaultPreferences() {
-    return PreferenceManager.getDefaultSharedPreferences(c);
-  }
-
-  /**
-   * Get the user selected buffer size
-   *
-   * <p>No set method to prevent concurrent modification, buffer size is updated on restart
-   *
-   * @return the buffer size in kilobytes
-   */
   public int getCurrentBufferSize() {
-    var selectedBufferSize =
+    var selected =
         getDefaultPreferences().getString(Constants.SharedPreferenceKeys.KEY_BUFFER_SIZE, "5");
-    return Integer.parseInt(selectedBufferSize) * 1024;
+    return Integer.parseInt(selected) * 1024;
   }
 
-  /**
-   * Get the selected line height for the code editor.
-   *
-   * @return The selected line height.
-   */
   public float getCurrentEditorLineHeight() {
-    var selectedLineHeight =
+    var selected =
         getDefaultPreferences()
             .getString(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_LINE_HEIGHT, "2");
-    return getEditorLineHeight(selectedLineHeight);
-  }
-
-  /**
-   * Get the line height value based on the user's choice for the code editor.
-   *
-   * @param lineHeightEntry The user's line height choice.
-   * @return The corresponding line height value.
-   */
-  private float getEditorLineHeight(String lineHeightEntry) {
-    return switch (lineHeightEntry) {
+    return switch (selected) {
       case "1" -> 1;
       case "3" -> 3;
       case "4" -> 4;
@@ -320,43 +182,243 @@ public class PreferencesUtils {
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_PIN_LINE_NUM, false);
   }
 
-  /**
-   * Check if the font ligatures is enabled
-   *
-   * @return true if the font ligatures is used, otherwise false.
-   */
   public boolean useFontLigatures() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT_LIAGTURES, false);
   }
 
-  /**
-   * Check if the ICU library is used for word edge retrieval in the code editor.
-   *
-   * @return true if the ICU library is used, otherwise false.
-   */
   public boolean useICULibrary() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_ICU, false);
   }
 
-  /**
-   * Check if tabs are used instead of spaces in the code editor.
-   *
-   * @return true if tabs are used, otherwise false.
-   */
   public boolean useTabIndentation() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_TAB_INDENT, false);
   }
 
-  /**
-   * Check if word wrap is enabled for the code editor.
-   *
-   * @return true if word wrap is enabled, otherwise false.
-   */
   public boolean useWordWrap() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_WORD_WRAP, false);
   }
+
+  // ========== Setter ==========
+
+  public void setAutoSave(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_AUTO_SAVE, enabled)
+        .apply();
+  }
+
+  public void setRelativeCloseDepth(String depth) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_RELATIVE_CLOSE_DEPTH, depth)
+        .apply();
+  }
+
+  public void setCursorBlinkPeriod(int periodMs) {
+    getDefaultPreferences()
+        .edit()
+        .putInt(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_CURSOR_BLINK_PERIOD, periodMs)
+        .apply();
+  }
+
+  public void setAutoComplete(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_AUTO_COMPLETE, enabled)
+        .apply();
+  }
+
+  public void setMiniMap(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITORMINIMAP, enabled)
+        .apply();
+  }
+
+  public void setAutoCompleteWindowAnimation(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(
+            Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_ANIMATE_AUTO_COMP_WINDOW, enabled)
+        .apply();
+  }
+
+  public void setBracketAutoClosing(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_AUTO_CLOSE_BRACKET, enabled)
+        .apply();
+  }
+
+  public void setBracketHighlight(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_HIGHLIGHT_BRACKET, enabled)
+        .apply();
+  }
+
+  public void setDeleteEmptyLine(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_DELETE_EMPTY_LINE, enabled)
+        .apply();
+  }
+
+  public void setDeleteTab(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_DELETE_TAB, enabled)
+        .apply();
+  }
+
+  public void setHardwareAcceleration(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_HARDWARE_ACCELERATION, enabled)
+        .apply();
+  }
+
+  public void setLineNumbers(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_LINE_NUMBERS, enabled)
+        .apply();
+  }
+
+  public void setMagnifier(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_MAGNIFIER, enabled)
+        .apply();
+  }
+
+  public void setScrollBar(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_SCROLL_BAR, enabled)
+        .apply();
+  }
+
+  public void setStickyScroll(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_STICKY_SCROLL, enabled)
+        .apply();
+  }
+
+  public void setNonPrintableFlags(Set<String> flags) {
+    getDefaultPreferences()
+        .edit()
+        .putStringSet(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS, flags)
+        .apply();
+  }
+
+  public void setCodeEditorTabSize(int tabSize) {
+    getDefaultPreferences()
+        .edit()
+        .putInt(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_TAB_SIZE, tabSize)
+        .apply();
+  }
+
+  public void setBufferSize(String kb) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_BUFFER_SIZE, kb)
+        .apply();
+  }
+
+  public void setLineHeight(String lineHeightEntry) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_LINE_HEIGHT, lineHeightEntry)
+        .apply();
+  }
+
+  public void setPinLineNumber(boolean pin) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_PIN_LINE_NUM, pin)
+        .apply();
+  }
+
+  public void setFontLigatures(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT_LIAGTURES, enabled)
+        .apply();
+  }
+
+  public void setICULibrary(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_ICU, enabled)
+        .apply();
+  }
+
+  public void setTabIndentation(boolean useTabs) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_TAB_INDENT, useTabs)
+        .apply();
+  }
+
+  public void setWordWrap(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_WORD_WRAP, enabled)
+        .apply();
+  }
+
+  public void clearPreference(@NonNull SharedPreferences pref, String key) {
+    Map<String, ?> cues = pref.getAll();
+    cues.forEach(
+        (k, v) -> {
+          if (Objects.equals(key, k)) {
+            emptyEditorValue(pref.edit(), k, v);
+          }
+        });
+  }
+
+  private void emptyEditorValue(
+      SharedPreferences.Editor editor, @NonNull String key, @NonNull Object value) {
+    try {
+      if (value instanceof Boolean) editor.putBoolean(key, false);
+      else if (value instanceof Float) editor.putFloat(key, 0.0f);
+      else if (value instanceof String) editor.putString(key, "");
+      else if (value instanceof Integer) editor.putInt(key, 0);
+      else if (value instanceof Long) editor.putLong(key, 0L);
+      else if (value instanceof Set<?>) editor.putStringSet(key, new HashSet<>());
+      Log.d(TAG, String.format("Key-Value: %s -> %s", key, value));
+      editor.apply();
+    } catch (Exception e) {
+      Log.e(TAG, "Failed to clear preference value", e);
+    }
+  }
+
+  public int getAppTheme() {
+    return getDefaultPreferences().getInt(Constants.SharedPreferenceKeys.KEY_APP_THEME, 0);
+  }
+
+  public void setAppTheme(int themeIndex) {
+    getDefaultPreferences()
+        .edit()
+        .putInt(Constants.SharedPreferenceKeys.KEY_APP_THEME, themeIndex)
+        .apply();
+  }
+
+  public String getAppThemeFile() {
+    return getDefaultPreferences().getString(Constants.SharedPreferenceKeys.KEY_APP_THEME_FILE, "");
+  }
+
+  public void setAppThemeFile(String filePath) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_APP_THEME_FILE, filePath)
+        .apply();
+  }
+
 }

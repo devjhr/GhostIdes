@@ -3,6 +3,7 @@ package ir.hanzodev1375.ghostide.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.PopupMenu;
 import androidx.viewpager2.widget.ViewPager2;
@@ -13,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import androidx.fragment.app.Fragment;
 import ir.hanzodev1375.ghostide.fragments.EditorFragment;
+import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +49,9 @@ public class EditorActivity extends BaseCompat {
     setupTabLayout();
     setupFAB();
     loadSavedTabs();
-
+    PluginManager.init(this);
+    String configPath = Environment.getExternalStorageDirectory() + "/GhostIDE/plugins/config.json";
+    PluginManager.getInstance().loadPluginsFromConfig(configPath);
     ThemeManager manager = new ThemeManager(this);
     theme = new ThemeUtils(manager);
     theme.applyActivity(this);
@@ -170,6 +174,10 @@ public class EditorActivity extends BaseCompat {
     int newPos = tabsList.size() - 1;
     binding.viewPager.setCurrentItem(newPos);
     saveCurrentPosition(newPos);
+    String ext = "";
+    int dot = path.lastIndexOf('.');
+    if (dot != -1) ext = path.substring(dot + 1);
+    PluginManager.getInstance().setCurrentEditorActivity(this, getCurrentEditor(), path, ext);
   }
 
   private void closeTab(int position) {

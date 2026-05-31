@@ -39,6 +39,11 @@ dependencies {
     implementation libs.androidx.appcompat
     implementation libs.material
     implementation libs.gson
+    implementation libs.glide
     implementation libs.androidx.constraintlayout
+    implementation(libs.glide)
+    implementation(libs.utilcode)
+    annotationProcessor(libs.glide.compiler) 
+    implementation(libs.glide.avif.integration)
   
 }

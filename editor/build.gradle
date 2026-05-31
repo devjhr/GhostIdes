@@ -3,31 +3,38 @@ plugins {
 }
 
 android {
-    compileSdk 36
-    namespace 'ir.hanzodev1375.ghostide.codeeditors'
-    defaultConfig {
-        minSdkVersion 26
-        targetSdkVersion 34
+    compileSdk = 36
+    namespace = 'ir.hanzodev1375.ghostide.codeeditors'
+    
+    buildFeatures {
+        viewBinding = true  // یا dataBinding = true
     }
+    
+    defaultConfig {
+        minSdkVersion = 26
+        targetSdkVersion = 34
+    }
+    
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
         }
     }
+    
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
 dependencies {
-    //add your dependencies
-    implementation libs.androidx.appcompat
-    implementation libs.material
-    implementation libs.androidx.constraintlayout
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
     api(libs.other.sora.editor.code)
     api(libs.other.sora.editor.lsp)
-    implementation libs.utilcode
-    implementation libs.gson
-    implementation libs.antlr
-    implementation libs.guava
+    implementation(libs.utilcode)
+    implementation(libs.gson)
+    implementation(libs.antlr)
+    implementation(libs.guava)
 }

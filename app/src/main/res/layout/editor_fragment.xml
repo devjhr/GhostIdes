@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_height="match_parent"
+  android:layout_width="match_parent"
+  android:id="@+id/coordinator">
+
+  <ir.hanzodev1375.ghostide.codeeditors.IdeEditor
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:id="@+id/coordinator"
-    >
+    android:id="@+id/editor" />
 
-    <ir.hanzodev1375.ghostide.codeeditors.IdeEditor
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:id="@+id/editor"
-        />
-
-    <ProgressBar
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="10dp"
-        android:id="@+id/prograssLoading"
-        />
+  <ProgressBar
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_marginTop="5dp"
+    android:layout_marginStart="10dp"
+    android:id="@+id/prograssLoading" />
 
 </FrameLayout>

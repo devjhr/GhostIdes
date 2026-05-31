@@ -11,6 +11,9 @@ soraEditorVersion = "0.24.5"
 # Gson 
 gsonversion = "2.13.1"
 
+#glide
+glide = "5.0.7"
+
 #Android util code 
 utilcodev = "1.31.1"
 #antlr4
@@ -37,3 +40,6 @@ antlr = { group = "org.antlr", name = "antlr4",version.ref = "antlrv" }
 
 
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
+glide-avif-integration = { module = "com.github.bumptech.glide:avif-integration", version.ref = "glide" }

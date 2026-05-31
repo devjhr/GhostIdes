@@ -2,8 +2,8 @@ package ir.hanzodev1375.ghostide.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
-
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.core.graphics.Insets;
@@ -11,12 +11,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import ir.hanzodev1375.ghostide.adapters.FileManagerAdapter;
 import ir.hanzodev1375.ghostide.databinding.ActivityFilemanagerBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
+import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
 
 public class FileManagerActivity extends BaseCompat {
@@ -28,15 +27,19 @@ public class FileManagerActivity extends BaseCompat {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    EdgeToEdge.enable(this);
-
     bind = ActivityFilemanagerBinding.inflate(getLayoutInflater());
-
     setContentView(bind.getRoot());
-
     setupInsets();
-
+    new Handler()
+        .postDelayed(
+            () -> {
+              try {
+                PluginManager.getInstance().setCurrentFileManagerActivity(this);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            },
+            100);
     bind.headline.setBackground(ShapeUtil.shape(40f, this));
     viewModel = new ViewModelProvider(this).get(FileViewModel.class);
     adapter = new FileManagerAdapter(this);
@@ -57,18 +60,17 @@ public class FileManagerActivity extends BaseCompat {
             viewModel.navigateTo(item.getPath());
 
           } else {
-
             Intent intent = new Intent(FileManagerActivity.this, EditorActivity.class);
-
             intent.putExtra("file_path", item.getPath());
-
             intent.putExtra("file_name", item.getName());
-
             startActivity(intent);
           }
         });
 
-    bind.fab.setOnClickListener(v -> {});
+    bind.fab.setOnClickListener(
+        v -> {
+          startActivity(new Intent(FileManagerActivity.this, SettingActivity.class));
+        });
 
     setOnBackPress();
   }
@@ -112,14 +114,10 @@ public class FileManagerActivity extends BaseCompat {
 
               @Override
               public void handleOnBackPressed() {
-
                 if (viewModel.getCurrentPath().getValue() != null
                     && !viewModel.getCurrentPath().getValue().equals("/storage/emulated/0")) {
-
                   viewModel.navigateUp();
-
                 } else {
-
                   new MaterialAlertDialogBuilder(FileManagerActivity.this)
                       .setTitle("Exit")
                       .setMessage("Exit in Ghost ide")

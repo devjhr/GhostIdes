@@ -2,119 +2,208 @@ package ir.theme;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import com.google.gson.Gson;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.utils.ConstKeys;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 
 public class ThemeManager {
 
   private final SharedPreferences preferences;
-
   private final Gson gson;
+  private final Context context;
 
   public ThemeManager(Context context) {
-
-    preferences = context.getSharedPreferences(ConstKeys.PREFS_NAME, Context.MODE_PRIVATE);
-
-    gson = new Gson();
+    this.context = context;
+    this.preferences = context.getSharedPreferences(ConstKeys.PREFS_NAME, Context.MODE_PRIVATE);
+    this.gson = new Gson();
   }
 
   public void saveTheme(GhostTheme theme) {
-
-    preferences.edit().putString(ConstKeys.THEME, gson.toJson(theme)).apply();
+    String json = gson.toJson(theme);
+    preferences.edit().putString(ConstKeys.THEME, json).apply();
   }
 
   public GhostTheme getTheme() {
+    PreferencesUtils prefsUtils = new PreferencesUtils(context);
+    String themeFile = prefsUtils.getAppThemeFile();
+
+    if (!TextUtils.isEmpty(themeFile)) {
+      File file = new File(themeFile);
+      if (file.exists()) {
+        try {
+          String json =
+              new String(new FileInputStream(file).readAllBytes(), StandardCharsets.UTF_8);
+          GhostTheme theme = gson.fromJson(json, GhostTheme.class);
+          if (theme != null) {
+            return theme;
+          }
+        } catch (Exception ignored) {
+
+        }
+      }
+      prefsUtils.setAppThemeFile("");
+    }
 
     String json = preferences.getString(ConstKeys.THEME, null);
-
     if (json == null || json.isEmpty()) {
-
       json = getDefaultThemeJson();
     }
 
     try {
-
       GhostTheme theme = gson.fromJson(json, GhostTheme.class);
-
       if (theme == null) {
-
         return gson.fromJson(getDefaultThemeJson(), GhostTheme.class);
       }
-
       return theme;
-
     } catch (Exception e) {
-
       return gson.fromJson(getDefaultThemeJson(), GhostTheme.class);
     }
+  }
+
+  public void setThemeFromFile(String filePath) {
+    PreferencesUtils prefsUtils = new PreferencesUtils(context);
+    if (filePath == null || filePath.trim().isEmpty()) {
+      prefsUtils.setAppThemeFile("");
+      preferences.edit().putString(ConstKeys.THEME, getDefaultThemeJson()).apply();
+      return;
+    }
+
+    File file = new File(filePath);
+    if (file.exists()) {
+      try {
+        String json = new String(new FileInputStream(file).readAllBytes(), StandardCharsets.UTF_8);
+        GhostTheme theme = gson.fromJson(json, GhostTheme.class);
+        if (theme != null) {
+          prefsUtils.setAppThemeFile(filePath);
+          preferences.edit().putString(ConstKeys.THEME, json).apply();
+          return;
+        }
+      } catch (Exception ignored) {
+      }
+    }
+    prefsUtils.setAppThemeFile("");
+    preferences.edit().putString(ConstKeys.THEME, getDefaultThemeJson()).apply();
   }
 
   public String getDefaultThemeJson() {
     return """
         {
             "activity": {
-                "background": "#1e1e1e",
-                "statusBar": "#1e1e1e",
-                "navigationBar": "#1e1e1e"
+                "background": "#282c34",
+                "statusBar": "#282c34",
+                "navigationBar": "#282c34"
             },
             "editor": {
-                "lineDivider": "#B7B7FF",
-                "lineNumber": "#00FDFF",
-                "lineNumberBackground": "#000000",
-                "wholeBackground": "#000000",
-                "textNormal": "#d4d4d4",
-                "selectedTextBackground": "#264f78",
-                "selectionInsert": "#aeafad",
-                "selectionHandle": "#ffffff",
-                "currentLine": "#2a2d2e",
-                "underline": "#ffffff",
-                "scrollBarThumb": "#424242",
-                "scrollBarThumbPressed": "#686868",
-                "scrollBarTrack": "#1e1e1e",
-                "blockLine": "#404040",
-                "blockLineCurrent": "#707070",
-                "lineNumberPanel": "#1e1e1e",
-                "lineNumberPanelText": "#ffffff",
-                "completionWndBackground": "#252526",
-                "completionWndCorner": "#252526",
-                "keyword": "#569cd6",
-                "comment": "#6a9955",
-                "operator": "#d4d4d4",
-                "literal": "#ce9178",
-                "identifierVar": "#9cdcfe",
-                "identifierName": "#4ec9b0",
-                "functionName": "#F306F3",
-                "annotation": "#c586c0",
-                "matchedTextBackground": "#515c6a",
-                "matchedTextBorder": "#ffffff",
+                "lineDivider": "#3e4452",
+                "lineNumber": "#5c6370",
+                "lineNumberBackground": "#282c34",
+                "wholeBackground": "#282c34",
+                "textNormal": "#abb2bf",
+                "selectedTextBackground": "#3e4452",
+                "selectionInsert": "#528bff",
+                "selectionHandle": "#528bff",
+                "currentLine": "#2c313a",
+                "underline": "#abb2bf",
+                "scrollBarThumb": "#3e4452",
+                "scrollBarThumbPressed": "#528bff",
+                "scrollBarTrack": "#21252b",
+                "blockLine": "#3e4452",
+                "blockLineCurrent": "#528bff",
+                "lineNumberPanel": "#21252b",
+                "lineNumberPanelText": "#abb2bf",
+                "completionWndBackground": "#282c34",
+                "completionWndCorner": "#282c34",
+                "keyword": "#c678dd",
+                "comment": "#5c6370",
+                "operator": "#56b6c2",
+                "literal": "#d19a66",
+                "identifierVar": "#e06c75",
+                "identifierName": "#61afef",
+                "functionName": "#61afef",
+                "annotation": "#e5c07b",
+                "matchedTextBackground": "#3e4452",
+                "matchedTextBorder": "#528bff",
                 "textSelected": "#ffffff",
-                "nonPrintableChar": "#404040",
-                "htmlTag": "#569cd6",
-                "attributeName": "#9cdcfe",
-                "attributeValue": "#ce9178",
-                "problemError": "#f44747",
-                "problemWarning": "#cca700",
-                "problemTypo": "#00ff00",  
-                "colornextdot": "#FF00FFD4",
-                "colornextbrak": "#FF00FF80",
-                "colornextchar": "#FFFFF200",
-                "coloruppercase": "#FFFF0073",
-                "colornextless": "#FF99FF00"
+                "nonPrintableChar": "#3e4452",
+                "htmlTag": "#e06c75",
+                "attributeName": "#d19a66",
+                "attributeValue": "#98c379",
+                "problemError": "#e06c75",
+                "problemWarning": "#e5c07b",
+                "problemTypo": "#98c379",
+                "colornextdot": "#c678dd",
+                "colornextbrak": "#56b6c2",
+                "colornextchar": "#d19a66",
+                "coloruppercase": "#61afef",
+                "colornextless": "#98c379",
+                "lineNumberCurrent": "#528bff",
+                "selectedTextBorder": "#528bff",
+                "currentRowBorder": "#3e4452",
+                "highlightedDelimitersBackground": "#2c313a",
+                "highlightedDelimitersUnderline": "#528bff",
+                "highlightedDelimitersForeground": "#abb2bf",
+                "highlightedDelimitersBorder": "#528bff",
+                "textHighlightBackground": "#3e4452",
+                "textHighlightBorder": "#528bff",
+                "textHighlightStrongBackground": "#2c313a",
+                "textHighlightStrongBorder": "#c678dd",
+                "staticSpanBackground": "#282c34",
+                "staticSpanForeground": "#abb2bf",
+                "textInlayHintBackground": "#2c313a",
+                "textInlayHintForeground": "#5c6370",
+                "snippetBackgroundEditing": "#2c313a",
+                "snippetBackgroundRelated": "#3e4452",
+                "snippetBackgroundInactive": "#21252b",
+                "hardWrapMarker": "#3e4452",
+                "functionCharBackgroundStroke": "#3e4452",
+                "diagnosticTooltipBackground": "#2c313a",
+                "diagnosticTooltipBriefMsg": "#abb2bf",
+                "diagnosticTooltipDetailedMsg": "#5c6370",
+                "diagnosticTooltipAction": "#61afef",
+                "stickyScrollDivider": "#3e4452",
+                "strikeThrough": "#00000000",
+                "sideBlockLine": "#3e4452",
+                "completionWndTextPrimary": "#abb2bf",
+                "completionWndTextSecondary": "#5c6370",
+                "completionWndItemCurrent": "#2c313a",
+                "completionWndTextMatched": "#61afef",
+                "signatureBackground": "#282c34",
+                "signatureBorder": "#3e4452",
+                "signatureTextNormal": "#abb2bf",
+                "signatureTextHighlightedParameter": "#e06c75",
+                "hoverBackground": "#2c313a",
+                "hoverBorder": "#528bff",
+                "hoverTextNormal": "#abb2bf",
+                "hoverTextHighlighted": "#61afef",
+                "textActionWindowBackground": "#282c34",
+                "textActionWindowIconColor": "#abb2bf",
+                "minimapBackground": "#a0282c34",
+                "minimapViewport": "#30ffffff",
+                "minimapViewportBorder": "#b0ffffff"
             },
             "widget": {
-                "text": "#cccccc",
-                "hint": "#aaaaaa",
-                "accent": "#007acc",
-                "background": "#1e1e1e",
-                "surface": "#252526",
-                "stroke": "#3c3c3c",
-                "fabBackground": "#007acc",
+                "text": "#abb2bf",
+                "hint": "#5c6370",
+                "accent": "#61afef",
+                "background": "#282c34",
+                "surface": "#2c313a",
+                "stroke": "#3e4452",
+                "fabBackground": "#61afef",
                 "fabIcon": "#ffffff",
-                "tabSelected": "#ffffff",
-                "tabUnselected": "#858585",
-                "imageTint": "#c5c5c5"
+                "tabSelected": "#61afef",
+                "tabUnselected": "#5c6370",
+                "imageTint": "#abb2bf"
             }
         }
         """;
   }
+
+  public void resetToDefault() {
+    preferences.edit().remove(ConstKeys.THEME).apply();
+    new PreferencesUtils(context).setAppThemeFile("");
+}
 }

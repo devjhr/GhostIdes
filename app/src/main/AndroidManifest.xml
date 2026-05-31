@@ -31,7 +31,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
+        android:name=".GhostIdeAppLoader"
         android:theme="@style/AppTheme"
         android:requestLegacyExternalStorage="true"
         tools:targetApi="31"
@@ -70,10 +70,12 @@
         <activity
             android:name=".activity.EditorActivity"
             android:exported="false"
-            
+        />        
+        <activity
+            android:name=".activity.SettingActivity"
+            android:exported="false"
         />
-
-
-    </application>
+        <activity android:name=".activity.ErrorManagerActivity"/>
+    </application>SettingActivity
 
 </manifest>

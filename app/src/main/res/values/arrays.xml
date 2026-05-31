@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="theme_names">
+        <item>پیش‌فرض (نارنجی)</item>
+        <item>قرمز</item>
+        <item>داینامیک (Material You)</item>
+    </string-array>
+    <array name="theme_styles">
+        <item>@style/AppTheme</item>
+        <item>@style/AppTheme.RED</item>
+        <item>@style/AppTheme.DYNAMIC</item> 
+    </array>
+</resources>

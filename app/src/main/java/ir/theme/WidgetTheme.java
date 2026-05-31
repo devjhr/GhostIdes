@@ -37,6 +37,12 @@ public class WidgetTheme {
   @SerializedName("imageTint")
   private String imageTint;
 
+  @SerializedName("menubackground")
+  private String menubackground;
+
+  @SerializedName("menutextcolor")
+  private String menutextcolor;
+
   public String getText() {
     return text;
   }
@@ -123,5 +129,21 @@ public class WidgetTheme {
 
   public void setImageTint(String imageTint) {
     this.imageTint = imageTint;
+  }
+
+  public String getMenubackground() {
+    return this.menubackground;
+  }
+
+  public void setMenubackground(String menubackground) {
+    this.menubackground = menubackground;
+  }
+
+  public String getMenutextcolor() {
+    return this.menutextcolor;
+  }
+
+  public void setMenutextcolor(String menutextcolor) {
+    this.menutextcolor = menutextcolor;
   }
 }

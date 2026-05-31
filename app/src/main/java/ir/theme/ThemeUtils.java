@@ -25,7 +25,9 @@ public class ThemeUtils {
   public GhostTheme getTheme() {
     return manager.getTheme();
   }
-
+  public void applyPowerMenu(){
+    // TODO: soon
+  }
   public void applyActivity(AppCompatActivity activity) {
 
     GhostTheme theme = getTheme();
@@ -60,71 +62,151 @@ public class ThemeUtils {
   }
 
   public void applyEditor(IdeEditor editor) {
-
     GhostTheme theme = getTheme();
-
-    if (theme == null) {
-      return;
-    }
-
-    if (theme.getEditor() == null) {
-      return;
-    }
-
+    if (theme == null || theme.getEditor() == null) return;
     EditorTheme t = theme.getEditor();
-
     var scheme = editor.getColorScheme();
-    scheme.setColor(GhostColorScheme.KEYWORD, Color.parseColor(t.getKeyword()));
-    scheme.setColor(GhostColorScheme.WHOLE_BACKGROUND, Color.parseColor(t.getWholeBackground()));
-    scheme.setColor(GhostColorScheme.LINE_DIVIDER, Color.parseColor(t.getLineDivider()));
-    scheme.setColor(GhostColorScheme.LINE_NUMBER, Color.parseColor(t.getLineNumber()));
+    scheme.setColor(GhostColorScheme.LINE_DIVIDER, parseColor(t.getLineDivider()));
+    scheme.setColor(GhostColorScheme.LINE_NUMBER, parseColor(t.getLineNumber()));
     scheme.setColor(
-        GhostColorScheme.LINE_NUMBER_BACKGROUND, Color.parseColor(t.getLineNumberBackground()));
-    scheme.setColor(GhostColorScheme.WHOLE_BACKGROUND, Color.parseColor(t.getWholeBackground()));
-    scheme.setColor(GhostColorScheme.TEXT_NORMAL, Color.parseColor(t.getTextNormal()));
+        GhostColorScheme.LINE_NUMBER_BACKGROUND, parseColor(t.getLineNumberBackground()));
+    scheme.setColor(GhostColorScheme.WHOLE_BACKGROUND, parseColor(t.getWholeBackground()));
+    scheme.setColor(GhostColorScheme.TEXT_NORMAL, parseColor(t.getTextNormal()));
     scheme.setColor(
-        GhostColorScheme.SELECTED_TEXT_BACKGROUND, Color.parseColor(t.getSelectedTextBackground()));
-    scheme.setColor(GhostColorScheme.SELECTION_INSERT, Color.parseColor(t.getSelectionInsert()));
-    scheme.setColor(GhostColorScheme.SELECTION_HANDLE, Color.parseColor(t.getSelectionHandle()));
-    scheme.setColor(GhostColorScheme.CURRENT_LINE, Color.parseColor(t.getCurrentLine()));
-    scheme.setColor(GhostColorScheme.UNDERLINE, Color.parseColor(t.getUnderline()));
-    scheme.setColor(GhostColorScheme.SCROLL_BAR_THUMB, Color.parseColor(t.getScrollBarThumb()));
+        GhostColorScheme.SELECTED_TEXT_BACKGROUND, parseColor(t.getSelectedTextBackground()));
+    scheme.setColor(GhostColorScheme.SELECTION_INSERT, parseColor(t.getSelectionInsert()));
+    scheme.setColor(GhostColorScheme.SELECTION_HANDLE, parseColor(t.getSelectionHandle()));
+    scheme.setColor(GhostColorScheme.CURRENT_LINE, parseColor(t.getCurrentLine()));
+    scheme.setColor(GhostColorScheme.UNDERLINE, parseColor(t.getUnderline()));
+    scheme.setColor(GhostColorScheme.SCROLL_BAR_THUMB, parseColor(t.getScrollBarThumb()));
     scheme.setColor(
-        GhostColorScheme.SCROLL_BAR_THUMB_PRESSED, Color.parseColor(t.getScrollBarThumbPressed()));
-    scheme.setColor(GhostColorScheme.SCROLL_BAR_TRACK, Color.parseColor(t.getScrollBarTrack()));
-    scheme.setColor(GhostColorScheme.BLOCK_LINE, Color.parseColor(t.getBlockLine()));
-    scheme.setColor(GhostColorScheme.BLOCK_LINE_CURRENT, Color.parseColor(t.getBlockLineCurrent()));
-    scheme.setColor(GhostColorScheme.LINE_NUMBER_PANEL, Color.parseColor(t.getLineNumberPanel()));
+        GhostColorScheme.SCROLL_BAR_THUMB_PRESSED, parseColor(t.getScrollBarThumbPressed()));
+    scheme.setColor(GhostColorScheme.SCROLL_BAR_TRACK, parseColor(t.getScrollBarTrack()));
+    scheme.setColor(GhostColorScheme.BLOCK_LINE, parseColor(t.getBlockLine()));
+    scheme.setColor(GhostColorScheme.BLOCK_LINE_CURRENT, parseColor(t.getBlockLineCurrent()));
+    scheme.setColor(GhostColorScheme.LINE_NUMBER_PANEL, parseColor(t.getLineNumberPanel()));
     scheme.setColor(
-        GhostColorScheme.LINE_NUMBER_PANEL_TEXT, Color.parseColor(t.getLineNumberPanelText()));
+        GhostColorScheme.LINE_NUMBER_PANEL_TEXT, parseColor(t.getLineNumberPanelText()));
     scheme.setColor(
-        GhostColorScheme.COMPLETION_WND_BACKGROUND,
-        Color.parseColor(t.getCompletionWndBackground()));
+        GhostColorScheme.COMPLETION_WND_BACKGROUND, parseColor(t.getCompletionWndBackground()));
     scheme.setColor(
-        GhostColorScheme.COMPLETION_WND_CORNER, Color.parseColor(t.getCompletionWndCorner()));
-    scheme.setColor(GhostColorScheme.KEYWORD, Color.parseColor(t.getKeyword()));
-    scheme.setColor(GhostColorScheme.COMMENT, Color.parseColor(t.getComment()));
-    scheme.setColor(GhostColorScheme.OPERATOR, Color.parseColor(t.getOperator()));
-    scheme.setColor(GhostColorScheme.LITERAL, Color.parseColor(t.getLiteral()));
-    scheme.setColor(GhostColorScheme.IDENTIFIER_VAR, Color.parseColor(t.getIdentifierVar()));
-    scheme.setColor(GhostColorScheme.IDENTIFIER_NAME, Color.parseColor(t.getIdentifierName()));
-    scheme.setColor(GhostColorScheme.FUNCTION_NAME, Color.parseColor(t.getFunctionName()));
-    scheme.setColor(GhostColorScheme.ANNOTATION, Color.parseColor(t.getAnnotation()));
+        GhostColorScheme.COMPLETION_WND_CORNER, parseColor(t.getCompletionWndCorner()));
+    scheme.setColor(GhostColorScheme.KEYWORD, parseColor(t.getKeyword()));
+    scheme.setColor(GhostColorScheme.COMMENT, parseColor(t.getComment()));
+    scheme.setColor(GhostColorScheme.OPERATOR, parseColor(t.getOperator()));
+    scheme.setColor(GhostColorScheme.LITERAL, parseColor(t.getLiteral()));
+    scheme.setColor(GhostColorScheme.IDENTIFIER_VAR, parseColor(t.getIdentifierVar()));
+    scheme.setColor(GhostColorScheme.IDENTIFIER_NAME, parseColor(t.getIdentifierName()));
+    scheme.setColor(GhostColorScheme.FUNCTION_NAME, parseColor(t.getFunctionName()));
+    scheme.setColor(GhostColorScheme.ANNOTATION, parseColor(t.getAnnotation()));
     scheme.setColor(
-        GhostColorScheme.MATCHED_TEXT_BACKGROUND, Color.parseColor(t.getMatchedTextBackground()));
-    scheme.setColor(GhostColorScheme.TEXT_SELECTED, Color.parseColor(t.getTextSelected()));
-    scheme.setColor(GhostColorScheme.NON_PRINTABLE_CHAR, Color.parseColor(t.getNonPrintableChar()));
-    scheme.setColor(GhostColorScheme.HTML_TAG, Color.parseColor(t.getHtmlTag()));
-    scheme.setColor(GhostColorScheme.ATTRIBUTE_NAME, Color.parseColor(t.getAttributeName()));
-    scheme.setColor(GhostColorScheme.ATTRIBUTE_VALUE, Color.parseColor(t.getAttributeValue()));
-    scheme.setColor(GhostColorScheme.PROBLEM_ERROR, Color.parseColor(t.getProblemError()));
-    scheme.setColor(GhostColorScheme.PROBLEM_WARNING, Color.parseColor(t.getProblemWarning()));
-    scheme.setColor(GhostColorScheme.PROBLEM_TYPO, Color.parseColor(t.getProblemTypo()));
-    scheme.setColor(GhostColorScheme.COLORNEXTDOT, Color.parseColor(t.getColornextdot()));
-    scheme.setColor(GhostColorScheme.COLORNEXTBRAK, Color.parseColor(t.getColornextbrak()));
-    scheme.setColor(GhostColorScheme.COLORNEXTCHAR, Color.parseColor(t.getColornextchar()));
-    scheme.setColor(GhostColorScheme.COLORUPPERCASE, Color.parseColor(t.getColoruppercase()));
-    scheme.setColor(GhostColorScheme.COLORNEXTLESS, Color.parseColor(t.getColornextless()));
+        GhostColorScheme.MATCHED_TEXT_BACKGROUND, parseColor(t.getMatchedTextBackground()));
+    scheme.setColor(GhostColorScheme.MATCHED_TEXT_BORDER, parseColor(t.getMatchedTextBorder()));
+    scheme.setColor(GhostColorScheme.TEXT_SELECTED, parseColor(t.getTextSelected()));
+    scheme.setColor(GhostColorScheme.NON_PRINTABLE_CHAR, parseColor(t.getNonPrintableChar()));
+    scheme.setColor(GhostColorScheme.HTML_TAG, parseColor(t.getHtmlTag()));
+    scheme.setColor(GhostColorScheme.ATTRIBUTE_NAME, parseColor(t.getAttributeName()));
+    scheme.setColor(GhostColorScheme.ATTRIBUTE_VALUE, parseColor(t.getAttributeValue()));
+    scheme.setColor(GhostColorScheme.PROBLEM_ERROR, parseColor(t.getProblemError()));
+    scheme.setColor(GhostColorScheme.PROBLEM_WARNING, parseColor(t.getProblemWarning()));
+    scheme.setColor(GhostColorScheme.PROBLEM_TYPO, parseColor(t.getProblemTypo()));
+    scheme.setColor(GhostColorScheme.COLORNEXTDOT, parseColor(t.getColornextdot()));
+    scheme.setColor(GhostColorScheme.COLORNEXTBRAK, parseColor(t.getColornextbrak()));
+    scheme.setColor(GhostColorScheme.COLORNEXTCHAR, parseColor(t.getColornextchar()));
+    scheme.setColor(GhostColorScheme.COLORUPPERCASE, parseColor(t.getColoruppercase()));
+    scheme.setColor(GhostColorScheme.COLORNEXTLESS, parseColor(t.getColornextless()));
+
+    // رنگ‌های جدید
+    scheme.setColor(GhostColorScheme.LINE_NUMBER_CURRENT, parseColor(t.getLineNumberCurrent()));
+    scheme.setColor(GhostColorScheme.SELECTED_TEXT_BORDER, parseColor(t.getSelectedTextBorder()));
+    scheme.setColor(GhostColorScheme.CURRENT_ROW_BORDER, parseColor(t.getCurrentRowBorder()));
+    scheme.setColor(
+        GhostColorScheme.HIGHLIGHTED_DELIMITERS_BACKGROUND,
+        parseColor(t.getHighlightedDelimitersBackground()));
+    scheme.setColor(
+        GhostColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE,
+        parseColor(t.getHighlightedDelimitersUnderline()));
+    scheme.setColor(
+        GhostColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
+        parseColor(t.getHighlightedDelimitersForeground()));
+    scheme.setColor(
+        GhostColorScheme.HIGHLIGHTED_DELIMITERS_BORDER,
+        parseColor(t.getHighlightedDelimitersBorder()));
+    scheme.setColor(
+        GhostColorScheme.TEXT_HIGHLIGHT_BACKGROUND, parseColor(t.getTextHighlightBackground()));
+    scheme.setColor(
+        GhostColorScheme.TEXT_HIGHLIGHT_BORDER, parseColor(t.getTextHighlightBorder()));
+    scheme.setColor(
+        GhostColorScheme.TEXT_HIGHLIGHT_STRONG_BACKGROUND,
+        parseColor(t.getTextHighlightStrongBackground()));
+    scheme.setColor(
+        GhostColorScheme.TEXT_HIGHLIGHT_STRONG_BORDER,
+        parseColor(t.getTextHighlightStrongBorder()));
+    scheme.setColor(
+        GhostColorScheme.STATIC_SPAN_BACKGROUND, parseColor(t.getStaticSpanBackground()));
+    scheme.setColor(
+        GhostColorScheme.STATIC_SPAN_FOREGROUND, parseColor(t.getStaticSpanForeground()));
+    scheme.setColor(
+        GhostColorScheme.TEXT_INLAY_HINT_BACKGROUND, parseColor(t.getTextInlayHintBackground()));
+    scheme.setColor(
+        GhostColorScheme.TEXT_INLAY_HINT_FOREGROUND, parseColor(t.getTextInlayHintForeground()));
+    scheme.setColor(
+        GhostColorScheme.SNIPPET_BACKGROUND_EDITING, parseColor(t.getSnippetBackgroundEditing()));
+    scheme.setColor(
+        GhostColorScheme.SNIPPET_BACKGROUND_RELATED, parseColor(t.getSnippetBackgroundRelated()));
+    scheme.setColor(
+        GhostColorScheme.SNIPPET_BACKGROUND_INACTIVE,
+        parseColor(t.getSnippetBackgroundInactive()));
+    scheme.setColor(GhostColorScheme.HARD_WRAP_MARKER, parseColor(t.getHardWrapMarker()));
+    scheme.setColor(
+        GhostColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,
+        parseColor(t.getFunctionCharBackgroundStroke()));
+    scheme.setColor(
+        GhostColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND,
+        parseColor(t.getDiagnosticTooltipBackground()));
+    scheme.setColor(
+        GhostColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG,
+        parseColor(t.getDiagnosticTooltipBriefMsg()));
+    scheme.setColor(
+        GhostColorScheme.DIAGNOSTIC_TOOLTIP_DETAILED_MSG,
+        parseColor(t.getDiagnosticTooltipDetailedMsg()));
+    scheme.setColor(
+        GhostColorScheme.DIAGNOSTIC_TOOLTIP_ACTION, parseColor(t.getDiagnosticTooltipAction()));
+    scheme.setColor(
+        GhostColorScheme.STICKY_SCROLL_DIVIDER, parseColor(t.getStickyScrollDivider()));
+    scheme.setColor(GhostColorScheme.STRIKETHROUGH, parseColor(t.getStrikeThrough()));
+    scheme.setColor(GhostColorScheme.SIDE_BLOCK_LINE, parseColor(t.getSideBlockLine()));
+    scheme.setColor(
+        GhostColorScheme.COMPLETION_WND_TEXT_PRIMARY, parseColor(t.getCompletionWndTextPrimary()));
+    scheme.setColor(
+        GhostColorScheme.COMPLETION_WND_TEXT_SECONDARY,
+        parseColor(t.getCompletionWndTextSecondary()));
+    scheme.setColor(
+        GhostColorScheme.COMPLETION_WND_ITEM_CURRENT, parseColor(t.getCompletionWndItemCurrent()));
+    scheme.setColor(
+        GhostColorScheme.COMPLETION_WND_TEXT_MATCHED, parseColor(t.getCompletionWndTextMatched()));
+    scheme.setColor(GhostColorScheme.SIGNATURE_BACKGROUND, parseColor(t.getSignatureBackground()));
+    scheme.setColor(GhostColorScheme.SIGNATURE_BORDER, parseColor(t.getSignatureBorder()));
+    scheme.setColor(
+        GhostColorScheme.SIGNATURE_TEXT_NORMAL, parseColor(t.getSignatureTextNormal()));
+    scheme.setColor(
+        GhostColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
+        parseColor(t.getSignatureTextHighlightedParameter()));
+    scheme.setColor(GhostColorScheme.HOVER_BACKGROUND, parseColor(t.getHoverBackground()));
+    scheme.setColor(GhostColorScheme.HOVER_BORDER, parseColor(t.getHoverBorder()));
+    scheme.setColor(GhostColorScheme.HOVER_TEXT_NORMAL, parseColor(t.getHoverTextNormal()));
+    scheme.setColor(
+        GhostColorScheme.HOVER_TEXT_HIGHLIGHTED, parseColor(t.getHoverTextHighlighted()));
+    scheme.setColor(
+        GhostColorScheme.TEXT_ACTION_WINDOW_BACKGROUND,
+        parseColor(t.getTextActionWindowBackground()));
+    scheme.setColor(
+        GhostColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR,
+        parseColor(t.getTextActionWindowIconColor()));
+    scheme.setColor(GhostColorScheme.MINIMAP_BACKGROUND, parseColor(t.getMinimapBackground()));
+    scheme.setColor(GhostColorScheme.MINIMAP_VIEWPORT, parseColor(t.getMinimapViewport()));
+    scheme.setColor(
+        GhostColorScheme.MINIMAP_VIEWPORT_BORDER, parseColor(t.getMinimapViewportBorder()));
   }
 
   public void applyTextView(TextView textView) {
@@ -140,14 +222,10 @@ public class ThemeUtils {
     }
 
     WidgetTheme widget = theme.getWidget();
-
     if (widget.getText() != null) {
-
       textView.setTextColor(parseColor(widget.getText()));
     }
-
     if (widget.getHint() != null) {
-
       textView.setHintTextColor(parseColor(widget.getHint()));
     }
   }

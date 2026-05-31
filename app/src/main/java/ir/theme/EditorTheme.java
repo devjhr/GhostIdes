@@ -130,6 +130,140 @@ public class EditorTheme {
   @SerializedName("colornextless")
   private String colornextless;
 
+  // ========== فیلدهای جدید (تکمیل کننده EditorColorScheme) ==========
+  @SerializedName("lineNumberCurrent")
+  private String lineNumberCurrent;
+
+  @SerializedName("selectedTextBorder")
+  private String selectedTextBorder;
+
+  @SerializedName("currentRowBorder")
+  private String currentRowBorder;
+
+  @SerializedName("highlightedDelimitersBackground")
+  private String highlightedDelimitersBackground;
+
+  @SerializedName("highlightedDelimitersUnderline")
+  private String highlightedDelimitersUnderline;
+
+  @SerializedName("highlightedDelimitersForeground")
+  private String highlightedDelimitersForeground;
+
+  @SerializedName("highlightedDelimitersBorder")
+  private String highlightedDelimitersBorder;
+
+  @SerializedName("textHighlightBackground")
+  private String textHighlightBackground;
+
+  @SerializedName("textHighlightBorder")
+  private String textHighlightBorder;
+
+  @SerializedName("textHighlightStrongBackground")
+  private String textHighlightStrongBackground;
+
+  @SerializedName("textHighlightStrongBorder")
+  private String textHighlightStrongBorder;
+
+  @SerializedName("staticSpanBackground")
+  private String staticSpanBackground;
+
+  @SerializedName("staticSpanForeground")
+  private String staticSpanForeground;
+
+  @SerializedName("textInlayHintBackground")
+  private String textInlayHintBackground;
+
+  @SerializedName("textInlayHintForeground")
+  private String textInlayHintForeground;
+
+  @SerializedName("snippetBackgroundEditing")
+  private String snippetBackgroundEditing;
+
+  @SerializedName("snippetBackgroundRelated")
+  private String snippetBackgroundRelated;
+
+  @SerializedName("snippetBackgroundInactive")
+  private String snippetBackgroundInactive;
+
+  @SerializedName("hardWrapMarker")
+  private String hardWrapMarker;
+
+  @SerializedName("functionCharBackgroundStroke")
+  private String functionCharBackgroundStroke;
+
+  @SerializedName("diagnosticTooltipBackground")
+  private String diagnosticTooltipBackground;
+
+  @SerializedName("diagnosticTooltipBriefMsg")
+  private String diagnosticTooltipBriefMsg;
+
+  @SerializedName("diagnosticTooltipDetailedMsg")
+  private String diagnosticTooltipDetailedMsg;
+
+  @SerializedName("diagnosticTooltipAction")
+  private String diagnosticTooltipAction;
+
+  @SerializedName("stickyScrollDivider")
+  private String stickyScrollDivider;
+
+  @SerializedName("strikeThrough")
+  private String strikeThrough;
+
+  @SerializedName("sideBlockLine")
+  private String sideBlockLine;
+
+  @SerializedName("completionWndTextPrimary")
+  private String completionWndTextPrimary;
+
+  @SerializedName("completionWndTextSecondary")
+  private String completionWndTextSecondary;
+
+  @SerializedName("completionWndItemCurrent")
+  private String completionWndItemCurrent;
+
+  @SerializedName("completionWndTextMatched")
+  private String completionWndTextMatched;
+
+  @SerializedName("signatureBackground")
+  private String signatureBackground;
+
+  @SerializedName("signatureBorder")
+  private String signatureBorder;
+
+  @SerializedName("signatureTextNormal")
+  private String signatureTextNormal;
+
+  @SerializedName("signatureTextHighlightedParameter")
+  private String signatureTextHighlightedParameter;
+
+  @SerializedName("hoverBackground")
+  private String hoverBackground;
+
+  @SerializedName("hoverBorder")
+  private String hoverBorder;
+
+  @SerializedName("hoverTextNormal")
+  private String hoverTextNormal;
+
+  @SerializedName("hoverTextHighlighted")
+  private String hoverTextHighlighted;
+
+  @SerializedName("textActionWindowBackground")
+  private String textActionWindowBackground;
+
+  @SerializedName("textActionWindowIconColor")
+  private String textActionWindowIconColor;
+
+  @SerializedName("minimapBackground")
+  private String minimapBackground;
+
+  @SerializedName("minimapViewport")
+  private String minimapViewport;
+
+  @SerializedName("minimapViewportBorder")
+  private String minimapViewportBorder;
+
+  // Getters and Setters for all fields (only showing new ones for brevity, include all existing)
   public String getLineDivider() {
     return lineDivider;
   }
@@ -427,7 +561,7 @@ public class EditorTheme {
   }
 
   public String getColornextdot() {
-    return this.colornextdot;
+    return colornextdot;
   }
 
   public void setColornextdot(String colornextdot) {
@@ -435,7 +569,7 @@ public class EditorTheme {
   }
 
   public String getColornextbrak() {
-    return this.colornextbrak;
+    return colornextbrak;
   }
 
   public void setColornextbrak(String colornextbrak) {
@@ -443,7 +577,7 @@ public class EditorTheme {
   }
 
   public String getColornextchar() {
-    return this.colornextchar;
+    return colornextchar;
   }
 
   public void setColornextchar(String colornextchar) {
@@ -451,7 +585,7 @@ public class EditorTheme {
   }
 
   public String getColoruppercase() {
-    return this.coloruppercase;
+    return coloruppercase;
   }
 
   public void setColoruppercase(String coloruppercase) {
@@ -459,10 +593,363 @@ public class EditorTheme {
   }
 
   public String getColornextless() {
-    return this.colornextless;
+    return colornextless;
   }
 
   public void setColornextless(String colornextless) {
     this.colornextless = colornextless;
+  }
+
+  // Getters/Setters for new fields
+  public String getLineNumberCurrent() {
+    return lineNumberCurrent;
+  }
+
+  public void setLineNumberCurrent(String lineNumberCurrent) {
+    this.lineNumberCurrent = lineNumberCurrent;
+  }
+
+  public String getSelectedTextBorder() {
+    return selectedTextBorder;
+  }
+
+  public void setSelectedTextBorder(String selectedTextBorder) {
+    this.selectedTextBorder = selectedTextBorder;
+  }
+
+  public String getCurrentRowBorder() {
+    return currentRowBorder;
+  }
+
+  public void setCurrentRowBorder(String currentRowBorder) {
+    this.currentRowBorder = currentRowBorder;
+  }
+
+  public String getHighlightedDelimitersBackground() {
+    return highlightedDelimitersBackground;
+  }
+
+  public void setHighlightedDelimitersBackground(String highlightedDelimitersBackground) {
+    this.highlightedDelimitersBackground = highlightedDelimitersBackground;
+  }
+
+  public String getHighlightedDelimitersUnderline() {
+    return highlightedDelimitersUnderline;
+  }
+
+  public void setHighlightedDelimitersUnderline(String highlightedDelimitersUnderline) {
+    this.highlightedDelimitersUnderline = highlightedDelimitersUnderline;
+  }
+
+  public String getHighlightedDelimitersForeground() {
+    return highlightedDelimitersForeground;
+  }
+
+  public void setHighlightedDelimitersForeground(String highlightedDelimitersForeground) {
+    this.highlightedDelimitersForeground = highlightedDelimitersForeground;
+  }
+
+  public String getHighlightedDelimitersBorder() {
+    return highlightedDelimitersBorder;
+  }
+
+  public void setHighlightedDelimitersBorder(String highlightedDelimitersBorder) {
+    this.highlightedDelimitersBorder = highlightedDelimitersBorder;
+  }
+
+  public String getTextHighlightBackground() {
+    return textHighlightBackground;
+  }
+
+  public void setTextHighlightBackground(String textHighlightBackground) {
+    this.textHighlightBackground = textHighlightBackground;
+  }
+
+  public String getTextHighlightBorder() {
+    return textHighlightBorder;
+  }
+
+  public void setTextHighlightBorder(String textHighlightBorder) {
+    this.textHighlightBorder = textHighlightBorder;
+  }
+
+  public String getTextHighlightStrongBackground() {
+    return textHighlightStrongBackground;
+  }
+
+  public void setTextHighlightStrongBackground(String textHighlightStrongBackground) {
+    this.textHighlightStrongBackground = textHighlightStrongBackground;
+  }
+
+  public String getTextHighlightStrongBorder() {
+    return textHighlightStrongBorder;
+  }
+
+  public void setTextHighlightStrongBorder(String textHighlightStrongBorder) {
+    this.textHighlightStrongBorder = textHighlightStrongBorder;
+  }
+
+  public String getStaticSpanBackground() {
+    return staticSpanBackground;
+  }
+
+  public void setStaticSpanBackground(String staticSpanBackground) {
+    this.staticSpanBackground = staticSpanBackground;
+  }
+
+  public String getStaticSpanForeground() {
+    return staticSpanForeground;
+  }
+
+  public void setStaticSpanForeground(String staticSpanForeground) {
+    this.staticSpanForeground = staticSpanForeground;
+  }
+
+  public String getTextInlayHintBackground() {
+    return textInlayHintBackground;
+  }
+
+  public void setTextInlayHintBackground(String textInlayHintBackground) {
+    this.textInlayHintBackground = textInlayHintBackground;
+  }
+
+  public String getTextInlayHintForeground() {
+    return textInlayHintForeground;
+  }
+
+  public void setTextInlayHintForeground(String textInlayHintForeground) {
+    this.textInlayHintForeground = textInlayHintForeground;
+  }
+
+  public String getSnippetBackgroundEditing() {
+    return snippetBackgroundEditing;
+  }
+
+  public void setSnippetBackgroundEditing(String snippetBackgroundEditing) {
+    this.snippetBackgroundEditing = snippetBackgroundEditing;
+  }
+
+  public String getSnippetBackgroundRelated() {
+    return snippetBackgroundRelated;
+  }
+
+  public void setSnippetBackgroundRelated(String snippetBackgroundRelated) {
+    this.snippetBackgroundRelated = snippetBackgroundRelated;
+  }
+
+  public String getSnippetBackgroundInactive() {
+    return snippetBackgroundInactive;
+  }
+
+  public void setSnippetBackgroundInactive(String snippetBackgroundInactive) {
+    this.snippetBackgroundInactive = snippetBackgroundInactive;
+  }
+
+  public String getHardWrapMarker() {
+    return hardWrapMarker;
+  }
+
+  public void setHardWrapMarker(String hardWrapMarker) {
+    this.hardWrapMarker = hardWrapMarker;
+  }
+
+  public String getFunctionCharBackgroundStroke() {
+    return functionCharBackgroundStroke;
+  }
+
+  public void setFunctionCharBackgroundStroke(String functionCharBackgroundStroke) {
+    this.functionCharBackgroundStroke = functionCharBackgroundStroke;
+  }
+
+  public String getDiagnosticTooltipBackground() {
+    return diagnosticTooltipBackground;
+  }
+
+  public void setDiagnosticTooltipBackground(String diagnosticTooltipBackground) {
+    this.diagnosticTooltipBackground = diagnosticTooltipBackground;
+  }
+
+  public String getDiagnosticTooltipBriefMsg() {
+    return diagnosticTooltipBriefMsg;
+  }
+
+  public void setDiagnosticTooltipBriefMsg(String diagnosticTooltipBriefMsg) {
+    this.diagnosticTooltipBriefMsg = diagnosticTooltipBriefMsg;
+  }
+
+  public String getDiagnosticTooltipDetailedMsg() {
+    return diagnosticTooltipDetailedMsg;
+  }
+
+  public void setDiagnosticTooltipDetailedMsg(String diagnosticTooltipDetailedMsg) {
+    this.diagnosticTooltipDetailedMsg = diagnosticTooltipDetailedMsg;
+  }
+
+  public String getDiagnosticTooltipAction() {
+    return diagnosticTooltipAction;
+  }
+
+  public void setDiagnosticTooltipAction(String diagnosticTooltipAction) {
+    this.diagnosticTooltipAction = diagnosticTooltipAction;
+  }
+
+  public String getStickyScrollDivider() {
+    return stickyScrollDivider;
+  }
+
+  public void setStickyScrollDivider(String stickyScrollDivider) {
+    this.stickyScrollDivider = stickyScrollDivider;
+  }
+
+  public String getStrikeThrough() {
+    return strikeThrough;
+  }
+
+  public void setStrikeThrough(String strikeThrough) {
+    this.strikeThrough = strikeThrough;
+  }
+
+  public String getSideBlockLine() {
+    return sideBlockLine;
+  }
+
+  public void setSideBlockLine(String sideBlockLine) {
+    this.sideBlockLine = sideBlockLine;
+  }
+
+  public String getCompletionWndTextPrimary() {
+    return completionWndTextPrimary;
+  }
+
+  public void setCompletionWndTextPrimary(String completionWndTextPrimary) {
+    this.completionWndTextPrimary = completionWndTextPrimary;
+  }
+
+  public String getCompletionWndTextSecondary() {
+    return completionWndTextSecondary;
+  }
+
+  public void setCompletionWndTextSecondary(String completionWndTextSecondary) {
+    this.completionWndTextSecondary = completionWndTextSecondary;
+  }
+
+  public String getCompletionWndItemCurrent() {
+    return completionWndItemCurrent;
+  }
+
+  public void setCompletionWndItemCurrent(String completionWndItemCurrent) {
+    this.completionWndItemCurrent = completionWndItemCurrent;
+  }
+
+  public String getCompletionWndTextMatched() {
+    return completionWndTextMatched;
+  }
+
+  public void setCompletionWndTextMatched(String completionWndTextMatched) {
+    this.completionWndTextMatched = completionWndTextMatched;
+  }
+
+  public String getSignatureBackground() {
+    return signatureBackground;
+  }
+
+  public void setSignatureBackground(String signatureBackground) {
+    this.signatureBackground = signatureBackground;
+  }
+
+  public String getSignatureBorder() {
+    return signatureBorder;
+  }
+
+  public void setSignatureBorder(String signatureBorder) {
+    this.signatureBorder = signatureBorder;
+  }
+
+  public String getSignatureTextNormal() {
+    return signatureTextNormal;
+  }
+
+  public void setSignatureTextNormal(String signatureTextNormal) {
+    this.signatureTextNormal = signatureTextNormal;
+  }
+
+  public String getSignatureTextHighlightedParameter() {
+    return signatureTextHighlightedParameter;
+  }
+
+  public void setSignatureTextHighlightedParameter(String signatureTextHighlightedParameter) {
+    this.signatureTextHighlightedParameter = signatureTextHighlightedParameter;
+  }
+
+  public String getHoverBackground() {
+    return hoverBackground;
+  }
+
+  public void setHoverBackground(String hoverBackground) {
+    this.hoverBackground = hoverBackground;
+  }
+
+  public String getHoverBorder() {
+    return hoverBorder;
+  }
+
+  public void setHoverBorder(String hoverBorder) {
+    this.hoverBorder = hoverBorder;
+  }
+
+  public String getHoverTextNormal() {
+    return hoverTextNormal;
+  }
+
+  public void setHoverTextNormal(String hoverTextNormal) {
+    this.hoverTextNormal = hoverTextNormal;
+  }
+
+  public String getHoverTextHighlighted() {
+    return hoverTextHighlighted;
+  }
+
+  public void setHoverTextHighlighted(String hoverTextHighlighted) {
+    this.hoverTextHighlighted = hoverTextHighlighted;
+  }
+
+  public String getTextActionWindowBackground() {
+    return textActionWindowBackground;
+  }
+
+  public void setTextActionWindowBackground(String textActionWindowBackground) {
+    this.textActionWindowBackground = textActionWindowBackground;
+  }
+
+  public String getTextActionWindowIconColor() {
+    return textActionWindowIconColor;
+  }
+
+  public void setTextActionWindowIconColor(String textActionWindowIconColor) {
+    this.textActionWindowIconColor = textActionWindowIconColor;
+  }
+
+  public String getMinimapBackground() {
+    return minimapBackground;
+  }
+
+  public void setMinimapBackground(String minimapBackground) {
+    this.minimapBackground = minimapBackground;
+  }
+
+  public String getMinimapViewport() {
+    return minimapViewport;
+  }
+
+  public void setMinimapViewport(String minimapViewport) {
+    this.minimapViewport = minimapViewport;
+  }
+
+  public String getMinimapViewportBorder() {
+    return minimapViewportBorder;
+  }
+
+  public void setMinimapViewportBorder(String minimapViewportBorder) {
+    this.minimapViewportBorder = minimapViewportBorder;
   }
 }
