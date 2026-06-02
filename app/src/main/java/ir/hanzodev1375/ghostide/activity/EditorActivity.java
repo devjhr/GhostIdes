@@ -6,14 +6,20 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.Toast;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.skydoves.powermenu.PowerMenuItem;
+import ir.hanzodev1375.ghostide.adapters.ToolbarListAdapter;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import androidx.fragment.app.Fragment;
 import ir.hanzodev1375.ghostide.fragments.EditorFragment;
+import ir.hanzodev1375.ghostide.models.ToolbarModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -36,6 +42,8 @@ public class EditorActivity extends BaseCompat {
   private static final String KEY_TABS = "path";
   private static final String KEY_POSITION = "positionTabs";
   private TabLayoutMediator tabMediator;
+  private ToolbarListAdapter listAdapter;
+  private List<ToolbarModel> toolbarModel = new ArrayList<>();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +71,47 @@ public class EditorActivity extends BaseCompat {
     if (path != null && name != null) {
       openFile(path, name);
     }
+    stepToolbar();
+  }
+
+  void stepToolbar() {
+    toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo")); // اول undo
+    toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo")); // بعد redo
+    toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
+
+    listAdapter =
+        new ToolbarListAdapter(
+            toolbarModel,
+            (view, m, pos) -> {
+              switch (pos) {
+                case 0 -> {
+                  if (getEditor().canUndo()) getEditor().undo();
+                }
+                case 1 -> {
+                  if (getEditor().canRedo()) getEditor().redo();
+                }
+                case 2 -> setupMenuCalltoAction(view);
+              }
+            },
+            EditorActivity.this);
+    binding.rvtoolbar.setLayoutManager(
+        new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+    binding.rvtoolbar.setAdapter(listAdapter);
+  }
+
+  void setupMenuCalltoAction(View v) {
+    var menu = theme.apply(this);
+    menu.addItem(new PowerMenuItem(getString(R.string.saveitemthis), false, R.drawable.save));
+    menu.addItem(new PowerMenuItem(getString(R.string.saveitemall), false, R.drawable.save));
+    menu.setOnMenuItemClickListener(
+        (pos, c) -> {
+          switch (pos) {
+            case 0 -> saveCurrentTab();
+            case 1 -> saveAllTabs();
+          }
+        });
+    menu.setIconSize(25);
+    menu.showAsDropDown(v);
   }
 
   private void setupViewPager() {
@@ -161,7 +210,7 @@ public class EditorActivity extends BaseCompat {
   }
 
   private void openFile(String path, String name) {
-    // بررسی وجود تکراری
+
     for (int i = 0; i < tabsList.size(); i++) {
       if (tabsList.get(i).getFilePath().equals(path)) {
         binding.viewPager.setCurrentItem(i);
@@ -177,13 +226,12 @@ public class EditorActivity extends BaseCompat {
     String ext = "";
     int dot = path.lastIndexOf('.');
     if (dot != -1) ext = path.substring(dot + 1);
-    PluginManager.getInstance().setCurrentEditorActivity(this, getCurrentEditor(), path, ext);
+    PluginManager.getInstance().setCurrentEditorActivity(this, getEditor(), path, ext);
   }
 
   private void closeTab(int position) {
     if (position >= 0 && position < tabsList.size()) {
       if (tabsList.get(position).isPinned()) {
-        // می‌توانید پیام دهید که پین شده
         return;
       }
       tabsList.remove(position);
@@ -239,7 +287,6 @@ public class EditorActivity extends BaseCompat {
       tab.setPinned(!tab.isPinned());
       adapter.setTabs(new ArrayList<>(tabsList));
       saveTabs();
-      // آپدیت ظاهر تب (اختیاری)
       binding.tab.getTabAt(position).setText(tab.getFileName());
     }
   }
@@ -253,23 +300,21 @@ public class EditorActivity extends BaseCompat {
   }
 
   private void showPopupMenu(View anchor, int position) {
-    PopupMenu popup = new PopupMenu(this, anchor);
-    popup.inflate(R.menu.tab_menu);
-    popup.setOnMenuItemClickListener(
-        item -> {
-          int id = item.getItemId();
-          if (id == R.id.close) {
-            closeTab(position);
-          } else if (id == R.id.close_others) {
-            closeOtherTabs(position);
-          } else if (id == R.id.close_all) {
-            closeAllTabs();
-          } else if (id == R.id.pin) {
-            togglePin(position);
+    var menu = theme.apply(this);
+    menu.addItem(new PowerMenuItem(getString(R.string.close)));
+    menu.addItem(new PowerMenuItem(getString(R.string.closeother)));
+    menu.addItem(new PowerMenuItem(getString(R.string.closeall)));
+    menu.addItem(new PowerMenuItem(getString(R.string.pin)));
+    menu.setOnMenuItemClickListener(
+        (c, pos) -> {
+          switch (c) {
+            case 0 -> closeTab(position);
+            case 1 -> closeOtherTabs(position);
+            case 2 -> closeAllTabs();
+            case 3 -> togglePin(position);
           }
-          return true;
         });
-    popup.show();
+    menu.showAsDropDown(anchor);
   }
 
   @Override
@@ -284,10 +329,45 @@ public class EditorActivity extends BaseCompat {
     }
   }
 
-  private IdeEditor getCurrentEditor() {
-    if (adapter == null || binding.viewPager.getCurrentItem() < 0) return null;
-    Fragment fragment =
-        getSupportFragmentManager().findFragmentByTag("f" + binding.viewPager.getCurrentItem());
+  private void saveAllTabs() {
+    if (adapter == null || adapter.getItemCount() == 0) {
+      Toast.makeText(this, "هیچ فایلی باز نیست", Toast.LENGTH_SHORT).show();
+      return;
+    }
+
+    int savedCount = 0;
+    List<Fragment> fragments = getSupportFragmentManager().getFragments();
+    for (Fragment fragment : fragments) {
+      if (fragment instanceof EditorFragment) {
+        ((EditorFragment) fragment).saveCurrentFile();
+        savedCount++;
+      }
+    }
+
+    Toast.makeText(this, savedCount + " فایل ذخیره شد", Toast.LENGTH_SHORT).show();
+  }
+
+  private void saveCurrentTab() {
+    if (binding.viewPager == null || adapter == null || adapter.getItemCount() == 0) {
+      Toast.makeText(this, "هیچ فایلی باز نیست", Toast.LENGTH_SHORT).show();
+      return;
+    }
+    int currentPos = binding.viewPager.getCurrentItem();
+    Fragment currentFragment = adapter.getFragmentAtPosition(currentPos, this);
+    if (currentFragment instanceof EditorFragment) {
+      ((EditorFragment) currentFragment).saveCurrentFile();
+      Toast.makeText(this, "فایل جاری ذخیره شد", Toast.LENGTH_SHORT).show();
+    } else {
+      Toast.makeText(this, "خطا در یافت فرگمنت", Toast.LENGTH_SHORT).show();
+    }
+  }
+
+  private IdeEditor getEditor() {
+    if (adapter == null || adapter.getItemCount() == 0) return null;
+    int currentPos = binding.viewPager.getCurrentItem();
+    if (currentPos < 0 || currentPos >= adapter.getItemCount()) return null;
+
+    Fragment fragment = adapter.getFragmentAtPosition(currentPos, this);
     if (fragment instanceof EditorFragment) {
       return ((EditorFragment) fragment).getEditor();
     }

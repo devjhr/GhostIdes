@@ -1,6 +1,3 @@
-
-
-
 package ir.hanzodev1375.ghostide.codeeditors.ui;
 
 import android.animation.LayoutTransition;
@@ -15,8 +12,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import androidx.annotation.NonNull;
-import com.google.android.material.color.MaterialColors;
-import com.google.android.material.elevation.SurfaceColors;
 
 import io.github.rosemoe.sora.widget.component.DefaultCompletionLayout;
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion;
@@ -27,7 +22,7 @@ public class CustomCompletionLayout extends DefaultCompletionLayout {
 
   public static final String TAG = "CustomCompletionLayout";
   private final IdeEditor editor;
-  private int layoutCornerRadius = 4; // ½ * original
+  private int layoutCornerRadius = 8;
   private ListView listView;
   private LinearLayout rootView;
   private boolean isLoading = false;
@@ -85,25 +80,11 @@ public class CustomCompletionLayout extends DefaultCompletionLayout {
     LinearLayout rootLayout = new LinearLayout(context);
     rootView = rootLayout;
     listView = new ListView(context);
-
     rootLayout.setOrientation(LinearLayout.VERTICAL);
-
     setEnabledAnimation(false);
-
     rootLayout.addView(listView, new LinearLayout.LayoutParams(-1, -1));
-
-    GradientDrawable gd = new GradientDrawable();
-    gd.setCornerRadius(
-        TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            layoutCornerRadius,
-            context.getResources().getDisplayMetrics()));
-
-    rootLayout.setBackground(gd);
-
     listView.setDividerHeight(0);
     setLoading(true);
-
     listView.setOnItemClickListener(
         (parent, view, position, id) -> {
           try {
@@ -125,9 +106,8 @@ public class CustomCompletionLayout extends DefaultCompletionLayout {
             editorAutoCompletion.getContext().getResources().getDisplayMetrics()));
     gd.setStroke(
         1,
-        MaterialColors.getColor(
-            editor.getContext(), com.google.android.material.R.attr.colorOutline, 0));
-    gd.setColor(SurfaceColors.SURFACE_1.getColor(editor.getContext()));
+        colorScheme.getColor(EditorColorScheme.COMPLETION_WND_CORNER));
+    gd.setColor(colorScheme.getColor(EditorColorScheme.COMPLETION_WND_BACKGROUND));
     rootView.setBackground(gd);
   }
 

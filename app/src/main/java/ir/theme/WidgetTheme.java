@@ -43,6 +43,9 @@ public class WidgetTheme {
   @SerializedName("menutextcolor")
   private String menutextcolor;
 
+  @SerializedName("selectedmenucolor")
+  private String selectedmenucolor;
+
   public String getText() {
     return text;
   }
@@ -145,5 +148,13 @@ public class WidgetTheme {
 
   public void setMenutextcolor(String menutextcolor) {
     this.menutextcolor = menutextcolor;
+  }
+
+  public String getSelectedmenucolor() {
+    return this.selectedmenucolor;
+  }
+
+  public void setSelectedmenucolor(String selectedmenucolor) {
+    this.selectedmenucolor = selectedmenucolor;
   }
 }

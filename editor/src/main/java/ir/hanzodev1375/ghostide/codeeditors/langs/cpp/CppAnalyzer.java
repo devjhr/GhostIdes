@@ -288,7 +288,6 @@ public class CppAnalyzer extends CodeAnalyzer {
   }
 
   public IdentifierAutoComplete.SyncIdentifiers getSyncIdentifiers() {
-
     return syncIdentifiers;
   }
 }

@@ -17,6 +17,7 @@ import ir.hanzodev1375.ghostide.databinding.ActivityFilemanagerBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
+import java.io.File;
 
 public class FileManagerActivity extends BaseCompat {
 
@@ -45,13 +46,36 @@ public class FileManagerActivity extends BaseCompat {
     adapter = new FileManagerAdapter(this);
     bind.rvfiles.setLayoutManager(new LinearLayoutManager(this));
     bind.rvfiles.setAdapter(adapter);
-    viewModel.getFiles().observe(this, files -> adapter.submitList(files));
+    viewModel
+        .getFiles()
+        .observe(
+            this,
+            files -> {
+              adapter.submitList(files);
+              if (files == null || files.isEmpty()) {
+                bind.emptystates.setVisibility(View.VISIBLE);
+                bind.rvfiles.setVisibility(View.GONE);
+              } else {
+                bind.emptystates.setVisibility(View.GONE);
+                bind.rvfiles.setVisibility(View.VISIBLE);
+              }
+            });
     viewModel
         .getIsLoading()
         .observe(
             this, loading -> bind.loadingprogass.setVisibility(loading ? View.VISIBLE : View.GONE));
 
     viewModel.savePath(true);
+
+    viewModel
+        .getCurrentPath()
+        .observe(
+            this,
+            path -> {
+              if (path != null) {
+                bind.navmodel.setFile(new File(path));
+              }
+            });
 
     adapter.setOnItemClickListener(
         (item, pos) -> {
@@ -71,6 +95,12 @@ public class FileManagerActivity extends BaseCompat {
         v -> {
           startActivity(new Intent(FileManagerActivity.this, SettingActivity.class));
         });
+    bind.navmodel
+        .getAdapter()
+        .setOnItemClickListener(
+            (view, nav, pos) -> {
+              viewModel.navigateTo(nav.getFilePath());
+            });
 
     setOnBackPress();
   }

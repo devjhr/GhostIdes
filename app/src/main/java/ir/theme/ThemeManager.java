@@ -196,7 +196,10 @@ public class ThemeManager {
                 "fabIcon": "#ffffff",
                 "tabSelected": "#61afef",
                 "tabUnselected": "#5c6370",
-                "imageTint": "#abb2bf"
+                "imageTint": "#abb2bf",
+                "menubackground":"#282c34",
+                "menutextcolor":"#abb2bf",
+                "selectedmenucolor":"#3e4452"
             }
         }
         """;

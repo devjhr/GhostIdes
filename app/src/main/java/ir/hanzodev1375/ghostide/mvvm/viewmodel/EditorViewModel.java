@@ -2,9 +2,11 @@ package ir.hanzodev1375.ghostide.mvvm.viewmodel;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.blankj.utilcode.util.FileIOUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -41,7 +43,7 @@ public class EditorViewModel extends AndroidViewModel {
               try {
                 File file = new File(filePath);
                 if (!file.exists()) {
-                  
+
                   Content emptyContent = new Content();
                   text.postValue(emptyContent);
                   loading.postValue(false);
@@ -62,16 +64,22 @@ public class EditorViewModel extends AndroidViewModel {
         .start();
   }
 
-  public void saveFile(Content content) {
+  public void saveFile(String textContent) {
     String path = currentPath.getValue();
-    if (path == null || path.isEmpty()) return;
+    if (path == null || path.isEmpty()) {
+      Log.e("EditorViewModel", "مسیر فایل وجود ندارد");
+      return;
+    }
 
+    // استفاده از AndroidUtils برای ذخیره متن در فایل (به صورت همزمان)
     new Thread(
             () -> {
               try {
-                File file = new File(path);
-                try (FileOutputStream fos = new FileOutputStream(file)) {
-                  ContentIO.writeTo(content, fos,false);
+                boolean success = FileIOUtils.writeFileFromString(path, textContent, false);
+                if (success) {
+                  Log.d("EditorViewModel", "فایل ذخیره شد: " + path);
+                } else {
+                  Log.e("EditorViewModel", "خطا در ذخیره فایل: " + path);
                 }
               } catch (Exception e) {
                 e.printStackTrace();

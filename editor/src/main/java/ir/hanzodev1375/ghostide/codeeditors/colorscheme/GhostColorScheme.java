@@ -16,7 +16,6 @@ public class GhostColorScheme extends EditorColorScheme {
   @Override
   public void applyDefault() {
     super.applyDefault();
-    // TODO: Implement this method
     setColor(COLORNEXTDOT,Color.parseColor("#ff3208"));
     setColor(COLORNEXTBRAK,Color.parseColor("#ff10ba"));
     setColor(COLORNEXTCHAR,Color.parseColor("#6ba108"));
@@ -26,7 +25,6 @@ public class GhostColorScheme extends EditorColorScheme {
 
   @Override
   public boolean isDark() {
-    // TODO: Implement this method
     return true;
   }
 }

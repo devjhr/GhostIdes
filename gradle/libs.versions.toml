@@ -9,7 +9,7 @@ constraintlayout = "2.2.1"
 # Editor
 soraEditorVersion = "0.24.5"
 # Gson 
-gsonversion = "2.13.1"
+gsonversion = "2.14.0"
 
 #glide
 glide = "5.0.7"
@@ -18,7 +18,10 @@ glide = "5.0.7"
 utilcodev = "1.31.1"
 #antlr4
 antlrv = "4.13.2"
-
+#powermenu
+powermenu = "2.2.4"
+#git
+jgit = "7.7.0.202606101634-r"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -33,13 +36,12 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 # Use the new version reference
 other-sora-editor-code = { group = "io.github.rosemoe", name = "editor", version.ref = "soraEditorVersion" }
 other-sora-editor-lsp = { group = "io.github.rosemoe", name = "editor-lsp", version.ref = "soraEditorVersion" }
-
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gsonversion" }
 utilcode = { group = "com.blankj", name = "utilcodex",version.ref = "utilcodev" }
 antlr = { group = "org.antlr", name = "antlr4",version.ref = "antlrv" }
-
-
+powermenu = { group = "com.github.skydoves", name = "powermenu", version.ref = "powermenu" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 glide-avif-integration = { module = "com.github.bumptech.glide:avif-integration", version.ref = "glide" }
+jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }

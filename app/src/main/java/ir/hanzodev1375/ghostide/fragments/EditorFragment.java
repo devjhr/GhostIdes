@@ -1,6 +1,7 @@
 package ir.hanzodev1375.ghostide.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,10 +9,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
-import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 
@@ -46,6 +47,7 @@ public class EditorFragment extends Fragment {
     var manager = new ThemeManager(requireActivity());
     theme = new ThemeUtils(manager);
     theme.applyEditor(editor);
+
     viewModel
         .getLoading()
         .observe(
@@ -59,25 +61,39 @@ public class EditorFragment extends Fragment {
         .observe(
             getViewLifecycleOwner(),
             content -> {
-              if (content != null) editor.setText(content);
+              var b = new Bundle();
+              b.putString("path", filePath);
+              if (content != null) editor.setText(content, b);
             });
 
     if (filePath != null) viewModel.loadFile(filePath);
     if (filePath.endsWith(".java")) {
       editor.setEditorLanguage(new JavaLanguage());
-    }else if(filePath.endsWith(".cpp")) {
-    	editor.setEditorLanguage(new CppLanguage());
+    } else if (filePath.endsWith(".cpp")) {
+      editor.setEditorLanguage(new CppLanguage());
+    } else if (filePath.endsWith(".html")) {
+      editor.setEditorLanguage(new HtmlLanguage());
     }
-  //  editor.setColorScheme(new SchemeDarcula());
+  }
+
+  public void saveCurrentFile() {
+    if (filePath != null && viewModel != null && editor != null) {
+      String content = editor.getText().toString();
+      if (content != null) {
+        viewModel.saveFile(content);
+      } else {
+        Log.e("EditorFragment", "محتوای ادیتور نال است");
+      }
+    }
   }
 
   @Override
   public void onDestroyView() {
-    if (viewModel != null && editor != null) viewModel.saveFile(editor.getText());
     super.onDestroyView();
     binding = null;
   }
-  public IdeEditor getEditor(){
+
+  public IdeEditor getEditor() {
     return editor;
   }
 }

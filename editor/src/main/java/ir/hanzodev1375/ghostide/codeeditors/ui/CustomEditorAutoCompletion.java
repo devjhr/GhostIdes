@@ -31,6 +31,7 @@ import android.widget.ListAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import io.github.rosemoe.sora.lang.completion.Comparators;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -87,6 +88,7 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
     setLayout(new CustomCompletionLayout(editor));
     editor.subscribeEvent(
         ColorSchemeUpdateEvent.class, ((event, unsubscribe) -> applyColorScheme()));
+    setHighlightMatchedLabel(true);
   }
 
   public void setLayout(@NonNull CustomCompletionLayout layout) {
@@ -186,6 +188,7 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
     if (!enabled) {
       hide();
     }
+    super.setEnabled(enabled);
   }
 
   @Override
@@ -350,6 +353,7 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
   /** Start completion at current selection position */
   @Override
   public void requireCompletion() {
+
     if (mCancelShowUp || !isEnabled()) {
       return;
     }
@@ -386,6 +390,9 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
               if (!isShowing()) {
                 show();
               }
+              Comparators.highlightMatchLabel(items, editor.getColorScheme());
+              updateCompletionWindowPosition();
+              resetScrollPosition();
             },
             editor.getEditorLanguage().getInterruptionLevel());
     mCompletionThread = new CompletionThread(mRequestTime, mPublisher);

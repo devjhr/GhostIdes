@@ -27,8 +27,6 @@ public class FileViewModel extends AndroidViewModel {
   public FileViewModel(Application app) {
     super(app);
     pathManager = new PathManager(app.getApplicationContext());
-
-    // تعیین مسیر اولیه
     String initialPath;
     if (pathManager.isSaveEnabled()) {
       String savedPath = pathManager.getLastPath();
@@ -97,7 +95,7 @@ public class FileViewModel extends AndroidViewModel {
                     files,
                     Comparator.comparing(File::isDirectory)
                         .reversed()
-                        .thenComparing(File::getName));
+                        .thenComparing(File::getName,String.CASE_INSENSITIVE_ORDER));
                 for (File file : files) {
                   String name = file.getName();
                   if (!name.startsWith(".")) {

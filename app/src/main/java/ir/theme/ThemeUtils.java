@@ -1,7 +1,9 @@
 package ir.theme;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -9,10 +11,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
+import com.skydoves.powermenu.PowerMenu;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
-import java.lang.reflect.Field;
 
 public class ThemeUtils {
 
@@ -25,9 +26,7 @@ public class ThemeUtils {
   public GhostTheme getTheme() {
     return manager.getTheme();
   }
-  public void applyPowerMenu(){
-    // TODO: soon
-  }
+  
   public void applyActivity(AppCompatActivity activity) {
 
     GhostTheme theme = getTheme();
@@ -40,25 +39,41 @@ public class ThemeUtils {
     }
 
     ActivityTheme colors = theme.getActivity();
-
     Window window = activity.getWindow();
 
     if (colors.getStatusBar() != null) {
-
       window.setStatusBarColor(parseColor(colors.getStatusBar()));
     }
 
     if (colors.getNavigationBar() != null) {
-
       window.setNavigationBarColor(parseColor(colors.getNavigationBar()));
     }
 
     if (colors.getBackground() != null) {
-
       View decor = window.getDecorView();
-
       decor.setBackgroundColor(parseColor(colors.getBackground()));
     }
+  }
+  public PowerMenu apply(Context c ){
+    var menu = new PowerMenu.Builder(c).build();
+    GhostTheme theme = getTheme();
+    if (theme == null) {
+      Log.e("PowerMenu","theme has null");
+    }
+    if (theme.getWidget() == null) {
+      Log.e("PowerMenu","theme has null");
+    }
+    WidgetTheme widget = theme.getWidget();
+    menu.setTextColor(Color.parseColor(widget.getMenutextcolor()));
+    menu.setMenuColor(Color.parseColor(widget.getMenubackground()));
+    menu.setIconColor(Color.parseColor(widget.getMenutextcolor()));
+    menu.setSelectedMenuColor(Color.parseColor(widget.getSelectedmenucolor()));
+    menu.setShowBackground(false);
+    menu.setMenuRadius(10f);
+    menu.setMenuShadow(3f);
+    menu.setAutoDismiss(true);
+    
+    return menu;
   }
 
   public void applyEditor(IdeEditor editor) {
@@ -212,15 +227,14 @@ public class ThemeUtils {
   public void applyTextView(TextView textView) {
 
     GhostTheme theme = getTheme();
+    
 
     if (theme == null) {
       return;
     }
-
     if (theme.getWidget() == null) {
       return;
     }
-
     WidgetTheme widget = theme.getWidget();
     if (widget.getText() != null) {
       textView.setTextColor(parseColor(widget.getText()));

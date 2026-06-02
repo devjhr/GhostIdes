@@ -77,7 +77,7 @@
     <string name="restart_message">Buffer size will take effect after restart.</string>
     <string name="restart_now">Restart Now</string>
     <string name="later">Later</string>
-
+    <!-- new Strings -->
     <string name="pref_app_theme">theme app</string>
     <string name="pref_app_theme_desc">تغییر رنگ‌بندی کلی برنامه</string>
     <string name="theme_load_title">Load Theme from File</string>
@@ -90,4 +90,7 @@
     <string name="theme_load_error">Failed to load theme: %s</string>
     <string name="pref_load_theme_file">Load theme from file</string>
     <string name="pref_load_theme_file_desc">Import .gth theme file from storage</string>
+    <string name="saveitemthis">Save this</string>
+    <string name="saveitemall">Save All</string>
+
 </resources>

@@ -109,29 +109,38 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     EditorColorScheme colors = editor.getColorScheme();
     editor.subscribeEvent(
         ColorSchemeUpdateEvent.class,
-        (c, d) -> {
+        (event, unsubscribe) -> {
+          //reload theme in chage
+          EditorColorScheme newScheme = event.getColorScheme();
           GradientDrawable gd = new GradientDrawable();
           gd.setCornerRadius(windowCornerRadius * editor.getDpUnit());
-          gd.setColor(colors.getColor(EditorColorScheme.COMPLETION_WND_BACKGROUND));
-          gd.setStroke(1, colors.getColor(EditorColorScheme.COMPLETION_WND_CORNER));
+          gd.setColor(newScheme.getColor(EditorColorScheme.COMPLETION_WND_BACKGROUND));
+          gd.setStroke(1, newScheme.getColor(EditorColorScheme.COMPLETION_WND_CORNER));
           root.setBackground(gd);
-          setColorFilterById(
-              colors.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY), pasteBtn);
-          setColorFilterById(
-              colors.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY), pasteBtn);
-          setColorFilterById(
-              colors.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY), copyBtn);
-          setColorFilterById(
-              colors.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY), cutBtn);
-          setColorFilterById(
-              colors.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY), expandSelectionBtn);
-          setColorFilterById(
-              colors.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY), longSelectBtn);
-          setColorFilterById(
-              colors.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY), formatBtn);
-          setColorFilterById(
-              colors.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY), selectAllBtn);
+
+          int textColor = newScheme.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY);
+          setColorFilterById(textColor, pasteBtn);
+          setColorFilterById(textColor, copyBtn);
+          setColorFilterById(textColor, cutBtn);
+          setColorFilterById(textColor, expandSelectionBtn);
+          setColorFilterById(textColor, longSelectBtn);
+          setColorFilterById(textColor, formatBtn);
+          setColorFilterById(textColor, selectAllBtn);
         });
+    EditorColorScheme newScheme = editor.getColorScheme();
+    GradientDrawable gd = new GradientDrawable();
+    gd.setCornerRadius(windowCornerRadius * editor.getDpUnit());
+    gd.setColor(newScheme.getColor(EditorColorScheme.COMPLETION_WND_BACKGROUND));
+    gd.setStroke(1, newScheme.getColor(EditorColorScheme.COMPLETION_WND_CORNER));
+    root.setBackground(gd);
+    int textColor = newScheme.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY);
+    setColorFilterById(textColor, pasteBtn);
+    setColorFilterById(textColor, copyBtn);
+    setColorFilterById(textColor, cutBtn);
+    setColorFilterById(textColor, expandSelectionBtn);
+    setColorFilterById(textColor, longSelectBtn);
+    setColorFilterById(textColor, formatBtn);
+    setColorFilterById(textColor, selectAllBtn);
     setContentView(root);
     setSize(0, (int) (this.editor.getDpUnit() * 48));
 
