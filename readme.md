@@ -59,38 +59,22 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 ## 🎨 Theme Engine
 
 The editor supports deep UI customization, including:
-- [] Syntax colors
-- [] Backgrounds and tab styles
-- [] Autocomplete appearance
-- [] Bracket-level coloring
-- [] Selection styles
+- [x] Syntax colors
+- [x] Backgrounds and tab styles
+- [x] Autocomplete appearance
+- [ ] Bracket-level coloring
+- [ ] Selection styles
 
 ---
-
-## ⌨️ Keyboard Shortcuts
-
-| Shortcut      | Action          |
-|---------------|-----------------|
-| `Ctrl + F`    | Create file     |
-| `Ctrl + G`    | Git clone       |
-| `Ctrl + S`    | Settings        |
-| `Ctrl + F1`   | Create folder   |
-| `Ctrl + J`    | JSON → Java     |
-| `Ctrl + D`    | Open drawer     |
-| `Ctrl + A`    | APK viewer      |
-| `Ctrl + T`    | Open terminal   |
-
----
-
 ## 🚀 Why Ghost IDE?
 
-- [] Lightweight and fast
-- [] Built natively for Android
-- [] Real compiler integrations
-- [] Plugin-ready architecture
+- [ ] Lightweight and fast
+- [ ] Built natively for Android
+- [ ] Real compiler integrations
+- [ ] Plugin-ready architecture
 - [x] Material Design interface
-- [] Fully open source
-- [] Optimized typing experience
-- [] Powerful customization system
+- [ ] Fully open source
+- [x] Optimized typing experience
+- [x] Powerful customization system
 
 ---
