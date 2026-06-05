@@ -70,8 +70,6 @@ public class EditorViewModel extends AndroidViewModel {
       Log.e("EditorViewModel", "مسیر فایل وجود ندارد");
       return;
     }
-
-    // استفاده از AndroidUtils برای ذخیره متن در فایل (به صورت همزمان)
     new Thread(
             () -> {
               try {

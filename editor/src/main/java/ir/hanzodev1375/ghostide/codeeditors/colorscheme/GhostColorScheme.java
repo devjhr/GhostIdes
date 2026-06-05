@@ -4,8 +4,6 @@ import android.graphics.Color;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 public class GhostColorScheme extends EditorColorScheme {
-  private GhostColorScheme() {}
-
   private static int endColor = END_COLOR_ID;
   public static final int COLORNEXTDOT = ++endColor; // .
   public static final int COLORNEXTBRAK = ++endColor; // (
@@ -20,6 +18,7 @@ public class GhostColorScheme extends EditorColorScheme {
     setColor(COLORNEXTBRAK,Color.parseColor("#ff10ba"));
     setColor(COLORNEXTCHAR,Color.parseColor("#6ba108"));
     setColor(COLORUPPERCASE,Color.parseColor("#ff2c11"));
+    setColor(WHOLE_BACKGROUND,Color.TRANSPARENT);
     setColor(COLORNEXTLESS,Color.parseColor("#ffc190"));
   }
 

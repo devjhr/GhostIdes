@@ -46,6 +46,12 @@ public class WidgetTheme {
   @SerializedName("selectedmenucolor")
   private String selectedmenucolor;
 
+  @SerializedName("imagepath")
+  private String imagepath;
+
+  @SerializedName("blursize")
+  private float blursize = 1.0f;
+
   public String getText() {
     return text;
   }
@@ -156,5 +162,21 @@ public class WidgetTheme {
 
   public void setSelectedmenucolor(String selectedmenucolor) {
     this.selectedmenucolor = selectedmenucolor;
+  }
+
+  public String getImagepath() {
+    return this.imagepath;
+  }
+
+  public void setImagepath(String imagepath) {
+    this.imagepath = imagepath;
+  }
+
+  public float getBlursize() {
+    return this.blursize;
+  }
+
+  public void setBlursize(float blursize) {
+    this.blursize = blursize;
   }
 }

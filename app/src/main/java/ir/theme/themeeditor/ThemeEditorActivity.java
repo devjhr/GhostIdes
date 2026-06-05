@@ -1,0 +1,788 @@
+package ir.theme.themeeditor;
+
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
+import android.text.Spanned;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.gson.GsonBuilder;
+import ir.hanzodev1375.ghostide.R;
+import com.blankj.utilcode.util.FileIOUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
+
+import ir.hanzodev1375.ghostide.activity.BaseCompat;
+import ir.theme.ActivityTheme;
+import ir.theme.EditorTheme;
+import ir.theme.WidgetTheme;
+import ir.theme.ThemeManager;
+import ir.theme.GhostTheme;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import ir.hanzodev1375.ghostide.codeeditors.colorrender.ColorPickerBottomSheetDialog;
+
+public class ThemeEditorActivity extends BaseCompat {
+
+  public static final String EXTRA_THEME_PATH = "theme_path";
+
+  private TabLayout tabLayout;
+  private RecyclerView recyclerView;
+  private ThemeDetailAdapter adapter;
+  private GhostTheme currentTheme;
+  private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+  private String currentThemePath;
+  private SearchView searchView;
+  private String currentQuery = "";
+  private boolean isSearching = false;
+  private List<ColorItem> activityItems = new ArrayList<>();
+  private List<ColorItem> editorItems = new ArrayList<>();
+  private List<ColorItem> widgetItems = new ArrayList<>();
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_theme_editor);
+
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+    currentThemePath = getIntent().getStringExtra(EXTRA_THEME_PATH);
+    if (currentThemePath == null || currentThemePath.isEmpty()) {
+      Toast.makeText(this, "No theme file path", Toast.LENGTH_SHORT).show();
+      finish();
+      return;
+    }
+
+    File file = new File(currentThemePath);
+    if (!file.exists()) {
+      Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show();
+      finish();
+      return;
+    }
+
+    String json = FileIOUtils.readFile2String(file);
+    if (json == null || json.isEmpty()) {
+      Toast.makeText(this, "Failed to read file", Toast.LENGTH_SHORT).show();
+      finish();
+      return;
+    }
+
+    try {
+      currentTheme = gson.fromJson(json, GhostTheme.class);
+      if (currentTheme == null) throw new Exception();
+      if (currentTheme.getActivity() == null) currentTheme.setActivity(new ActivityTheme());
+      if (currentTheme.getEditor() == null) currentTheme.setEditor(new EditorTheme());
+      if (currentTheme.getWidget() == null) currentTheme.setWidget(new WidgetTheme());
+    } catch (Exception e) {
+      Toast.makeText(this, "Invalid theme", Toast.LENGTH_SHORT).show();
+      finish();
+      return;
+    }
+
+    tabLayout = findViewById(R.id.tabLayout);
+    recyclerView = findViewById(R.id.recyclerView);
+    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+    buildColorItems();
+
+    tabLayout.addTab(tabLayout.newTab().setText("Activity"));
+    tabLayout.addTab(tabLayout.newTab().setText("Editor"));
+    tabLayout.addTab(tabLayout.newTab().setText("Widget"));
+
+    tabLayout.addOnTabSelectedListener(
+        new TabLayout.OnTabSelectedListener() {
+          @Override
+          public void onTabSelected(TabLayout.Tab tab) {
+            switch (tab.getPosition()) {
+              case 0:
+                adapter = new ThemeDetailAdapter(activityItems);
+                break;
+              case 1:
+                adapter = new ThemeDetailAdapter(editorItems);
+                break;
+              case 2:
+                adapter = new ThemeDetailAdapter(widgetItems);
+                break;
+            }
+            clearSearch();
+            recyclerView.setAdapter(adapter);
+          }
+
+          @Override
+          public void onTabUnselected(TabLayout.Tab tab) {}
+
+          @Override
+          public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
+    adapter = new ThemeDetailAdapter(activityItems);
+    recyclerView.setAdapter(adapter);
+  }
+
+  private void resetToDefault() {
+
+    String oldImagePath = currentTheme.getWidget().getImagepath();
+    float oldBlurSize = currentTheme.getWidget().getBlursize();
+
+    ThemeManager tmp = new ThemeManager(this);
+    String defaultJson = tmp.getDefaultThemeJson();
+    currentTheme = gson.fromJson(defaultJson, GhostTheme.class);
+    currentTheme.getWidget().setImagepath(oldImagePath);
+    currentTheme.getWidget().setBlursize(oldBlurSize);
+
+    saveThemeToFile();
+    buildColorItems();
+    refreshCurrentTab();
+    clearSearch();
+    Toast.makeText(this, "Reset to default", Toast.LENGTH_SHORT).show();
+  }
+
+  private void filter(String query) {
+    currentQuery = query;
+    if (query == null || query.trim().isEmpty()) {
+      clearSearch();
+      return;
+    }
+    isSearching = true;
+    List<ColorItem> fullList = getCurrentFullList();
+    List<ColorItem> filtered = new ArrayList<>();
+    String lowerQuery = query.toLowerCase();
+    for (ColorItem item : fullList) {
+      if (item.title.toLowerCase().contains(lowerQuery)) {
+        filtered.add(item);
+      }
+    }
+    adapter.updateList(filtered);
+    adapter.setHighlightQuery(query);
+  }
+
+  private void clearSearch() {
+    if (!isSearching && currentQuery.isEmpty()) return;
+    isSearching = false;
+    currentQuery = "";
+    if (searchView != null) {
+      searchView.setQuery("", false);
+    }
+    adapter.updateList(getCurrentFullList());
+    adapter.setHighlightQuery(null);
+  }
+
+  private List<ColorItem> getCurrentFullList() {
+    int pos = tabLayout.getSelectedTabPosition();
+    switch (pos) {
+      case 0:
+        return activityItems;
+      case 1:
+        return editorItems;
+      case 2:
+        return widgetItems;
+      default:
+        return activityItems;
+    }
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.theme_editor_menu, menu);
+    MenuItem searchItem = menu.findItem(R.id.action_search);
+    searchView = (SearchView) searchItem.getActionView();
+    searchView.setQueryHint("Search Color");
+    searchView.setOnQueryTextListener(
+        new SearchView.OnQueryTextListener() {
+          @Override
+          public boolean onQueryTextSubmit(String query) {
+            filter(query);
+            return true;
+          }
+
+          @Override
+          public boolean onQueryTextChange(String newText) {
+            filter(newText);
+            return true;
+          }
+        });
+    searchView.setOnCloseListener(
+        () -> {
+          clearSearch();
+          return false;
+        });
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.action_reset) {
+      resetToDefault();
+      return true;
+    } else if (item.getItemId() == R.id.action_view) {
+      GhostTheme themeCopy =
+          new GsonBuilder()
+              .create()
+              .fromJson(
+                  new GsonBuilder().setPrettyPrinting().create().toJson(currentTheme),
+                  GhostTheme.class);
+      ThemePreviewBottomSheet bottomSheet = ThemePreviewBottomSheet.newInstance(themeCopy);
+      bottomSheet.show(getSupportFragmentManager(), "preview_theme");
+
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  private void buildColorItems() {
+    activityItems.clear();
+    editorItems.clear();
+    widgetItems.clear();
+
+    ActivityTheme a = currentTheme.getActivity();
+    activityItems.add(
+        new ColorItem("Background", a.getBackground(), (t, c) -> t.getActivity().setBackground(c)));
+    activityItems.add(
+        new ColorItem("Status Bar", a.getStatusBar(), (t, c) -> t.getActivity().setStatusBar(c)));
+    activityItems.add(
+        new ColorItem(
+            "Navigation Bar", a.getNavigationBar(), (t, c) -> t.getActivity().setNavigationBar(c)));
+
+    EditorTheme e = currentTheme.getEditor();
+    editorItems.add(
+        new ColorItem(
+            "Whole Background",
+            e.getWholeBackground(),
+            (t, c) -> t.getEditor().setWholeBackground(c)));
+    editorItems.add(
+        new ColorItem("Text Normal", e.getTextNormal(), (t, c) -> t.getEditor().setTextNormal(c)));
+    editorItems.add(
+        new ColorItem("Keyword", e.getKeyword(), (t, c) -> t.getEditor().setKeyword(c)));
+    editorItems.add(
+        new ColorItem("Comment", e.getComment(), (t, c) -> t.getEditor().setComment(c)));
+    editorItems.add(
+        new ColorItem("Operator", e.getOperator(), (t, c) -> t.getEditor().setOperator(c)));
+    editorItems.add(
+        new ColorItem("Literal", e.getLiteral(), (t, c) -> t.getEditor().setLiteral(c)));
+    editorItems.add(
+        new ColorItem(
+            "Identifier Var", e.getIdentifierVar(), (t, c) -> t.getEditor().setIdentifierVar(c)));
+    editorItems.add(
+        new ColorItem(
+            "Identifier Name",
+            e.getIdentifierName(),
+            (t, c) -> t.getEditor().setIdentifierName(c)));
+    editorItems.add(
+        new ColorItem(
+            "Function Name", e.getFunctionName(), (t, c) -> t.getEditor().setFunctionName(c)));
+    editorItems.add(
+        new ColorItem("Annotation", e.getAnnotation(), (t, c) -> t.getEditor().setAnnotation(c)));
+    editorItems.add(
+        new ColorItem(
+            "Current Line", e.getCurrentLine(), (t, c) -> t.getEditor().setCurrentLine(c)));
+    editorItems.add(
+        new ColorItem("Line Number", e.getLineNumber(), (t, c) -> t.getEditor().setLineNumber(c)));
+    editorItems.add(
+        new ColorItem(
+            "Line Number Background",
+            e.getLineNumberBackground(),
+            (t, c) -> t.getEditor().setLineNumberBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Selected Text Background",
+            e.getSelectedTextBackground(),
+            (t, c) -> t.getEditor().setSelectedTextBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Selection Insert",
+            e.getSelectionInsert(),
+            (t, c) -> t.getEditor().setSelectionInsert(c)));
+    editorItems.add(
+        new ColorItem(
+            "Selection Handle",
+            e.getSelectionHandle(),
+            (t, c) -> t.getEditor().setSelectionHandle(c)));
+    editorItems.add(
+        new ColorItem("Underline", e.getUnderline(), (t, c) -> t.getEditor().setUnderline(c)));
+    editorItems.add(
+        new ColorItem(
+            "Scroll Bar Thumb",
+            e.getScrollBarThumb(),
+            (t, c) -> t.getEditor().setScrollBarThumb(c)));
+    editorItems.add(
+        new ColorItem(
+            "Scroll Bar Thumb Pressed",
+            e.getScrollBarThumbPressed(),
+            (t, c) -> t.getEditor().setScrollBarThumbPressed(c)));
+    editorItems.add(
+        new ColorItem(
+            "Scroll Bar Track",
+            e.getScrollBarTrack(),
+            (t, c) -> t.getEditor().setScrollBarTrack(c)));
+    editorItems.add(
+        new ColorItem("Block Line", e.getBlockLine(), (t, c) -> t.getEditor().setBlockLine(c)));
+    editorItems.add(
+        new ColorItem(
+            "Block Line Current",
+            e.getBlockLineCurrent(),
+            (t, c) -> t.getEditor().setBlockLineCurrent(c)));
+    editorItems.add(
+        new ColorItem(
+            "Line Number Panel",
+            e.getLineNumberPanel(),
+            (t, c) -> t.getEditor().setLineNumberPanel(c)));
+    editorItems.add(
+        new ColorItem(
+            "Line Number Panel Text",
+            e.getLineNumberPanelText(),
+            (t, c) -> t.getEditor().setLineNumberPanelText(c)));
+    editorItems.add(
+        new ColorItem(
+            "Completion Wnd Background",
+            e.getCompletionWndBackground(),
+            (t, c) -> t.getEditor().setCompletionWndBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Completion Wnd Corner",
+            e.getCompletionWndCorner(),
+            (t, c) -> t.getEditor().setCompletionWndCorner(c)));
+    editorItems.add(
+        new ColorItem(
+            "Matched Text Background",
+            e.getMatchedTextBackground(),
+            (t, c) -> t.getEditor().setMatchedTextBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Matched Text Border",
+            e.getMatchedTextBorder(),
+            (t, c) -> t.getEditor().setMatchedTextBorder(c)));
+    editorItems.add(
+        new ColorItem(
+            "Text Selected", e.getTextSelected(), (t, c) -> t.getEditor().setTextSelected(c)));
+    editorItems.add(
+        new ColorItem(
+            "Non Printable Char",
+            e.getNonPrintableChar(),
+            (t, c) -> t.getEditor().setNonPrintableChar(c)));
+    editorItems.add(
+        new ColorItem("HTML Tag", e.getHtmlTag(), (t, c) -> t.getEditor().setHtmlTag(c)));
+    editorItems.add(
+        new ColorItem(
+            "Attribute Name", e.getAttributeName(), (t, c) -> t.getEditor().setAttributeName(c)));
+    editorItems.add(
+        new ColorItem(
+            "Attribute Value",
+            e.getAttributeValue(),
+            (t, c) -> t.getEditor().setAttributeValue(c)));
+    editorItems.add(
+        new ColorItem(
+            "Problem Error", e.getProblemError(), (t, c) -> t.getEditor().setProblemError(c)));
+    editorItems.add(
+        new ColorItem(
+            "Problem Warning",
+            e.getProblemWarning(),
+            (t, c) -> t.getEditor().setProblemWarning(c)));
+    editorItems.add(
+        new ColorItem(
+            "Problem Typo", e.getProblemTypo(), (t, c) -> t.getEditor().setProblemTypo(c)));
+    editorItems.add(
+        new ColorItem(
+            "Line Number Current",
+            e.getLineNumberCurrent(),
+            (t, c) -> t.getEditor().setLineNumberCurrent(c)));
+    editorItems.add(
+        new ColorItem(
+            "Selected Text Border",
+            e.getSelectedTextBorder(),
+            (t, c) -> t.getEditor().setSelectedTextBorder(c)));
+    editorItems.add(
+        new ColorItem(
+            "Current Row Border",
+            e.getCurrentRowBorder(),
+            (t, c) -> t.getEditor().setCurrentRowBorder(c)));
+    editorItems.add(
+        new ColorItem(
+            "Highlighted Delimiters Background",
+            e.getHighlightedDelimitersBackground(),
+            (t, c) -> t.getEditor().setHighlightedDelimitersBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Highlighted Delimiters Underline",
+            e.getHighlightedDelimitersUnderline(),
+            (t, c) -> t.getEditor().setHighlightedDelimitersUnderline(c)));
+    editorItems.add(
+        new ColorItem(
+            "Highlighted Delimiters Foreground",
+            e.getHighlightedDelimitersForeground(),
+            (t, c) -> t.getEditor().setHighlightedDelimitersForeground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Highlighted Delimiters Border",
+            e.getHighlightedDelimitersBorder(),
+            (t, c) -> t.getEditor().setHighlightedDelimitersBorder(c)));
+    editorItems.add(
+        new ColorItem(
+            "Text Highlight Background",
+            e.getTextHighlightBackground(),
+            (t, c) -> t.getEditor().setTextHighlightBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Text Highlight Border",
+            e.getTextHighlightBorder(),
+            (t, c) -> t.getEditor().setTextHighlightBorder(c)));
+    editorItems.add(
+        new ColorItem(
+            "Text Highlight Strong Background",
+            e.getTextHighlightStrongBackground(),
+            (t, c) -> t.getEditor().setTextHighlightStrongBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Text Highlight Strong Border",
+            e.getTextHighlightStrongBorder(),
+            (t, c) -> t.getEditor().setTextHighlightStrongBorder(c)));
+    editorItems.add(
+        new ColorItem(
+            "Static Span Background",
+            e.getStaticSpanBackground(),
+            (t, c) -> t.getEditor().setStaticSpanBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Static Span Foreground",
+            e.getStaticSpanForeground(),
+            (t, c) -> t.getEditor().setStaticSpanForeground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Text Inlay Hint Background",
+            e.getTextInlayHintBackground(),
+            (t, c) -> t.getEditor().setTextInlayHintBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Text Inlay Hint Foreground",
+            e.getTextInlayHintForeground(),
+            (t, c) -> t.getEditor().setTextInlayHintForeground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Snippet Background Editing",
+            e.getSnippetBackgroundEditing(),
+            (t, c) -> t.getEditor().setSnippetBackgroundEditing(c)));
+    editorItems.add(
+        new ColorItem(
+            "Snippet Background Related",
+            e.getSnippetBackgroundRelated(),
+            (t, c) -> t.getEditor().setSnippetBackgroundRelated(c)));
+    editorItems.add(
+        new ColorItem(
+            "Snippet Background Inactive",
+            e.getSnippetBackgroundInactive(),
+            (t, c) -> t.getEditor().setSnippetBackgroundInactive(c)));
+    editorItems.add(
+        new ColorItem(
+            "Hard Wrap Marker",
+            e.getHardWrapMarker(),
+            (t, c) -> t.getEditor().setHardWrapMarker(c)));
+    editorItems.add(
+        new ColorItem(
+            "Function Char Background Stroke",
+            e.getFunctionCharBackgroundStroke(),
+            (t, c) -> t.getEditor().setFunctionCharBackgroundStroke(c)));
+    editorItems.add(
+        new ColorItem(
+            "Diagnostic Tooltip Background",
+            e.getDiagnosticTooltipBackground(),
+            (t, c) -> t.getEditor().setDiagnosticTooltipBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Diagnostic Tooltip Brief Msg",
+            e.getDiagnosticTooltipBriefMsg(),
+            (t, c) -> t.getEditor().setDiagnosticTooltipBriefMsg(c)));
+    editorItems.add(
+        new ColorItem(
+            "Diagnostic Tooltip Detailed Msg",
+            e.getDiagnosticTooltipDetailedMsg(),
+            (t, c) -> t.getEditor().setDiagnosticTooltipDetailedMsg(c)));
+    editorItems.add(
+        new ColorItem(
+            "Diagnostic Tooltip Action",
+            e.getDiagnosticTooltipAction(),
+            (t, c) -> t.getEditor().setDiagnosticTooltipAction(c)));
+    editorItems.add(
+        new ColorItem(
+            "Sticky Scroll Divider",
+            e.getStickyScrollDivider(),
+            (t, c) -> t.getEditor().setStickyScrollDivider(c)));
+    editorItems.add(
+        new ColorItem(
+            "Strike Through", e.getStrikeThrough(), (t, c) -> t.getEditor().setStrikeThrough(c)));
+    editorItems.add(
+        new ColorItem(
+            "Side Block Line", e.getSideBlockLine(), (t, c) -> t.getEditor().setSideBlockLine(c)));
+    editorItems.add(
+        new ColorItem(
+            "Completion Wnd Text Primary",
+            e.getCompletionWndTextPrimary(),
+            (t, c) -> t.getEditor().setCompletionWndTextPrimary(c)));
+    editorItems.add(
+        new ColorItem(
+            "Completion Wnd Text Secondary",
+            e.getCompletionWndTextSecondary(),
+            (t, c) -> t.getEditor().setCompletionWndTextSecondary(c)));
+    editorItems.add(
+        new ColorItem(
+            "Completion Wnd Item Current",
+            e.getCompletionWndItemCurrent(),
+            (t, c) -> t.getEditor().setCompletionWndItemCurrent(c)));
+    editorItems.add(
+        new ColorItem(
+            "Completion Wnd Text Matched",
+            e.getCompletionWndTextMatched(),
+            (t, c) -> t.getEditor().setCompletionWndTextMatched(c)));
+    editorItems.add(
+        new ColorItem(
+            "Signature Background",
+            e.getSignatureBackground(),
+            (t, c) -> t.getEditor().setSignatureBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Signature Border",
+            e.getSignatureBorder(),
+            (t, c) -> t.getEditor().setSignatureBorder(c)));
+    editorItems.add(
+        new ColorItem(
+            "Signature Text Normal",
+            e.getSignatureTextNormal(),
+            (t, c) -> t.getEditor().setSignatureTextNormal(c)));
+    editorItems.add(
+        new ColorItem(
+            "Signature Text Highlighted Parameter",
+            e.getSignatureTextHighlightedParameter(),
+            (t, c) -> t.getEditor().setSignatureTextHighlightedParameter(c)));
+    editorItems.add(
+        new ColorItem(
+            "Hover Background",
+            e.getHoverBackground(),
+            (t, c) -> t.getEditor().setHoverBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Hover Border", e.getHoverBorder(), (t, c) -> t.getEditor().setHoverBorder(c)));
+    editorItems.add(
+        new ColorItem(
+            "Hover Text Normal",
+            e.getHoverTextNormal(),
+            (t, c) -> t.getEditor().setHoverTextNormal(c)));
+    editorItems.add(
+        new ColorItem(
+            "Hover Text Highlighted",
+            e.getHoverTextHighlighted(),
+            (t, c) -> t.getEditor().setHoverTextHighlighted(c)));
+    editorItems.add(
+        new ColorItem(
+            "Text Action Window Background",
+            e.getTextActionWindowBackground(),
+            (t, c) -> t.getEditor().setTextActionWindowBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Text Action Window Icon Color",
+            e.getTextActionWindowIconColor(),
+            (t, c) -> t.getEditor().setTextActionWindowIconColor(c)));
+    editorItems.add(
+        new ColorItem(
+            "Minimap Background",
+            e.getMinimapBackground(),
+            (t, c) -> t.getEditor().setMinimapBackground(c)));
+    editorItems.add(
+        new ColorItem(
+            "Minimap Viewport",
+            e.getMinimapViewport(),
+            (t, c) -> t.getEditor().setMinimapViewport(c)));
+    editorItems.add(
+        new ColorItem(
+            "Minimap Viewport Border",
+            e.getMinimapViewportBorder(),
+            (t, c) -> t.getEditor().setMinimapViewportBorder(c)));
+
+    WidgetTheme w = currentTheme.getWidget();
+    widgetItems.add(new ColorItem("Text", w.getText(), (t, c) -> t.getWidget().setText(c)));
+    widgetItems.add(new ColorItem("Hint", w.getHint(), (t, c) -> t.getWidget().setHint(c)));
+    widgetItems.add(new ColorItem("Accent", w.getAccent(), (t, c) -> t.getWidget().setAccent(c)));
+    widgetItems.add(
+        new ColorItem("Background", w.getBackground(), (t, c) -> t.getWidget().setBackground(c)));
+    widgetItems.add(
+        new ColorItem("Surface", w.getSurface(), (t, c) -> t.getWidget().setSurface(c)));
+    widgetItems.add(new ColorItem("Stroke", w.getStroke(), (t, c) -> t.getWidget().setStroke(c)));
+    widgetItems.add(
+        new ColorItem(
+            "FAB Background", w.getFabBackground(), (t, c) -> t.getWidget().setFabBackground(c)));
+    widgetItems.add(
+        new ColorItem("FAB Icon", w.getFabIcon(), (t, c) -> t.getWidget().setFabIcon(c)));
+    widgetItems.add(
+        new ColorItem(
+            "Tab Selected", w.getTabSelected(), (t, c) -> t.getWidget().setTabSelected(c)));
+    widgetItems.add(
+        new ColorItem(
+            "Tab Unselected", w.getTabUnselected(), (t, c) -> t.getWidget().setTabUnselected(c)));
+    widgetItems.add(
+        new ColorItem("Image Tint", w.getImageTint(), (t, c) -> t.getWidget().setImageTint(c)));
+    widgetItems.add(
+        new ColorItem(
+            "Menu Background",
+            w.getMenubackground(),
+            (t, c) -> t.getWidget().setMenubackground(c)));
+    widgetItems.add(
+        new ColorItem(
+            "Menu Text Color", w.getMenutextcolor(), (t, c) -> t.getWidget().setMenutextcolor(c)));
+    widgetItems.add(
+        new ColorItem(
+            "Selected Menu Color",
+            w.getSelectedmenucolor(),
+            (t, c) -> t.getWidget().setSelectedmenucolor(c)));
+  }
+
+  private void saveThemeToFile() {
+    if (currentTheme.getWidget().getImagepath() == null) {
+      currentTheme.getWidget().setImagepath("");
+    }
+    String json = gson.toJson(currentTheme);
+    FileIOUtils.writeFileFromString(currentThemePath, json);
+  }
+
+  private void refreshCurrentTab() {
+    if (isSearching && !currentQuery.isEmpty()) {
+      filter(currentQuery);
+    } else {
+      int pos = tabLayout.getSelectedTabPosition();
+      if (pos == 0) adapter.updateList(activityItems);
+      else if (pos == 1) adapter.updateList(editorItems);
+      else adapter.updateList(widgetItems);
+    }
+    adapter.setHighlightQuery(null);
+  }
+
+  private class ThemeDetailAdapter extends RecyclerView.Adapter<ThemeDetailAdapter.ViewHolder> {
+    private List<ColorItem> items;
+    private String highlightQuery = null;
+
+    ThemeDetailAdapter(List<ColorItem> items) {
+      this.items = items;
+    }
+
+    void updateList(List<ColorItem> newItems) {
+      this.items = newItems;
+      notifyDataSetChanged();
+    }
+
+    void setHighlightQuery(String query) {
+      this.highlightQuery = query;
+      notifyDataSetChanged();
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+      View v =
+          LayoutInflater.from(parent.getContext()).inflate(R.layout.item_color_row, parent, false);
+      return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+      ColorItem item = items.get(position);
+      holder.title.setText(item.title);
+      if (highlightQuery != null && !highlightQuery.isEmpty()) {
+        SpannableString spannable = new SpannableString(item.title);
+        String lowerTitle = item.title.toLowerCase();
+        String lowerQuery = highlightQuery.toLowerCase();
+        int start = lowerTitle.indexOf(lowerQuery);
+        if (start >= 0) {
+          spannable.setSpan(
+              new BackgroundColorSpan(Color.YELLOW),
+              start,
+              start + highlightQuery.length(),
+              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        holder.title.setText(spannable);
+      } else {
+        holder.title.setText(item.title);
+      }
+
+      try {
+        shape(holder.colorPreview, Color.parseColor(item.currentColor));
+      } catch (Exception e) {
+        holder.colorPreview.setBackgroundColor(Color.BLACK);
+      }
+      holder.editIcon.setOnClickListener(
+          v -> {
+            int initialColor;
+            try {
+              initialColor = Color.parseColor(item.currentColor);
+            } catch (Exception e) {
+              initialColor = Color.BLACK;
+            }
+            ColorPickerBottomSheetDialog.show(
+                ThemeEditorActivity.this,
+                initialColor,
+                newColor -> {
+                  String newHex = String.format("#%08X", newColor);
+                  item.updater.update(currentTheme, newHex);
+                  item.currentColor = newHex;
+                  saveThemeToFile();
+                  notifyItemChanged(holder.getBindingAdapterPosition());
+                });
+          });
+    }
+
+    void shape(View v, int color) {
+      var gd = new GradientDrawable();
+      gd.setStroke(1, Color.WHITE);
+      gd.setCornerRadius(20f);
+      gd.setColor(color);
+      v.setBackground(gd);
+    }
+
+    @Override
+    public int getItemCount() {
+      return items.size();
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+      TextView title;
+      View colorPreview;
+      ImageView editIcon;
+
+      ViewHolder(@NonNull View itemView) {
+        super(itemView);
+        title = itemView.findViewById(R.id.title);
+        colorPreview = itemView.findViewById(R.id.colorPreview);
+        editIcon = itemView.findViewById(R.id.editIcon);
+      }
+    }
+  }
+
+  private static class ColorItem {
+    String title;
+    String currentColor;
+    ColorUpdater updater;
+
+    ColorItem(String title, String currentColor, ColorUpdater updater) {
+      this.title = title;
+      this.currentColor = currentColor;
+      this.updater = updater;
+    }
+  }
+
+  private interface ColorUpdater {
+    void update(GhostTheme theme, String newColor);
+  }
+}

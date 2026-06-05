@@ -25,6 +25,25 @@ public class ShapeUtil {
     return createRippleDrawable(createShapeDrawable(view, 0, 0, 0, 0), view);
   }
 
+  public static Drawable shapeCustomView(Context context) {
+    float r = dpToPx(context, 20f);
+    ShapeAppearanceModel model =
+        ShapeAppearanceModel.builder()
+            .setTopLeftCornerSize(r)
+            .setTopRightCornerSize(r)
+            .setBottomLeftCornerSize(r)
+            .setBottomRightCornerSize(r)
+            .build();
+
+    MaterialShapeDrawable drawable = new MaterialShapeDrawable(model);
+    drawable.setFillColor(ColorStateList.valueOf(getSurfaceColor(context)));
+    drawable.setStroke(3, ColorStateList.valueOf(getcolorSurfaceContainer(context)));
+    drawable.setElevation(0);
+
+    ColorStateList rippleColor = ColorStateList.valueOf(getRippleColor(context));
+    return new RippleDrawable(rippleColor, drawable, null);
+  }
+
   public static Drawable shape(float topRadius, Context context) {
     float r = dpToPx(context, topRadius);
     ShapeAppearanceModel model =
@@ -64,6 +83,10 @@ public class ShapeUtil {
     return MaterialColors.getColor(v, R.attr.colorSurfaceContainer);
   }
 
+  public static int getcolorSurfaceContainer(Context v) {
+    return MaterialColors.getColor(v, R.attr.colorSurfaceContainer, 0);
+  }
+
   private static Drawable createRippleDrawable(Drawable content, View view) {
     ColorStateList rippleColor = ColorStateList.valueOf(getRippleColor(view));
     return new RippleDrawable(rippleColor, content, null);
@@ -92,7 +115,8 @@ public class ShapeUtil {
   private static int getSurfaceColor(Context context) {
     return MaterialColors.getColor(context, R.attr.colorSurface, 0);
   }
-  public static int getcolorPrimaryContainer(View v ){
-    return MaterialColors.getColor(v,R.attr.colorPrimaryContainer,0);
+
+  public static int getcolorPrimaryContainer(View v) {
+    return MaterialColors.getColor(v, R.attr.colorPrimaryContainer, 0);
   }
 }

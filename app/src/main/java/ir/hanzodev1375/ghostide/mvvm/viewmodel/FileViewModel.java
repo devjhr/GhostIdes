@@ -7,12 +7,12 @@ import android.os.Looper;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import ir.hanzodev1375.ghostide.utils.FileUtil;
 import ir.hanzodev1375.ghostide.utils.PathManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -27,6 +27,7 @@ public class FileViewModel extends AndroidViewModel {
   private MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
   private MutableLiveData<String> currentPath = new MutableLiveData<>();
   private PathManager pathManager;
+  private FileState fileState = FileState.NONE;
 
   public FileViewModel(Application app) {
     super(app);
@@ -87,8 +88,8 @@ public class FileViewModel extends AndroidViewModel {
     }
   }
 
-  private void loadFiles(String dirPath) {
-    isLoading.postValue(true); // استفاده از postValue
+  public void loadFiles(String dirPath) {
+    isLoading.postValue(true);
     new Thread(
             () -> {
               List<FileManagerModel> list = new ArrayList<>();
@@ -103,10 +104,9 @@ public class FileViewModel extends AndroidViewModel {
                 for (File file : files) {
                   String name = file.getName();
                   if (!name.startsWith(".")) {
-                    FileState state = file.isDirectory() ? FileState.CREATOR : FileState.SERACH;
-                    FileManagerModel model =
+                    FileManagerModel model = 
                         new FileManagerModel(
-                            file.getAbsolutePath(), name, state, file.lastModified());
+                            file.getAbsolutePath(), name, fileState, file.lastModified());
                     list.add(model);
                   }
                 }
@@ -207,6 +207,31 @@ public class FileViewModel extends AndroidViewModel {
     }
   }
 
+  public void createFolder(String folderName) {
+    String currentDir = currentPath.getValue();
+    if (currentDir == null) return;
+
+    File newFolder = new File(currentDir, folderName);
+    if (!newFolder.exists()) {
+      newFolder.mkdirs();
+      loadFiles(currentDir);
+    }
+  }
+
+  public void createFile(String fileName) {
+    String currentDir = currentPath.getValue();
+    if (currentDir == null) return;
+    File newFile = new File(currentDir, fileName);
+    if (!newFile.exists()) {
+      try {
+        newFile.createNewFile();
+        
+        loadFiles(currentDir);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
   public interface OnPasteComplete {
     void onComplete(boolean success);
   }

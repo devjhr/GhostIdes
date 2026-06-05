@@ -3,17 +3,21 @@ package ir.theme;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.skydoves.powermenu.PowerMenu;
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
+import ir.hanzodev1375.ghostide.customui.LayoutSymbolbar;
 
 public class ThemeUtils {
 
@@ -26,7 +30,64 @@ public class ThemeUtils {
   public GhostTheme getTheme() {
     return manager.getTheme();
   }
-  
+
+  public void applyImageBackground(ImageView v) {
+    GhostTheme theme = getTheme();
+    if (theme == null) {
+      return;
+    }
+    WidgetTheme w = theme.getWidget();
+    if (w == null) {
+      return;
+    }
+    if (!w.getImagepath().isEmpty()) {
+      v.setVisibility(View.VISIBLE);
+      Glide.with(v.getContext()).load(w.getImagepath()).into(v);
+    } else v.setVisibility(View.INVISIBLE);
+  }
+
+  public void applyView(View v) {
+    GhostTheme theme = getTheme();
+    if (theme == null) {
+      return;
+    }
+    if (theme.getActivity() == null) {
+      return;
+    }
+    ActivityTheme colors = theme.getActivity();
+    v.setBackgroundColor(Color.parseColor(colors.getBackground()));
+  }
+
+  public void applySymbolBarLayout(LayoutSymbolbar bar) {
+    GhostTheme theme = getTheme();
+    if (theme == null) {
+      return;
+    }
+    if (theme.getEditor() == null) {
+      return;
+    }
+    var colors = theme.getEditor();
+    var gd = new GradientDrawable();
+    gd.setCornerRadius(40f);
+    gd.setStroke(3, Color.parseColor(colors.getCompletionWndCorner()));
+    gd.setColor(Color.parseColor(colors.getCompletionWndBackground()));
+    bar.setBackground(gd);
+  }
+
+  public void applySymbolBarText(TextView bar) {
+    GhostTheme theme = getTheme();
+    if (theme == null) {
+      return;
+    }
+    if (theme.getEditor() == null) {
+      return;
+    }
+    var colors = theme.getEditor();
+    
+    bar.setTextColor(Color.parseColor(colors.getCompletionWndTextPrimary()));
+    
+  }
+
   public void applyActivity(AppCompatActivity activity) {
 
     GhostTheme theme = getTheme();
@@ -48,20 +109,22 @@ public class ThemeUtils {
     if (colors.getNavigationBar() != null) {
       window.setNavigationBarColor(parseColor(colors.getNavigationBar()));
     }
-
+    /*
     if (colors.getBackground() != null) {
-      View decor = window.getDecorView();
-      decor.setBackgroundColor(parseColor(colors.getBackground()));
-    }
+        View decor = window.getDecorView();
+        decor.setBackgroundColor(parseColor(colors.getBackground()));
+      }
+      */
   }
-  public PowerMenu apply(Context c ){
+
+  public PowerMenu apply(Context c) {
     var menu = new PowerMenu.Builder(c).build();
     GhostTheme theme = getTheme();
     if (theme == null) {
-      Log.e("PowerMenu","theme has null");
+      Log.e("PowerMenu", "theme has null");
     }
     if (theme.getWidget() == null) {
-      Log.e("PowerMenu","theme has null");
+      Log.e("PowerMenu", "theme has null");
     }
     WidgetTheme widget = theme.getWidget();
     menu.setTextColor(Color.parseColor(widget.getMenutextcolor()));
@@ -72,7 +135,7 @@ public class ThemeUtils {
     menu.setMenuRadius(10f);
     menu.setMenuShadow(3f);
     menu.setAutoDismiss(true);
-    
+
     return menu;
   }
 
@@ -81,11 +144,14 @@ public class ThemeUtils {
     if (theme == null || theme.getEditor() == null) return;
     EditorTheme t = theme.getEditor();
     var scheme = editor.getColorScheme();
+
     scheme.setColor(GhostColorScheme.LINE_DIVIDER, parseColor(t.getLineDivider()));
     scheme.setColor(GhostColorScheme.LINE_NUMBER, parseColor(t.getLineNumber()));
     scheme.setColor(
         GhostColorScheme.LINE_NUMBER_BACKGROUND, parseColor(t.getLineNumberBackground()));
-    scheme.setColor(GhostColorScheme.WHOLE_BACKGROUND, parseColor(t.getWholeBackground()));
+
+    //  scheme.setColor(GhostColorScheme.WHOLE_BACKGROUND, parseColor(t.getWholeBackground()));
+    editor.getColorScheme().setColor(EditorColorScheme.WHOLE_BACKGROUND, 0);
     scheme.setColor(GhostColorScheme.TEXT_NORMAL, parseColor(t.getTextNormal()));
     scheme.setColor(
         GhostColorScheme.SELECTED_TEXT_BACKGROUND, parseColor(t.getSelectedTextBackground()));
@@ -104,8 +170,7 @@ public class ThemeUtils {
         GhostColorScheme.LINE_NUMBER_PANEL_TEXT, parseColor(t.getLineNumberPanelText()));
     scheme.setColor(
         GhostColorScheme.COMPLETION_WND_BACKGROUND, parseColor(t.getCompletionWndBackground()));
-    scheme.setColor(
-        GhostColorScheme.COMPLETION_WND_CORNER, parseColor(t.getCompletionWndCorner()));
+    scheme.setColor(GhostColorScheme.COMPLETION_WND_CORNER, parseColor(t.getCompletionWndCorner()));
     scheme.setColor(GhostColorScheme.KEYWORD, parseColor(t.getKeyword()));
     scheme.setColor(GhostColorScheme.COMMENT, parseColor(t.getComment()));
     scheme.setColor(GhostColorScheme.OPERATOR, parseColor(t.getOperator()));
@@ -149,8 +214,7 @@ public class ThemeUtils {
         parseColor(t.getHighlightedDelimitersBorder()));
     scheme.setColor(
         GhostColorScheme.TEXT_HIGHLIGHT_BACKGROUND, parseColor(t.getTextHighlightBackground()));
-    scheme.setColor(
-        GhostColorScheme.TEXT_HIGHLIGHT_BORDER, parseColor(t.getTextHighlightBorder()));
+    scheme.setColor(GhostColorScheme.TEXT_HIGHLIGHT_BORDER, parseColor(t.getTextHighlightBorder()));
     scheme.setColor(
         GhostColorScheme.TEXT_HIGHLIGHT_STRONG_BACKGROUND,
         parseColor(t.getTextHighlightStrongBackground()));
@@ -170,8 +234,7 @@ public class ThemeUtils {
     scheme.setColor(
         GhostColorScheme.SNIPPET_BACKGROUND_RELATED, parseColor(t.getSnippetBackgroundRelated()));
     scheme.setColor(
-        GhostColorScheme.SNIPPET_BACKGROUND_INACTIVE,
-        parseColor(t.getSnippetBackgroundInactive()));
+        GhostColorScheme.SNIPPET_BACKGROUND_INACTIVE, parseColor(t.getSnippetBackgroundInactive()));
     scheme.setColor(GhostColorScheme.HARD_WRAP_MARKER, parseColor(t.getHardWrapMarker()));
     scheme.setColor(
         GhostColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,
@@ -187,8 +250,7 @@ public class ThemeUtils {
         parseColor(t.getDiagnosticTooltipDetailedMsg()));
     scheme.setColor(
         GhostColorScheme.DIAGNOSTIC_TOOLTIP_ACTION, parseColor(t.getDiagnosticTooltipAction()));
-    scheme.setColor(
-        GhostColorScheme.STICKY_SCROLL_DIVIDER, parseColor(t.getStickyScrollDivider()));
+    scheme.setColor(GhostColorScheme.STICKY_SCROLL_DIVIDER, parseColor(t.getStickyScrollDivider()));
     scheme.setColor(GhostColorScheme.STRIKETHROUGH, parseColor(t.getStrikeThrough()));
     scheme.setColor(GhostColorScheme.SIDE_BLOCK_LINE, parseColor(t.getSideBlockLine()));
     scheme.setColor(
@@ -202,8 +264,7 @@ public class ThemeUtils {
         GhostColorScheme.COMPLETION_WND_TEXT_MATCHED, parseColor(t.getCompletionWndTextMatched()));
     scheme.setColor(GhostColorScheme.SIGNATURE_BACKGROUND, parseColor(t.getSignatureBackground()));
     scheme.setColor(GhostColorScheme.SIGNATURE_BORDER, parseColor(t.getSignatureBorder()));
-    scheme.setColor(
-        GhostColorScheme.SIGNATURE_TEXT_NORMAL, parseColor(t.getSignatureTextNormal()));
+    scheme.setColor(GhostColorScheme.SIGNATURE_TEXT_NORMAL, parseColor(t.getSignatureTextNormal()));
     scheme.setColor(
         GhostColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
         parseColor(t.getSignatureTextHighlightedParameter()));
@@ -227,7 +288,6 @@ public class ThemeUtils {
   public void applyTextView(TextView textView) {
 
     GhostTheme theme = getTheme();
-    
 
     if (theme == null) {
       return;
@@ -322,31 +382,10 @@ public class ThemeUtils {
   }
 
   private int parseColor(String color) {
-
     try {
-
       return Color.parseColor(color);
-
     } catch (Exception e) {
-
       return Color.WHITE;
     }
-  }
-
-  private String toConstant(String camelCase) {
-
-    StringBuilder builder = new StringBuilder();
-
-    for (char c : camelCase.toCharArray()) {
-
-      if (Character.isUpperCase(c)) {
-
-        builder.append("_");
-      }
-
-      builder.append(Character.toUpperCase(c));
-    }
-
-    return builder.toString();
   }
 }

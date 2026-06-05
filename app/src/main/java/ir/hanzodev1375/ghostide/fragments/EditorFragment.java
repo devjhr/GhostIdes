@@ -5,6 +5,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
@@ -49,7 +53,7 @@ public class EditorFragment extends Fragment {
     var manager = new ThemeManager(requireActivity());
     theme = new ThemeUtils(manager);
     theme.applyEditor(editor);
-
+    applyImeInsets(binding.getRoot());
     viewModel
         .getLoading()
         .observe(
@@ -101,5 +105,25 @@ public class EditorFragment extends Fragment {
 
   public IdeEditor getEditor() {
     return editor;
+  }
+
+  /**
+   * Applies dynamic bottom padding or margin adjustment so that the given view stays above the soft
+   * keyboard when it appears.
+   *
+   * @param target The view that should remain visible (e.g., bottom sheet, header, etc.)
+   */
+  void applyImeInsets(@NonNull final View target) {
+    ViewCompat.setOnApplyWindowInsetsListener(
+        target,
+        (v, insets) -> {
+          Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+          Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+          int bottomInset = Math.max(imeInsets.bottom, navInsets.bottom);
+
+          v.setPadding(
+              v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottomInset);
+          return insets;
+        });
   }
 }

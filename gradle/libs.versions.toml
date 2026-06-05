@@ -10,6 +10,8 @@ constraintlayout = "2.2.1"
 soraEditorVersion = "0.24.5"
 # Gson 
 gsonversion = "2.14.0"
+swiperefreshlayout = "1.1.0"
+recyclerviewSelection = "1.1.0"
 
 #glide
 glide = "5.0.7"
@@ -45,3 +47,5 @@ glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 glide-avif-integration = { module = "com.github.bumptech.glide:avif-integration", version.ref = "glide" }
 jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
+androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+androidx-recyclerview-selection = { module = "androidx.recyclerview:recyclerview-selection", version.ref = "recyclerviewSelection" }

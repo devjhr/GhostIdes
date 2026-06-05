@@ -37,6 +37,7 @@ android {
 dependencies {
     implementation project(path: ":editor")
     implementation project(path: ":materialfileicon")
+    implementation project(path: ":components")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -49,7 +50,7 @@ dependencies {
     annotationProcessor(libs.glide.compiler) 
     implementation(libs.glide.avif.integration)
     //implementation(libs.jgit)
-    implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
-
+    implementation(libs.androidx.recyclerview.selection)
+    implementation(libs.androidx.swiperefreshlayout)
   
 }

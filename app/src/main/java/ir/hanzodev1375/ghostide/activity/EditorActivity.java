@@ -2,11 +2,18 @@ package ir.hanzodev1375.ghostide.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.PopupMenu;
+
 import android.widget.Toast;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.ViewCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -18,6 +25,7 @@ import com.skydoves.powermenu.PowerMenuItem;
 import ir.hanzodev1375.ghostide.adapters.ToolbarListAdapter;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import androidx.fragment.app.Fragment;
+import ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch;
 import ir.hanzodev1375.ghostide.fragments.EditorFragment;
 import ir.hanzodev1375.ghostide.models.ToolbarModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
@@ -43,6 +51,7 @@ public class EditorActivity extends BaseCompat {
   private static final String KEY_POSITION = "positionTabs";
   private TabLayoutMediator tabMediator;
   private ToolbarListAdapter listAdapter;
+  private boolean isShowSys = false;
   private List<ToolbarModel> toolbarModel = new ArrayList<>();
 
   @Override
@@ -50,7 +59,6 @@ public class EditorActivity extends BaseCompat {
     super.onCreate(savedInstanceState);
     binding = ActivityEditorBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
-
     prefs = getSharedPreferences("editor", MODE_PRIVATE);
 
     setupViewPager();
@@ -65,6 +73,8 @@ public class EditorActivity extends BaseCompat {
     theme.applyActivity(this);
     theme.applyFab(binding.fabineditor);
     theme.applyTabLayout(binding.tab);
+    theme.applyView(binding.mainContent);
+    theme.applyImageBackground(binding.backgroundicon);
 
     String path = getIntent().getStringExtra("file_path");
     String name = getIntent().getStringExtra("file_name");
@@ -72,11 +82,124 @@ public class EditorActivity extends BaseCompat {
       openFile(path, name);
     }
     stepToolbar();
+    setupKeyboardListener();
+    binding.symbolBarContainer.hide();
+    binding.symbolBarContainer.bindEditor(getEditor());
+
+    ViewCompat.setOnApplyWindowInsetsListener(
+        binding.getRoot(),
+        (v, insets) -> {
+          int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+          int navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+          int imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+          if (navBarHeight == 0) {
+            navBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+          }
+
+          var mainContent = binding.mainContent;
+          if (mainContent != null) {
+            mainContent.setPadding(0, statusBarHeight, 0, navBarHeight);
+          }
+          CoordinatorLayout.LayoutParams fabParams =
+              (CoordinatorLayout.LayoutParams) binding.fabineditor.getLayoutParams();
+          int originalFabBottomMarginDp = 20;
+          int originalFabBottomMarginPx =
+              (int)
+                  TypedValue.applyDimension(
+                      TypedValue.COMPLEX_UNIT_DIP,
+                      originalFabBottomMarginDp,
+                      getResources().getDisplayMetrics());
+          int newFabMargin = navBarHeight + originalFabBottomMarginPx;
+          if (imeHeight > 0) {
+            newFabMargin += imeHeight;
+          }
+          fabParams.bottomMargin = newFabMargin;
+          binding.fabineditor.setLayoutParams(fabParams);
+          CoordinatorLayout.LayoutParams searchParams =
+              (CoordinatorLayout.LayoutParams) binding.editorSearch.getLayoutParams();
+          int gapFromKeyboardDp = 8;
+          int gapPx =
+              (int)
+                  TypedValue.applyDimension(
+                      TypedValue.COMPLEX_UNIT_DIP,
+                      gapFromKeyboardDp,
+                      getResources().getDisplayMetrics());
+          if (imeHeight > 0) {
+            searchParams.bottomMargin = imeHeight + gapPx;
+          } else {
+            int defaultBottomDp = 16;
+            int defaultPx =
+                (int)
+                    TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        defaultBottomDp,
+                        getResources().getDisplayMetrics());
+            searchParams.bottomMargin = defaultPx;
+          }
+          binding.editorSearch.setLayoutParams(searchParams);
+          CoordinatorLayout.LayoutParams symbolParams =
+              (CoordinatorLayout.LayoutParams) binding.symbolBarContainer.getLayoutParams();
+          if (imeHeight > 0) {
+            symbolParams.bottomMargin = imeHeight + gapPx;
+          } else {
+            int defaultBottomDp = 16;
+            int defaultPx =
+                (int)
+                    TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        defaultBottomDp,
+                        getResources().getDisplayMetrics());
+            symbolParams.bottomMargin = defaultPx;
+          }
+          binding.symbolBarContainer.setLayoutParams(symbolParams);
+
+          return insets;
+        });
   }
 
+  private void setupKeyboardListener() {
+    View rootView = getWindow().getDecorView();
+    rootView
+        .getViewTreeObserver()
+        .addOnGlobalLayoutListener(
+            () -> {
+              Rect r = new Rect();
+              rootView.getWindowVisibleDisplayFrame(r);
+              int screenHeight = rootView.getRootView().getHeight();
+              int keypadHeight = screenHeight - r.bottom;
+              if (binding.editorSearch.isShowing) {
+                binding.symbolBarContainer.hide();
+                return;
+              }
+
+              if (keypadHeight > screenHeight * 0.15) {
+                
+                binding
+                    .backgroundicon
+                    .animate()
+                    .scaleX(1.5f)
+                    .scaleY(1.5f)
+                    .setDuration(1000)
+                    .start();
+                binding.symbolBarContainer.show();
+              } else {
+                
+                binding
+                    .backgroundicon
+                    .animate()
+                    .scaleX(1.0f)
+                    .scaleY(1.0f)
+                    .setDuration(1000)
+                    .start();
+                isShowSys = false;
+                binding.symbolBarContainer.hide();
+              }
+            });
+  }
   void stepToolbar() {
-    toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo")); // اول undo
-    toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo")); // بعد redo
+    toolbarModel.add(new ToolbarModel(R.drawable.outline_search, "search"));
+    toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo"));
+    toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo"));
     toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
 
     listAdapter =
@@ -84,19 +207,39 @@ public class EditorActivity extends BaseCompat {
             toolbarModel,
             (view, m, pos) -> {
               switch (pos) {
-                case 0 -> {
+                case 0 -> stepSearch();
+                case 1 -> {
                   if (getEditor().canUndo()) getEditor().undo();
                 }
-                case 1 -> {
+                case 2 -> {
                   if (getEditor().canRedo()) getEditor().redo();
                 }
-                case 2 -> setupMenuCalltoAction(view);
+                case 3 -> setupMenuCalltoAction(view);
               }
             },
             EditorActivity.this);
     binding.rvtoolbar.setLayoutManager(
         new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
     binding.rvtoolbar.setAdapter(listAdapter);
+  }
+
+  void stepSearch() {
+    binding.editorSearch.bindEditor(getEditor());
+    binding.editorSearch.setCallBack(
+        new GhostIdeEditorSearch.onViewChange() {
+          @Override
+          public void onViewShow() {
+            binding.fabineditor.hide();
+            binding.symbolBarContainer.hide();
+          }
+
+          @Override
+          public void onViewHide() {
+            binding.fabineditor.show();
+            // binding.symbolBarContainer.show();
+          }
+        });
+    binding.editorSearch.showAndHide();
   }
 
   void setupMenuCalltoAction(View v) {
@@ -164,6 +307,7 @@ public class EditorActivity extends BaseCompat {
             if (tab != null && !tab.isSelected()) {
               tab.select();
             }
+            binding.symbolBarContainer.bindEditor(getEditor());
             saveCurrentPosition(position);
           }
         });
@@ -291,11 +435,23 @@ public class EditorActivity extends BaseCompat {
     }
   }
 
+  private String getCurrentFilePath() {
+    int currentPos = binding.viewPager.getCurrentItem();
+    if (currentPos >= 0 && currentPos < tabsList.size()) {
+      return tabsList.get(currentPos).getFilePath();
+    }
+    return null;
+  }
+
   private void setupFAB() {
     binding.fabineditor.setOnClickListener(
         v -> {
-          Intent intent = new Intent(this, FileManagerActivity.class);
-          startActivityForResult(intent, 100);
+          String currentFilePath = getCurrentFilePath();
+          if (currentFilePath.endsWith(".html")) {
+            Intent intent = new Intent(EditorActivity.this, WebViewActivity.class);
+            intent.putExtra("keyweb", currentFilePath);
+            startActivity(intent);
+          }
         });
   }
 

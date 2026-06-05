@@ -2,6 +2,7 @@ package ir.hanzodev1375.ghostide.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -31,9 +32,10 @@ public class BaseCompat extends AppCompatActivity
   @Override
   protected void onCreate(Bundle arg0) {
     prefs = new PreferencesUtils(this);
-    
     EdgeToEdge.enable(this);
     super.onCreate(arg0);
+    getWindow().setNavigationBarColor(Color.TRANSPARENT);
+    getWindow().setStatusBarColor(Color.TRANSPARENT);
   }
 
   @Override

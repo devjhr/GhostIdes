@@ -93,5 +93,11 @@
     <string name="pref_load_theme_file_desc">Import .gth theme file from storage</string>
     <string name="saveitemthis">Save this</string>
     <string name="saveitemall">Save All</string>
-
+    <string name="removed">Removed</string>
+    <string name="removedmassges">Removed file in %s</string>
+    <string name="rename">Rename</string>
+    <string name="search_hint">Search…</string>
+    <string name="replace">Replace</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
 </resources>

@@ -5,13 +5,22 @@
      xmlns:tools="http://schemas.android.com/tools"
      android:layout_height="match_parent"
      android:layout_width="match_parent"
-     android:fitsSystemWindows="true"
+     android:fitsSystemWindows="false"
      android:id="@+id/_coordinator">
+
+    <ImageView
+         android:layout_height="match_parent"
+         android:layout_width="match_parent"
+         android:visibility="invisible"
+         android:scaleType="centerCrop"
+         android:id="@+id/backgroundicon" />
 
     <LinearLayout
          android:layout_height="match_parent"
          android:layout_width="match_parent"
-         android:orientation="vertical">
+         android:background="@android:color/transparent"
+         android:orientation="vertical"
+         android:id="@+id/mainContent">
 
         <LinearLayout
              android:layout_height="match_parent"
@@ -27,12 +36,12 @@
                 <ImageView
                      android:layout_height="40dp"
                      android:layout_width="40dp"
-                     android:src="@drawable/user"
                      android:scaleType="centerInside"
-                     android:layout_marginStart="6dp"
+                     android:src="@drawable/user"
                      app:layout_constraintTop_toTopOf="parent"
                      app:layout_constraintStart_toStartOf="parent"
                      app:layout_constraintBottom_toBottomOf="parent"
+                     android:layout_marginStart="6dp"
                      android:id="@+id/userIcon" />
 
                 <TextView
@@ -49,9 +58,9 @@
                 <androidx.recyclerview.widget.RecyclerView
                      android:layout_height="wrap_content"
                      android:layout_width="wrap_content"
-                     android:padding="6dp"
                      android:layout_marginEnd="6dp"
                      app:layout_constraintTop_toTopOf="parent"
+                     android:padding="6dp"
                      app:layout_constraintEnd_toEndOf="parent"
                      app:layout_constraintBottom_toBottomOf="parent"
                      android:id="@+id/rvtoolbar" />
@@ -81,12 +90,30 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
          android:layout_height="wrap_content"
          android:layout_width="wrap_content"
-         android:layout_marginBottom="30dp"
+         android:layout_marginBottom="16dp"
          android:src="@drawable/play_arrow"
-         android:layout_marginLeft="16dp"
+         android:elevation="6dp"
          android:layout_marginRight="16dp"
-         android:layout_marginTop="16dp"
+         android:outlineProvider="none"
          android:id="@+id/fabineditor"
          android:layout_gravity="right|bottom" />
+
+    <ir.hanzodev1375.ghostide.customui.LayoutSymbolbar
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:layout_marginBottom="0dp"
+         android:layout_marginEnd="16dp"
+         android:layout_marginStart="16dp"
+         android:id="@+id/symbolBarContainer"
+         android:layout_gravity="bottom|end" />
+
+    <ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:elevation="4dp"
+         android:layout_marginLeft="16dp"
+         android:layout_marginRight="16dp"
+         android:id="@+id/editorSearch"
+         android:layout_gravity="bottom" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

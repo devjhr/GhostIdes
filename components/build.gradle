@@ -17,9 +17,10 @@ android {
     }
     buildFeatures {
         aidl= true
+        viewBinding= true
     }
 }
 
 dependencies {
-    
+    implementation(libs.material)
 }

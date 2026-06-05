@@ -87,32 +87,35 @@ public class HtmlLanguage implements Language {
       @NonNull Bundle es) {
     String prefix = CompletionHelper.computePrefix(content, position, CharParser::parserHtml);
     // try {
-      // var listPath = PathCompleter.getPathCompletions(es.getString("path"), prefix);
-      // for (var it : listPath) {
-        // publisher.addItem(it);
-      // }
+    // var listPath = PathCompleter.getPathCompletions(es.getString("path"), prefix);
+    // for (var it : listPath) {
+    // publisher.addItem(it);
+    // }
 
     // } catch (Exception err) {
 
     // }
     if (isInsideStyleTag(content, position)) {
-      
+
       for (CssCompletionItem item : CssHelper.getPropertyItemsByPrefix(prefix)) {
         publisher.addItem(item);
       }
 
-      
       Css3Server cssServer = new Css3Server();
       List<CustomCompletionItem> cssItems = cssServer.getCompletions(prefix);
       for (CustomCompletionItem item : cssItems) {
         publisher.addItem(item);
       }
 
-      
       for (CustomCompletionItem item : HtmlHelper.getNormalTag(prefix)) {
         publisher.addItem(item);
       }
       return;
+    }
+    if (isInsidescriptTag(content, position)) {
+      for (var item : HtmlHelper.getJsKeywordItems(prefix)) {
+        publisher.addItem(item);
+      }
     }
 
     autoComplete.requireAutoComplete(
@@ -237,6 +240,60 @@ public class HtmlLanguage implements Language {
     }
   }
 
+  private boolean isInsidescriptTag(ContentReference content, CharPosition pos) {
+    try {
+      int line = pos.line;
+      int column = pos.column;
+      boolean scriptOpened = false;
+      boolean scriptClosed = false;
+      String currentLine = content.getLine(line);
+      int searchEnd = column;
+
+      int scriptStart = currentLine.lastIndexOf("<script", searchEnd);
+      if (scriptStart != -1) {
+        int closeBracket = currentLine.indexOf('>', scriptStart);
+        if (closeBracket != -1 && closeBracket < searchEnd) {
+          scriptOpened = true;
+        }
+      }
+      int scriptEnd = currentLine.lastIndexOf("</script>", searchEnd);
+      if (scriptEnd != -1 && scriptEnd + 8 <= searchEnd) {
+        scriptClosed = true;
+      }
+
+      if (scriptClosed && scriptOpened && scriptEnd > scriptStart) {
+        return false;
+      }
+      if (scriptOpened && !scriptClosed) {
+        return true;
+      }
+
+      for (int i = line - 1; i >= 0; i--) {
+        String l = content.getLine(i);
+        int startIdx = l.lastIndexOf("<script");
+        if (startIdx != -1) {
+          int closeIdx = l.indexOf('>', startIdx);
+          if (closeIdx != -1) {
+            scriptOpened = true;
+          }
+          break;
+        }
+      }
+      for (int i = line - 1; i >= 0; i--) {
+        String l = content.getLine(i);
+        int endIdx = l.lastIndexOf("</script>");
+        if (endIdx != -1) {
+          scriptClosed = true;
+          break;
+        }
+      }
+
+      return scriptOpened && !scriptClosed;
+    } catch (Exception ignored) {
+      return false;
+    }
+  }
+
   private boolean isInsideTag(ContentReference content, CharPosition pos) {
     try {
       String line = content.getLine(pos.line);
@@ -251,7 +308,7 @@ public class HtmlLanguage implements Language {
     return false;
   }
 
-@Override
+  @Override
   public int getIndentAdvance(@NonNull ContentReference text, int line, int column) {
 
     try {
@@ -261,10 +318,10 @@ public class HtmlLanguage implements Language {
       while (((token = lexer.nextToken()) != null && token.getType() != token.EOF)) {
         switch (token.getType()) {
           case HTMLLexer.LBRACE:
-          case HTMLLexer.OPEN_SLASH:
+          case HTMLLexer.LT:
             advance++;
             break;
-          case HTMLLexer.SLASH_CLOSE:  
+          case HTMLLexer.SLASH_CLOSE:
           case HTMLLexer.RBRACE:
             advance--;
             break;
@@ -277,7 +334,6 @@ public class HtmlLanguage implements Language {
     }
     return 0;
   }
-
 
   @Override
   public boolean useTab() {

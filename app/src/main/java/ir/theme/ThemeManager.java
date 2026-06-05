@@ -199,7 +199,9 @@ public class ThemeManager {
                 "imageTint": "#abb2bf",
                 "menubackground":"#282c34",
                 "menutextcolor":"#abb2bf",
-                "selectedmenucolor":"#3e4452"
+                "selectedmenucolor":"#3e4452",
+                "imagepath":"",
+                "blursize" : 1
             }
         }
         """;

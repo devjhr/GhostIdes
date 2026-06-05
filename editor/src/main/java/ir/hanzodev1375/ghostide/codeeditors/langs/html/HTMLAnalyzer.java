@@ -217,21 +217,24 @@ public class HTMLAnalyzer extends CodeAnalyzer {
             color = GhostColorScheme.COLORNEXTDOT;
           } else if (pretoken == HTMLLexer.CLASS
               || pretoken == HTMLLexer.CLASS
-              || pretoken == HTMLLexer.ABSTRACT) {
+              || pretoken == HTMLLexer.ABSTRACT
+              || pretoken == HTMLLexer.FUNCTION) {
             color = COLORNEXTCHAR;
           } else if (pretoken == HTMLLexer.LET
               || pretoken == HTMLLexer.VAR
               || pretoken == HTMLLexer.CASE
+              || pretoken == HTMLLexer.INSTANCEOF
               || pretoken == HTMLLexer.NEW
               || pretoken == HTMLLexer.BOOLEAN) {
             color = COLORNEXTLESS;
           } else {
             color = TEXT_NORMAL;
           }
-//          if (token.getText().equals("main")) {
-//            getManagedStyles()
-//                .addLineStyle(new LineSideIcon(token.getLine(), new ColorDrawable(Color.CYAN)));
-//          }
+          //          if (token.getText().equals("main")) {
+          //            getManagedStyles()
+          //                .addLineStyle(new LineSideIcon(token.getLine(), new
+          // ColorDrawable(Color.CYAN)));
+          //          }
           spans.add(Span.obtain(offset, color));
           break;
 
@@ -260,5 +263,17 @@ public class HTMLAnalyzer extends CodeAnalyzer {
 
   public IdentifierAutoComplete.SyncIdentifiers getSyncIdentifiers() {
     return syncIdentifiers;
+  }
+
+  @Override
+  protected boolean isCodeBlockStart(IncrementalToken token) {
+    int type = token.getType();
+    return type == HTMLLexer.LT || type == HTMLLexer.LBRACE;
+  }
+
+  @Override
+  protected boolean isCodeBlockEnd(IncrementalToken token) {
+    int type = token.getType();
+    return type == HTMLLexer.OPEN_SLASH|| type == HTMLLexer.RBRACE;
   }
 }

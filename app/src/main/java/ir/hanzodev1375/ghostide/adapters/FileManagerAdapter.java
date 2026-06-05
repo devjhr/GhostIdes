@@ -145,7 +145,6 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
               if (count > 0) selectionStateListener.onSelectionModeStarted();
               else selectionStateListener.onSelectionModeEnded();
             }
-            // notifyDataSetChanged();
           }
         });
   }
@@ -330,6 +329,23 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
       gd.setCornerRadius(8);
       ivIcon.setPadding(5, 5, 5, 5);
       ivIcon.setBackground(gd);
+      int color;
+      switch (item.getState()) {
+        case CREATOR:
+          color = MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorOnPrimary);
+          break;
+        case RENAME:
+          color =
+              MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorSecondary);
+          break;
+        case SERACH:
+          color = MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorTertiary);
+          break;
+        default:
+          color =
+              MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorOnSurface);
+      }
+      tvName.setTextColor(color);
     }
 
     private SpannableString getHighlightedText(String text, String query) {

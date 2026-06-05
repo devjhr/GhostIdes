@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +21,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.skydoves.powermenu.MenuAnimation;
+import com.skydoves.powermenu.PowerMenu;
+import com.skydoves.powermenu.PowerMenuItem;
+import ir.hanzodev1375.components.RenameDialogFragment;
+import ir.hanzodev1375.components.TextInputDialogFragment;
 import ir.hanzodev1375.ghostide.adapters.FileManagerAdapter;
 import ir.hanzodev1375.ghostide.databinding.ActivityFilemanagerBinding;
 import ir.hanzodev1375.ghostide.databinding.SelectionPanelBinding;
@@ -28,6 +36,7 @@ import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.hanzodev1375.ghostide.utils.MarginItemDecoration;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
+import ir.theme.themeeditor.ThemeEditorActivity;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,11 +52,12 @@ public class FileManagerActivity extends BaseCompat {
   private FileManagerAdapter adapter;
   private View selectionPanel;
   private TextView selectionCount;
-  private ImageView btnCopy, btnCut, btnDelete, btnPaste, btnClose;
+  private ImageView btnCopy, btnCut, btnDelete, btnPaste, btnClose, btnSelectall;
   private boolean isCutOperation = false;
   private List<FileManagerModel> pendingClipboard = new ArrayList<>();
   private SelectionPanelBinding selectionPanelBinding;
-  private Set<String> itemname = new HashSet<>(Arrays.asList(".html", ".java", ".cpp",".css",".js"));
+  private Set<String> itemname =
+      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js"));
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +89,11 @@ public class FileManagerActivity extends BaseCompat {
         .observe(
             this,
             files -> {
-              adapter.submitList(files);
+              adapter.submitList(new ArrayList<>(files));
+              bind.rvfiles.post(
+                  () -> {
+                    adapter.notifyDataSetChanged();
+                  });
               if (files == null || files.isEmpty()) {
                 bind.emptystates.setVisibility(View.VISIBLE);
                 bind.rvfiles.setVisibility(View.GONE);
@@ -117,7 +131,7 @@ public class FileManagerActivity extends BaseCompat {
     bind.navmodel
         .getAdapter()
         .setOnItemClickListener((view, nav, pos) -> viewModel.navigateTo(nav.getFilePath()));
-
+    stepMoreAdapter();
     setupSelectionPanel();
     adapter.setSelectionStateListener(
         new FileManagerAdapter.SelectionStateListener() {
@@ -128,7 +142,7 @@ public class FileManagerActivity extends BaseCompat {
               if (selectionPanel != null) selectionPanel.setVisibility(View.GONE);
             } else if (count > 0) {
               selectionPanel.setVisibility(View.VISIBLE);
-              selectionCount.setText(String.valueOf(count));
+              selectionCount.setText("Item select " + String.valueOf(count));
             } else if (count == 0 && !pendingClipboard.isEmpty()) {
 
               selectionCount.setText("0");
@@ -159,6 +173,11 @@ public class FileManagerActivity extends BaseCompat {
       intent.putExtra("file_path", path);
       intent.putExtra("file_name", name);
       startActivity(intent);
+    } else if (path.endsWith(".gth")) {
+      Intent i = new Intent(FileManagerActivity.this, ThemeEditorActivity.class);
+      i.putExtra(ThemeEditorActivity.EXTRA_THEME_PATH, path);
+      startActivity(i);
+
     } else {
       Toast.makeText(this, "فرمت فایل پشتیبانی نمی‌شود", Toast.LENGTH_SHORT).show();
     }
@@ -174,7 +193,8 @@ public class FileManagerActivity extends BaseCompat {
     btnDelete = selectionPanelBinding.btnDelete;
     btnPaste = selectionPanelBinding.btnPaste;
     btnClose = selectionPanelBinding.btnClose;
-
+    btnSelectall = selectionPanelBinding.btnSelectall;
+    selectionPanelBinding.getRoot().setBackground(ShapeUtil.shapeCustomView(this));
     btnCopy.setOnClickListener(
         v -> {
           List<FileManagerModel> selected = adapter.getSelectedItems();
@@ -243,14 +263,14 @@ public class FileManagerActivity extends BaseCompat {
           }
         });
 
-    btnPaste.setOnLongClickListener(
+    btnSelectall.setOnClickListener(
         v -> {
           adapter.selectAll();
-          selectionCount.setText(String.valueOf(adapter.getSelectedItems().size()));
+          selectionCount.setText(
+              "Item select " + String.valueOf(adapter.getSelectedItems().size()));
           if (selectionPanel.getVisibility() != View.VISIBLE) {
             selectionPanel.setVisibility(View.VISIBLE);
           }
-          return true;
         });
     btnClose.setOnClickListener(
         v -> {
@@ -309,5 +329,109 @@ public class FileManagerActivity extends BaseCompat {
                 }
               }
             });
+  }
+
+  void stepMoreAdapter() {
+
+    adapter.setOnMoreClickListener(
+        (filemodel, view, pos) -> {
+          PowerMenu menu = new PowerMenu.Builder(view.getContext()).setIsMaterial(true).build();
+
+          menu.addItem(new PowerMenuItem(getString(R.string.removed)));
+          menu.addItem(new PowerMenuItem(getString(R.string.rename)));
+          // test
+          menu.addItem(new PowerMenuItem(getString(R.string.removed)));
+          menu.addItem(new PowerMenuItem(getString(R.string.rename)));
+
+          menu.setMenuColor(
+              MaterialColors.getColor(
+                  view.getContext(), com.google.android.material.R.attr.colorSurface, 0));
+
+          menu.setTextColor(
+              MaterialColors.getColor(
+                  view.getContext(), com.google.android.material.R.attr.colorOnSurface, 0));
+
+          menu.setShowBackground(false);
+          menu.setAutoDismiss(true);
+          menu.setMenuRadius(30f);
+          menu.setAnimation(MenuAnimation.FADE);
+
+          menu.setOnMenuItemClickListener(
+              (index, item) -> {
+                switch (index) {
+                  case 0 -> removedItem(filemodel);
+                  case 1 -> renameItem(filemodel);
+                  case 2 -> creatorFile(filemodel);
+                  case 3 -> creatorFolder(filemodel);
+                }
+              });
+
+          int[] location = new int[2];
+          view.getLocationOnScreen(location);
+
+          int x = location[0];
+          int y = location[1];
+
+          var dm = view.getResources().getDisplayMetrics();
+          int screenHeight = dm.heightPixels;
+
+          int menuHeight = menu.getContentViewHeight();
+
+          if (menuHeight <= 0) {
+            menuHeight = 200;
+          }
+
+          int spaceAbove = y;
+          int spaceBelow = screenHeight - (y + view.getHeight());
+
+          if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
+            y -= menuHeight;
+          } else {
+            y += view.getHeight();
+          }
+          menu.showAtLocation(view, Gravity.TOP | Gravity.START, x, y);
+        });
+  }
+
+  void renameItem(FileManagerModel model) {
+    RenameDialogFragment dialog =
+        RenameDialogFragment.getInstance(
+            model.getName(),
+            (prefix, extension) -> {
+              String displayName;
+              if (!TextUtils.isEmpty(extension)) {
+                displayName = prefix + "." + extension;
+              } else {
+                displayName = prefix;
+              }
+              viewModel.renameFile(model, displayName);
+            });
+    dialog.show(getSupportFragmentManager(), RenameDialogFragment.TAG);
+  }
+
+  void removedItem(FileManagerModel model) {
+
+    new MaterialAlertDialogBuilder(this)
+        .setTitle(getString(R.string.removed))
+        .setMessage(getString(R.string.removedmassges, model.getName() + "?"))
+        .setPositiveButton(
+            "OK",
+            (d, w) -> {
+              viewModel.deleteFile(model);
+            })
+        .setNegativeButton("Cancel", null)
+        .show();
+  }
+
+  void creatorFile(FileManagerModel model) {
+    TextInputDialogFragment.newInstance("ساخت فایل", "نام فایل", null)
+        .setCallback(text -> viewModel.createFile(text))
+        .show(getSupportFragmentManager(), null);
+  }
+
+  void creatorFolder(FileManagerModel model) {
+    TextInputDialogFragment.newInstance("ساخت پوشه", "پوشه", null)
+        .setCallback(text -> viewModel.createFolder(text))
+        .show(getSupportFragmentManager(), null);
   }
 }
