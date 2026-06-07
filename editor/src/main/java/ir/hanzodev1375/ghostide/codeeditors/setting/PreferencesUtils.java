@@ -39,6 +39,42 @@ public class PreferencesUtils {
     return true;
   }
 
+  public void setGitLocalUserName(String name) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_GIT_LOCAL_USER_NAME, name)
+        .apply();
+  }
+
+  public String getGitLocalUserName() {
+    return getDefaultPreferences()
+        .getString(Constants.SharedPreferenceKeys.KEY_GIT_LOCAL_USER_NAME, "");
+  }
+
+  public void setGitLocalUserEmail(String email) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_GIT_LOCAL_USER_EMAIL, email)
+        .apply();
+  }
+
+  public String getGitLocalUserEmail() {
+    return getDefaultPreferences()
+        .getString(Constants.SharedPreferenceKeys.KEY_GIT_LOCAL_USER_EMAIL, "");
+  }
+
+  public boolean hasGitLocalUserConfig() {
+    return !getGitLocalUserEmail().isEmpty() && !getGitLocalUserEmail().isEmpty();
+  }
+
+  public void clearGitLocalUserConfig() {
+    getDefaultPreferences()
+        .edit()
+        .remove(Constants.SharedPreferenceKeys.KEY_GIT_LOCAL_USER_NAME)
+        .remove(Constants.SharedPreferenceKeys.KEY_GIT_LOCAL_USER_EMAIL)
+        .apply();
+  }
+
   public int getCursorBlinkPeriod() {
     return getDefaultPreferences()
         .getInt(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_CURSOR_BLINK_PERIOD, 500);
@@ -88,9 +124,12 @@ public class PreferencesUtils {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_SHOWTAB_ICON, false);
   }
-  
-  public void setShowIconTab(boolean is){
-    getDefaultPreferences().edit().putBoolean(Constants.SharedPreferenceKeys.KEY_SHOWTAB_ICON,is).apply();
+
+  public void setShowIconTab(boolean is) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_SHOWTAB_ICON, is)
+        .apply();
   }
 
   public boolean enableMagnifier() {

@@ -14,7 +14,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import ir.hanzodev1375.ghostide.jgit.R; 
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import android.widget.EditText;
+import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.RepositoryStatus;
 import ir.hanzodev1375.ghostide.jgit.adapter.ViewPagerAdapter;
@@ -33,9 +36,7 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
     this.repoPath = repoPath;
   }
 
-  public GitBottomSheetFragment() {
-    
-  }
+  public GitBottomSheetFragment() {}
 
   public static GitBottomSheetFragment newInstance(String repoPath) {
     GitBottomSheetFragment fragment = new GitBottomSheetFragment();
@@ -59,7 +60,7 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
       @NonNull LayoutInflater inflater,
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-    
+
     return inflater.inflate(R.layout.bottom_sheet_git, container, false);
   }
 
@@ -70,7 +71,6 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
 
     progressBar = view.findViewById(R.id.progressBar);
 
-    
     viewModel.progressMessage.observe(
         getViewLifecycleOwner(),
         msg -> {
@@ -83,8 +83,14 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
     viewModel.repositoryStatus.observe(
         getViewLifecycleOwner(),
         status -> {
-          if (status == RepositoryStatus.ERROR) {
-            Toast.makeText(getContext(), "Git repository error", Toast.LENGTH_LONG).show();
+          if (status == RepositoryStatus.OPENED || status == RepositoryStatus.INITIALIZED) {
+            PreferencesUtils prefsUtils = new PreferencesUtils(requireContext());
+            if (prefsUtils.hasGitLocalUserConfig()) {
+              viewModel.setUserConfig(
+                  prefsUtils.getGitLocalUserName(), prefsUtils.getGitLocalUserEmail());
+            } else {
+              showUserConfigDialog();
+            }
           }
         });
 
@@ -109,7 +115,7 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
     tabTitles.add("Changes");
     tabTitles.add("History");
     tabTitles.add("Branches");
-    tabTitles.add("Remotes"); 
+    tabTitles.add("Remotes");
 
     ViewPager2 viewPager = root.findViewById(R.id.viewPager);
     ViewPagerAdapter adapter = new ViewPagerAdapter(requireActivity(), tabTitles);
@@ -119,5 +125,38 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
     new TabLayoutMediator(
             tabLayout, viewPager, (tab, position) -> tab.setText(tabTitles.get(position)))
         .attach();
-}
+  }
+
+  private void showUserConfigDialog() {
+    PreferencesUtils prefsUtils = new PreferencesUtils(requireContext());
+
+    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+    builder.setTitle("Git User Configuration");
+
+    View view =
+        LayoutInflater.from(requireContext()).inflate(R.layout.git_local_config, null);
+    EditText etName = view.findViewById(R.id.etGitUserName);
+    EditText etEmail = view.findViewById(R.id.etGitUserEmail);
+
+    etName.setText(prefsUtils.getGitLocalUserName());
+    etEmail.setText(prefsUtils.getGitLocalUserEmail());
+
+    builder.setView(view);
+    builder.setPositiveButton(
+        "Save",
+        (d, w) -> {
+          String name = etName.getText().toString().trim();
+          String email = etEmail.getText().toString().trim();
+          if (name.isEmpty() || email.isEmpty()) {
+            Toast.makeText(getContext(), "Name and email required", Toast.LENGTH_SHORT).show();
+            return;
+          }
+          prefsUtils.setGitLocalUserName(name);
+          prefsUtils.setGitLocalUserEmail(email);
+          viewModel.setUserConfig(name, email);
+          Toast.makeText(getContext(), "Saved", Toast.LENGTH_SHORT).show();
+        });
+    builder.setNegativeButton("Cancel", null);
+    builder.show();
+  }
 }

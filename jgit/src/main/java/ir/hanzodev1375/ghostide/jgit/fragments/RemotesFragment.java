@@ -101,7 +101,7 @@ public class RemotesFragment extends Fragment {
       return;
     }
 
-    String token = gitHubClient.getToken(); 
+    String token = gitHubClient.getToken();
     if (token == null || token.isEmpty()) {
       Toast.makeText(
               getContext(), "GitHub token not found. Please login first.", Toast.LENGTH_SHORT)

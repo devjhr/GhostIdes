@@ -47,6 +47,9 @@ public class Constants {
     public static final String KEY_GITHUB_AVATAR_URL = "pref_github_avatar_url";
     public static final String KEY_SHOWTAB_ICON = "pref_showicon_tab";
 
+    public static final String KEY_GIT_LOCAL_USER_NAME = "git_local_user_name";
+    public static final String KEY_GIT_LOCAL_USER_EMAIL = "git_local_user_email";
+
     private SharedPreferenceKeys() {
       throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
