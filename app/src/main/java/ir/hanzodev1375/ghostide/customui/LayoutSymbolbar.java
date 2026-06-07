@@ -65,7 +65,7 @@ public class LayoutSymbolbar extends LinearLayoutCompat {
             new SysmbolbarAdapter.OnTabView() {
               @Override
               public void TAB(String tab) {
-                editor.insertText(tab, 1);
+                editor.insertText(" ", 1);
               }
 
               @Override

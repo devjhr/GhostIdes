@@ -21,6 +21,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.skydoves.powermenu.MenuAnimation;
@@ -29,8 +30,11 @@ import com.skydoves.powermenu.PowerMenuItem;
 import ir.hanzodev1375.components.RenameDialogFragment;
 import ir.hanzodev1375.components.TextInputDialogFragment;
 import ir.hanzodev1375.ghostide.adapters.FileManagerAdapter;
+import ir.hanzodev1375.ghostide.adapters.ToolbarAdapter;
 import ir.hanzodev1375.ghostide.databinding.ActivityFilemanagerBinding;
 import ir.hanzodev1375.ghostide.databinding.SelectionPanelBinding;
+import ir.hanzodev1375.ghostide.jgit.GitHubClient;
+import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
@@ -57,7 +61,7 @@ public class FileManagerActivity extends BaseCompat {
   private List<FileManagerModel> pendingClipboard = new ArrayList<>();
   private SelectionPanelBinding selectionPanelBinding;
   private Set<String> itemname =
-      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js"));
+      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py"));
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -126,8 +130,20 @@ public class FileManagerActivity extends BaseCompat {
           }
         });
 
-    bind.fab.setOnClickListener(
-        v -> startActivity(new Intent(FileManagerActivity.this, SettingActivity.class)));
+    List<Integer> listIcon = new ArrayList<>();
+    listIcon.add(R.drawable.folder);
+    listIcon.add(R.drawable.more_vert);
+    bind.fab.getRecyclerView().setAdapter(new ToolbarAdapter(listIcon, (view2, mypos) -> {}));
+
+    bind.fab
+        .getFab()
+        .setOnClickListener(
+            v -> {
+              if (!bind.fab.isExpanded()) {
+                bind.fab.expand();
+              } else bind.fab.collapse();
+            });
+
     bind.navmodel
         .getAdapter()
         .setOnItemClickListener((view, nav, pos) -> viewModel.navigateTo(nav.getFilePath()));
@@ -142,7 +158,7 @@ public class FileManagerActivity extends BaseCompat {
               if (selectionPanel != null) selectionPanel.setVisibility(View.GONE);
             } else if (count > 0) {
               selectionPanel.setVisibility(View.VISIBLE);
-              selectionCount.setText("Item select " + String.valueOf(count));
+              selectionCount.setText(getString(R.string.selected_items_count, count));
             } else if (count == 0 && !pendingClipboard.isEmpty()) {
 
               selectionCount.setText("0");
@@ -179,7 +195,8 @@ public class FileManagerActivity extends BaseCompat {
       startActivity(i);
 
     } else {
-      Toast.makeText(this, "فرمت فایل پشتیبانی نمی‌شود", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, getString(R.string.error_file_format_not_supported), Toast.LENGTH_SHORT)
+          .show();
     }
   }
 
@@ -267,7 +284,7 @@ public class FileManagerActivity extends BaseCompat {
         v -> {
           adapter.selectAll();
           selectionCount.setText(
-              "Item select " + String.valueOf(adapter.getSelectedItems().size()));
+              getString(R.string.selected_items_count, adapter.getSelectedItems().size()));
           if (selectionPanel.getVisibility() != View.VISIBLE) {
             selectionPanel.setVisibility(View.VISIBLE);
           }
@@ -284,6 +301,7 @@ public class FileManagerActivity extends BaseCompat {
   }
 
   private void setupInsets() {
+
     ViewCompat.setOnApplyWindowInsetsListener(
         bind.coordinator,
         (view, insets) -> {
@@ -321,10 +339,10 @@ public class FileManagerActivity extends BaseCompat {
                   viewModel.navigateUp();
                 } else {
                   new MaterialAlertDialogBuilder(FileManagerActivity.this)
-                      .setTitle("Exit")
-                      .setMessage("Exit Ghost IDE?")
-                      .setNegativeButton("Yes", (c, f) -> finishAffinity())
-                      .setPositiveButton("No", null)
+                      .setTitle(getString(R.string.dialog_exit_title))
+                      .setMessage(getString(R.string.dialog_exit_message))
+                      .setNegativeButton(getString(R.string.ok), (c, f) -> finishAffinity())
+                      .setPositiveButton(getString(R.string.cancel), null)
                       .show();
                 }
               }
@@ -339,9 +357,8 @@ public class FileManagerActivity extends BaseCompat {
 
           menu.addItem(new PowerMenuItem(getString(R.string.removed)));
           menu.addItem(new PowerMenuItem(getString(R.string.rename)));
-          // test
-          menu.addItem(new PowerMenuItem(getString(R.string.removed)));
-          menu.addItem(new PowerMenuItem(getString(R.string.rename)));
+          menu.addItem(new PowerMenuItem(getString(R.string.filemanagerac_creatorfile)));
+          menu.addItem(new PowerMenuItem(getString(R.string.filemanagerac_creatorfolder)));
 
           menu.setMenuColor(
               MaterialColors.getColor(
@@ -415,23 +432,73 @@ public class FileManagerActivity extends BaseCompat {
         .setTitle(getString(R.string.removed))
         .setMessage(getString(R.string.removedmassges, model.getName() + "?"))
         .setPositiveButton(
-            "OK",
+            getString(R.string.ok),
             (d, w) -> {
               viewModel.deleteFile(model);
             })
-        .setNegativeButton("Cancel", null)
+        .setNegativeButton(getString(R.string.cancel), null)
         .show();
   }
 
   void creatorFile(FileManagerModel model) {
-    TextInputDialogFragment.newInstance("ساخت فایل", "نام فایل", null)
+    TextInputDialogFragment.newInstance(
+            getString(R.string.dialog_create_file_title),
+            getString(R.string.dialog_create_file_hint),
+            null)
         .setCallback(text -> viewModel.createFile(text))
         .show(getSupportFragmentManager(), null);
   }
 
   void creatorFolder(FileManagerModel model) {
-    TextInputDialogFragment.newInstance("ساخت پوشه", "پوشه", null)
+    TextInputDialogFragment.newInstance(
+            getString(R.string.dialog_create_folder_title),
+            getString(R.string.dialog_create_folder_hint),
+            null)
         .setCallback(text -> viewModel.createFolder(text))
         .show(getSupportFragmentManager(), null);
+  }
+
+  private void setupHeader() {
+    GitHubClient gitHub = new GitHubClient(this);
+    if (gitHub.isLoggedIn()) {
+      bind.userNameText.setText(gitHub.getName());
+      Glide.with(this)
+          .load(gitHub.getAvatarUrl())
+          .circleCrop()
+          .placeholder(R.drawable.user)
+          .into(bind.userAvatar);
+    } else {
+      bind.userNameText.setText(getString(R.string.github_account_not_logged_in));
+      bind.userAvatar.setImageResource(R.drawable.user);
+    }
+
+    bind.userAvatar.setOnClickListener(
+        v -> {
+          if (gitHub.isLoggedIn()) {
+            GitHubProfileSheet.newInstance().show(getSupportFragmentManager(), "github_profile");
+          } else {
+            new MaterialAlertDialogBuilder(v.getContext())
+                .setTitle(getString(R.string.github_tokenerrortitle))
+                .setMessage(getString(R.string.github_tokenerrormsg))
+                .setPositiveButton(
+                    getString(R.string.ok),
+                    (c, e) -> {
+                      Intent i = new Intent(getApplicationContext(), SettingActivity.class);
+                      i.putExtra("open_section", "githublogin");
+                      startActivity(i);
+                    })
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show();
+          }
+        });
+
+    bind.btnSettings.setOnClickListener(
+        v -> startActivity(new Intent(this, SettingActivity.class)));
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    setupHeader();
   }
 }

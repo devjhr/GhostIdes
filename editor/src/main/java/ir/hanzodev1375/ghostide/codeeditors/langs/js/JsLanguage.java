@@ -1,6 +1,5 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.js;
 
-
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +23,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
+import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
+import io.github.rosemoe.sora.lang.styling.Styles;
+import io.github.rosemoe.sora.text.Content;
+import io.github.rosemoe.sora.text.TextUtils;
 
 public class JsLanguage implements Language {
 
@@ -113,8 +116,56 @@ public class JsLanguage implements Language {
     return new SymbolPairMatch.DefaultSymbolPairs();
   }
 
+  private class JsBraceHandler implements NewlineHandler {
+
+    @Override
+    public boolean matchesRequirement(
+        @NonNull Content text, @NonNull CharPosition position, @Nullable Styles style) {
+
+      int line = position.line;
+
+      if (line < 0 || line >= text.getLineCount()) {
+        return false;
+      }
+
+      CharSequence lineText = text.getLine(line);
+
+      String before = lineText.subSequence(0, position.column).toString();
+
+      String after = lineText.subSequence(position.column, lineText.length()).toString();
+
+      return before.trim().endsWith("{") && after.trim().startsWith("}");
+    }
+
+    @NonNull
+    @Override
+    public NewlineHandleResult handleNewline(
+        @NonNull Content text,
+        @NonNull CharPosition position,
+        @Nullable Styles style,
+        int tabSize) {
+
+      int line = position.line;
+
+      String before = text.getLine(line).subSequence(0, position.column).toString();
+
+      int indent = TextUtils.countLeadingSpaceCount(before, tabSize);
+
+      String innerIndent = TextUtils.createIndent(indent + tabSize, tabSize, false);
+
+      String closeIndent = TextUtils.createIndent(indent, tabSize, false);
+
+      StringBuilder sb =
+          new StringBuilder().append('\n').append(innerIndent).append('\n').append(closeIndent);
+
+      int shiftLeft = closeIndent.length() + 1;
+
+      return new NewlineHandleResult(sb, shiftLeft);
+    }
+  }
+
   @Override
   public NewlineHandler[] getNewlineHandlers() {
-    return null;
+    return new NewlineHandler[] {new JsBraceHandler()};
   }
 }

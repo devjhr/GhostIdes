@@ -40,6 +40,12 @@ public class Constants {
     public static final String KEY_BUFFER_SIZE = "pref_general_config_buffer_size";
     public static final String KEY_APP_THEME = "pref_app_theme";
     public static final String KEY_APP_THEME_FILE = "pref_app_theme_file";
+    // GitHub Account Preferences
+    public static final String KEY_GITHUB_TOKEN = "pref_github_token";
+    public static final String KEY_GITHUB_USERNAME = "pref_github_username";
+    public static final String KEY_GITHUB_NAME = "pref_github_name";
+    public static final String KEY_GITHUB_AVATAR_URL = "pref_github_avatar_url";
+    public static final String KEY_SHOWTAB_ICON = "pref_showicon_tab";
 
     private SharedPreferenceKeys() {
       throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

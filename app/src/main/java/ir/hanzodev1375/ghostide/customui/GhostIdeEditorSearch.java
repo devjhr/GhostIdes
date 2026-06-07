@@ -22,6 +22,7 @@ import io.github.rosemoe.sora.widget.EditorSearcher;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.Cursor;
+import ir.hanzodev1375.components.databinding.DialogRenameBinding;
 import ir.hanzodev1375.ghostide.databinding.LayoutSearcherBinding;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 
@@ -356,58 +357,58 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
       showToast("Search text is empty");
       return;
     }
-//
-//    var bind = DialogRenameBinding.inflate(LayoutInflater.from(getContext()));
-//    String dialogTitle = buildDialogTitle();
-//
-//    new MaterialAlertDialogBuilder(getContext())
-//        .setTitle(dialogTitle)
-//        .setView(bind.getRoot())
-//        .setPositiveButton(
-//            "Replace",
-//            (c1, c2) -> {
-//              try {
-//                String replacement = bind.editor.getText().toString();
-//                var searcher = editor.getSearcher();
-//
-//                if (searcher.isMatchedPositionSelected()) {
-//                  searcher.replaceCurrentMatch(replacement);
-//                  editor.postDelayed(
-//                      () -> {
-//                        searcher.gotoNext();
-//                        updateSearchResultInfo();
-//                      },
-//                      100);
-//                } else {
-//                  showToast("No match selected");
-//                }
-//              } catch (Exception e) {
-//                showToast("Replace failed: " + e.getMessage());
-//              }
-//            })
-//        .setNeutralButton(android.R.string.cancel, null)
-//        .setNegativeButton(
-//            "Replace All",
-//            (f1, f2) -> {
-//              try {
-//                String replacement = bind.editor.getText().toString();
-//                editor
-//                    .getSearcher()
-//                    .replaceAll(
-//                        replacement,
-//                        () ->
-//                            post(
-//                                () -> {
-//                                  showToast("Replace all completed");
-//                                  performSearch(searchText);
-//                                }));
-//              } catch (Exception e) {
-//                showToast("Replace all failed: " + e.getMessage());
-//              }
-//            })
-//        .show();
-//
-  //  bind.top.setHint("Replacement");
+
+    var bind = DialogRenameBinding.inflate(LayoutInflater.from(getContext()));
+    String dialogTitle = buildDialogTitle();
+
+    new MaterialAlertDialogBuilder(getContext())
+        .setTitle(dialogTitle)
+        .setView(bind.getRoot())
+        .setPositiveButton(
+            "Replace",
+            (c1, c2) -> {
+              try {
+                String replacement = bind.rename.getText().toString();
+                var searcher = editor.getSearcher();
+
+                if (searcher.isMatchedPositionSelected()) {
+                  searcher.replaceCurrentMatch(replacement);
+                  editor.postDelayed(
+                      () -> {
+                        searcher.gotoNext();
+                        updateSearchResultInfo();
+                      },
+                      100);
+                } else {
+                  showToast("No match selected");
+                }
+              } catch (Exception e) {
+                showToast("Replace failed: " + e.getMessage());
+              }
+            })
+        .setNeutralButton(android.R.string.cancel, null)
+        .setNegativeButton(
+            "Replace All",
+            (f1, f2) -> {
+              try {
+                String replacement = bind.rename.getText().toString();
+                editor
+                    .getSearcher()
+                    .replaceAll(
+                        replacement,
+                        () ->
+                            post(
+                                () -> {
+                                  showToast("Replace all completed");
+                                  performSearch(searchText);
+                                }));
+              } catch (Exception e) {
+                showToast("Replace all failed: " + e.getMessage());
+              }
+            })
+        .show();
+
+    bind.rename.setHint("Replacement");
   }
 
   private String buildDialogTitle() {

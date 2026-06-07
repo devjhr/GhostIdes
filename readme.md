@@ -53,8 +53,15 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 - [x] css
 - [x] cpp
 - [x] js
+- [x] python
 
 ---
+
+### Preview
+
+- [x] HtmlPreview
+- [x] ImagePreview
+
 
 ## 🎨 Theme Engine
 

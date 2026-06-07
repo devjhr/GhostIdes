@@ -1,47 +1,71 @@
 package ir.hanzodev1375.ghostide.activity;
 
+import android.app.ActivityOptions;
+import android.os.Build;
+import com.google.android.material.transition.platform.MaterialSharedAxis;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import ir.hanzodev1375.ghostide.R;
+
+import ir.hanzodev1375.ghostide.themeengine.Theme;
+import java.util.ArrayList;
+import java.util.List;
+
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
-import ir.hanzodev1375.ghostide.codeeditors.setting.Constants;
+import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
+import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 
 public class BaseCompat extends AppCompatActivity
     implements SharedPreferences.OnSharedPreferenceChangeListener {
 
   private PreferencesUtils prefs;
+  private Theme lastTheme;
+
+  private final List<BaseCompat> ACTIVITIES = new ArrayList<>();
 
   @Override
   protected void attachBaseContext(Context newBase) {
-    
     prefs = new PreferencesUtils(newBase);
-    int themeIndex = prefs.getAppTheme();
-    int themeResId = getThemeResId(themeIndex);
-    Context context = new ContextThemeWrapper(newBase, themeResId);
-    super.attachBaseContext(context);
+    super.attachBaseContext(LocaleHelper.applyLocale(newBase));
   }
 
   @Override
   protected void onCreate(Bundle arg0) {
     prefs = new PreferencesUtils(this);
+
     EdgeToEdge.enable(this);
+    ThemeEngine.applyToActivity(this);
+    lastTheme = ThemeEngine.getInstance(this).getStaticTheme();
     super.onCreate(arg0);
+
+    ACTIVITIES.add(this);
+
     getWindow().setNavigationBarColor(Color.TRANSPARENT);
     getWindow().setStatusBarColor(Color.TRANSPARENT);
   }
 
   @Override
+  protected void onDestroy() {
+    ACTIVITIES.remove(this);
+    super.onDestroy();
+  }
+
+  @Override
   protected void onResume() {
     super.onResume();
-    
+
+    Theme currentTheme = ThemeEngine.getInstance(this).getStaticTheme();
+
+    if (currentTheme != lastTheme) {
+      recreate();
+      return;
+    }
+
     prefs.getDefaultPreferences().registerOnSharedPreferenceChangeListener(this);
   }
 
@@ -51,22 +75,43 @@ public class BaseCompat extends AppCompatActivity
     prefs.getDefaultPreferences().unregisterOnSharedPreferenceChangeListener(this);
   }
 
-  private int getThemeResId(int index) {
-    try {
-      int[] styles = getResources().getIntArray(R.array.theme_styles);
-      if (styles != null && index >= 0 && index < styles.length) {
-        return styles[index];
+  @Override
+  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {}
+
+  public void recreateAllActivities() {
+
+    List<BaseCompat> copy = new ArrayList<>(ACTIVITIES);
+
+    for (BaseCompat activity : copy) {
+
+      if (activity == null) {
+        continue;
       }
-    } catch (Exception e) {
-      Log.e("BaseCompat", "Error getting theme resource ID", e);
+      if (activity.isFinishing()) {
+        continue;
+      }
+
+      activity.runOnUiThread(activity::recreate);
     }
-    return R.style.AppTheme; 
   }
 
   @Override
-  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if (Constants.SharedPreferenceKeys.KEY_APP_THEME.equals(key)) {
-      runOnUiThread(() -> recreate());
+  public void startActivity(Intent i) {
+    ActivityOptions op = ActivityOptions.makeSceneTransitionAnimation(this);
+    MaterialSharedAxis enter = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
+    enter.setDuration(1000);
+    MaterialSharedAxis exit = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
+    exit.setDuration(1000);
+    MaterialSharedAxis reenter = new MaterialSharedAxis(MaterialSharedAxis.Y, true);
+    reenter.setDuration(1000);
+
+    getWindow().setExitTransition(exit);
+    getWindow().setEnterTransition(enter);
+    getWindow().setReenterTransition(reenter);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+      op.setPendingIntentBackgroundActivityLaunchAllowed(true);
     }
+    super.startActivity(i, op.toBundle());
   }
 }

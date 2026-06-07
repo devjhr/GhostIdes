@@ -1,8 +1,17 @@
 package ir.hanzodev1375.ghostide.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.os.LocaleListCompat;
+import com.blankj.utilcode.util.ClipboardUtils;
+import com.blankj.utilcode.util.ThreadUtils;
+import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.MaterialToolbar;
+import ir.hanzodev1375.components.TextInputDialogFragment;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,11 +21,18 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
+import ir.hanzodev1375.ghostide.MainActivity;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.adapters.SettingsAdapter;
 import ir.hanzodev1375.ghostide.customui.ExpandableLayout;
+import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.models.SettingItem;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.themeengine.Theme;
+import ir.hanzodev1375.ghostide.themeengine.ThemeChooserDialogBuilder;
+import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
+import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import ir.theme.GhostTheme;
@@ -32,6 +48,7 @@ public class SettingActivity extends BaseCompat {
   protected ExpandableLayout expandEditor, expandApp;
   private RecyclerView rvEditor, rvApp;
   private SettingsAdapter editorAdapter, appAdapter;
+  private ThemeEngine themeEngine;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +56,8 @@ public class SettingActivity extends BaseCompat {
     setContentView(R.layout.activity_setting);
 
     prefs = new PreferencesUtils(this);
-
-    com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
+    themeEngine = ThemeEngine.getInstance(this);
+    MaterialToolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     if (getSupportActionBar() != null) {
       getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -62,6 +79,7 @@ public class SettingActivity extends BaseCompat {
 
     rvEditor.setAdapter(editorAdapter);
     rvApp.setAdapter(appAdapter);
+
     editorAdapter.setOnItemClickListener(
         position -> {
           if (position == 17) showTabSizeDialog();
@@ -74,7 +92,17 @@ public class SettingActivity extends BaseCompat {
           if (position == 0) showBufferSizeDialog();
           else if (position == 1) showThemeDialog();
           else if (position == 2) showLoadThemeDialog();
+          else if (position == 3) showGitHubAccountDialog();
+          else if (position == 4) showLanguageDialog();
         });
+    if ("githublogin".equals(getIntent().getStringExtra("open_section"))) {
+      ThreadUtils.runOnUiThreadDelayed(
+          () -> {
+            expandApp.expand();
+            showGitHubAccountDialog();
+          },
+          500);
+    }
   }
 
   private List<SettingItem> getEditorItems() {
@@ -241,7 +269,6 @@ public class SettingActivity extends BaseCompat {
             false,
             0,
             null));
-
     items.add(
         new SettingItem(
             getString(R.string.pref_app_theme),
@@ -256,7 +283,55 @@ public class SettingActivity extends BaseCompat {
             false,
             0,
             null));
+    items.add(
+        new SettingItem(
+            getString(R.string.github_account),
+            prefs.isGitHubLoggedIn()
+                ? getString(R.string.github_account_logged_in, prefs.getGitHubUsername())
+                : getString(R.string.github_account_not_logged_in),
+            false,
+            0,
+            null));
+
+    String currentLang = LocaleHelper.LANGUAGE_NAMES[LocaleHelper.getSavedLanguageIndex(this)];
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_language),
+            getString(R.string.pref_language_desc) + "\n" + currentLang,
+            false,
+            0,
+            null));
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_show_tab_icon_title),
+            getString(R.string.pref_show_tab_icon_summary),
+            prefs.getShowIconTab(),
+            R.drawable.add,
+            prefs::setShowIconTab));
     return items;
+  }
+
+  private void showLanguageDialog() {
+    int checkedIndex = LocaleHelper.getSavedLanguageIndex(this);
+
+    new MaterialAlertDialogBuilder(this)
+        .setTitle(R.string.pref_language)
+        .setSingleChoiceItems(
+            LocaleHelper.LANGUAGE_NAMES,
+            checkedIndex,
+            (dialog, which) -> {
+              String selectedCode = LocaleHelper.LANGUAGE_CODES[which];
+              LocaleHelper.saveLanguage(this, selectedCode);
+              dialog.dismiss();
+              LocaleListCompat localeList =
+                  "default".equals(selectedCode)
+                      ? LocaleListCompat.getEmptyLocaleList()
+                      : LocaleListCompat.forLanguageTags(selectedCode);
+
+              AppCompatDelegate.setApplicationLocales(localeList);
+            })
+        .setNegativeButton(R.string.cancel, null)
+        .show();
   }
 
   private void showTabSizeDialog() {
@@ -303,6 +378,7 @@ public class SettingActivity extends BaseCompat {
               prefs.setLineHeight(values[which]);
               d.dismiss();
             })
+        .setNegativeButton(R.string.cancel, null)
         .show();
   }
 
@@ -331,14 +407,10 @@ public class SettingActivity extends BaseCompat {
     int current = prefs.getCurrentBufferSize() / 1024;
     String[] sizes = {"2", "4", "6", "8", "10", "12", "16", "20"};
     String[] labels = {
-      getString(R.string.buffer_size_2),
-      getString(R.string.buffer_size_4),
-      getString(R.string.buffer_size_6),
-      getString(R.string.buffer_size_8),
-      getString(R.string.buffer_size_10),
-      getString(R.string.buffer_size_12),
-      getString(R.string.buffer_size_16),
-      getString(R.string.buffer_size_20)
+      getString(R.string.buffer_size_2), getString(R.string.buffer_size_4),
+      getString(R.string.buffer_size_6), getString(R.string.buffer_size_8),
+      getString(R.string.buffer_size_10), getString(R.string.buffer_size_12),
+      getString(R.string.buffer_size_16), getString(R.string.buffer_size_20)
     };
     int checked = 0;
     for (int i = 0; i < sizes.length; i++) if (Integer.parseInt(sizes[i]) == current) checked = i;
@@ -363,28 +435,22 @@ public class SettingActivity extends BaseCompat {
   }
 
   private void showThemeDialog() {
-    String[] themeNames = getResources().getStringArray(R.array.theme_names);
-    int currentTheme = prefs.getAppTheme();
-
-    new MaterialAlertDialogBuilder(this)
-        .setTitle(R.string.pref_app_theme)
-        .setSingleChoiceItems(
-            themeNames,
-            currentTheme,
-            (dialog, which) -> {
-              if (which != currentTheme) {
-                prefs.setAppTheme(which);
-              }
-              dialog.dismiss();
+    new ThemeChooserDialogBuilder(this)
+        .setPositiveButton(
+            R.string.ok,
+            (position, theme) -> {
+              themeEngine.setStaticTheme(theme);
+              recreateAllActivities();
             })
-        .setNegativeButton(R.string.cancel, null)
+        .setNegativeButton(R.string.cancel)
+        .setNeutralButton(
+            "Default",
+            (position, theme) -> {
+              themeEngine.resetTheme();
+              recreateAllActivities();
+            })
+        .create()
         .show();
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    if (item.getItemId() == android.R.id.home) finish();
-    return super.onOptionsItemSelected(item);
   }
 
   private void showLoadThemeDialog() {
@@ -438,11 +504,79 @@ public class SettingActivity extends BaseCompat {
               }
             })
         .setNegativeButton(
-            R.string.cancel,
-            (dialog, which) -> {
-              new ThemeManager(this).resetToDefault();
-              
-            })
+            R.string.cancel, (dialog, which) -> new ThemeManager(this).resetToDefault())
         .show();
+  }
+
+  private void showGitHubAccountDialog() {
+    if (prefs.isGitHubLoggedIn()) {
+      new MaterialAlertDialogBuilder(this)
+          .setTitle(getString(R.string.github_account))
+          .setMessage(getString(R.string.github_account_logged_in, prefs.getGitHubUsername()))
+          .setPositiveButton(getString(R.string.ok), null)
+          .setNegativeButton(
+              getString(R.string.github_logout),
+              (d, w) -> {
+                new GitHubClient(this).logout();
+                Toast.makeText(this, getString(R.string.github_logout_success), Toast.LENGTH_SHORT)
+                    .show();
+                appAdapter.updateItem(
+                    3,
+                    new SettingItem(
+                        getString(R.string.github_account),
+                        getString(R.string.github_account_not_logged_in),
+                        false,
+                        0,
+                        null));
+              })
+          .show();
+    } else {
+      TextInputDialogFragment.newInstance(
+              getString(R.string.github_login_title), getString(R.string.github_login_hint), "")
+          .setCallback(
+              token ->
+                  new GitHubClient(this)
+                      .login(
+                          token,
+                          new GitHubClient.GitHubLoginCallback() {
+                            @Override
+                            public void onSuccess(String name, String username, String avatarUrl) {
+                              runOnUiThread(
+                                  () -> {
+                                    Toast.makeText(
+                                            SettingActivity.this,
+                                            getString(R.string.github_welcome, name),
+                                            Toast.LENGTH_SHORT)
+                                        .show();
+                                    appAdapter.updateItem(
+                                        3,
+                                        new SettingItem(
+                                            getString(R.string.github_account),
+                                            getString(R.string.github_account_logged_in, username),
+                                            false,
+                                            0,
+                                            null));
+                                  });
+                            }
+
+                            @Override
+                            public void onFailure(String errorMessage) {
+                              runOnUiThread(
+                                  () ->
+                                      Toast.makeText(
+                                              SettingActivity.this,
+                                              errorMessage,
+                                              Toast.LENGTH_SHORT)
+                                          .show());
+                            }
+                          }))
+          .show(getSupportFragmentManager(), "github_token");
+    }
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == android.R.id.home) finish();
+    return super.onOptionsItemSelected(item);
   }
 }

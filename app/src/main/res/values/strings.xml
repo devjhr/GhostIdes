@@ -78,9 +78,8 @@
     <string name="restart_message">Buffer size will take effect after restart.</string>
     <string name="restart_now">Restart Now</string>
     <string name="later">Later</string>
-    <!-- new Strings -->
     <string name="pref_app_theme">theme app</string>
-    <string name="pref_app_theme_desc">تغییر رنگ‌بندی کلی برنامه</string>
+    <string name="pref_app_theme_desc">Change the overall color scheme of the program</string>
     <string name="theme_load_title">Load Theme from File</string>
     <string name="theme_load_message">Enter full path of .gth file</string>
     <string name="theme_load_hint">Path to .gth file</string>
@@ -100,4 +99,34 @@
     <string name="replace">Replace</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="github_account">GitHub Account</string>
+    <string name="github_account_logged_in">Logged in as: @%s</string>
+    <string name="github_account_not_logged_in">Not logged in</string>
+    <string name="github_login_title">Login to GitHub</string>
+    <string name="github_login_hint">Enter your personal access token</string>
+    <string name="github_logout">Sign out</string>
+    <string name="github_logout_success">Signed out successfully</string>
+    <string name="github_welcome">Welcome, %s!</string>
+    <string name="github_tokenerrortitle">You havent entered a token yet!</string>
+    <string name="github_tokenerrormsg">If you want to log in to GitHub, go to settings and login.</string>
+    <string name="editorac_savefile">File saved</string>
+    <string name="editorac_notopenfile">No files are open</string>
+    <string name="editorac_wassaved">The current file was saved.</string>
+    <string name="editorac_errorfargment">Error Fragment not found</string>
+    <!-- new String -->
+
+    <string name="pref_language">App Language</string>
+    <string name="pref_language_desc">Choose the display language of the app</string>
+    <string name="pref_show_tab_icon_title">Show tab icon</string>
+    <string name="pref_show_tab_icon_summary">Show file icon next to the tab title</string>
+    <string name="filemanagerac_creatorfile">Creator File</string>
+    <string name="filemanagerac_creatorfolder">Creator Folder</string>
+    <string name="dialog_create_file_title">Create File</string>
+    <string name="dialog_create_file_hint">File name</string>
+    <string name="dialog_create_folder_title">Create Folder</string>
+    <string name="dialog_create_folder_hint">Folder name</string>
+    <string name="error_file_format_not_supported">File format not supported</string>
+    <string name="selected_items_count">Item select %d</string>
+    <string name="dialog_exit_title">Exit</string>
+<string name="dialog_exit_message">Exit Ghost IDE?</string>
 </resources>

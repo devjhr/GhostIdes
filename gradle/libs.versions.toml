@@ -15,7 +15,8 @@ recyclerviewSelection = "1.1.0"
 
 #glide
 glide = "5.0.7"
-
+#okhttps
+okhttp = "5.3.2"
 #Android util code 
 utilcodev = "1.31.1"
 #antlr4
@@ -23,7 +24,7 @@ antlrv = "4.13.2"
 #powermenu
 powermenu = "2.2.4"
 #git
-jgit = "7.7.0.202606101634-r"
+jgit = "7.3.0.202506031305-r"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -50,3 +51,4 @@ glide-avif-integration = { module = "com.github.bumptech.glide:avif-integration"
 jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 androidx-recyclerview-selection = { module = "androidx.recyclerview:recyclerview-selection", version.ref = "recyclerviewSelection" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }

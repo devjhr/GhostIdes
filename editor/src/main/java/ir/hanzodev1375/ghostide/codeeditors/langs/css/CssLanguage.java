@@ -15,8 +15,12 @@ import io.github.rosemoe.sora.lang.completion.snippet.parser.CodeSnippetParser;
 import io.github.rosemoe.sora.lang.completion.SnippetDescription;
 import io.github.rosemoe.sora.lang.format.Formatter;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandler;
+import io.github.rosemoe.sora.lang.styling.Styles;
+import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
 import io.github.rosemoe.sora.text.CharPosition;
+import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentReference;
+import io.github.rosemoe.sora.text.TextUtils;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.SnippetCompletionItem;
@@ -33,6 +37,8 @@ import java.util.List;
 import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.CustomCompletionItem;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
+import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
+import io.github.rosemoe.sora.lang.styling.Styles;
 
 public class CssLanguage implements Language {
 
@@ -131,8 +137,97 @@ public class CssLanguage implements Language {
     return new SymbolPairMatch.DefaultSymbolPairs();
   }
 
+  private class CssOpenBraceHandler implements NewlineHandler {
+
+    @Override
+    public boolean matchesRequirement(
+        @NonNull Content text, @NonNull CharPosition position, @Nullable Styles style) {
+
+      int line = position.line;
+      if (line < 0 || line >= text.getLineCount()) {
+        return false;
+      }
+
+      String before = text.getLine(line).subSequence(0, position.column).toString();
+
+      int len = before.length();
+
+      for (int i = len - 1; i >= 0; i--) {
+        char c = before.charAt(i);
+
+        if (c == '{') {
+          return true;
+        }
+
+        if (!Character.isWhitespace(c)) {
+          break;
+        }
+      }
+
+      return false;
+    }
+
+    @NonNull
+    @Override
+    public NewlineHandleResult handleNewline(
+        @NonNull Content text,
+        @NonNull CharPosition position,
+        @Nullable Styles style,
+        int tabSize) {
+
+      int line = position.line;
+
+      String before = text.getLine(line).subSequence(0, position.column).toString();
+
+      int indent = TextUtils.countLeadingSpaceCount(before, tabSize);
+
+      String indentStr = TextUtils.createIndent(indent + tabSize, tabSize, false);
+
+      return new NewlineHandleResult(new StringBuilder("\n").append(indentStr), 0);
+    }
+  }
+
+  private class CssCloseBraceHandler implements NewlineHandler {
+
+    @Override
+    public boolean matchesRequirement(
+        @NonNull Content text, @NonNull CharPosition position, @Nullable Styles style) {
+
+      int line = position.line;
+
+      if (line < 0 || line >= text.getLineCount()) {
+        return false;
+      }
+
+      String before = text.getLine(line).subSequence(0, position.column).toString();
+
+      return before.trim().endsWith("}");
+    }
+
+    @NonNull
+    @Override
+    public NewlineHandleResult handleNewline(
+        @NonNull Content text,
+        @NonNull CharPosition position,
+        @Nullable Styles style,
+        int tabSize) {
+
+      int line = position.line;
+
+      String before = text.getLine(line).subSequence(0, position.column).toString();
+
+      int indent = TextUtils.countLeadingSpaceCount(before, tabSize);
+
+      int newIndent = Math.max(0, indent - tabSize);
+
+      String indentStr = TextUtils.createIndent(newIndent, tabSize, false);
+
+      return new NewlineHandleResult(new StringBuilder("\n").append(indentStr), 0);
+    }
+  }
+
   @Override
   public NewlineHandler[] getNewlineHandlers() {
-    return null;
+    return new NewlineHandler[] {new CssOpenBraceHandler(), new CssCloseBraceHandler()};
   }
 }

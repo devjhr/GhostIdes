@@ -84,6 +84,15 @@ public class PreferencesUtils {
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_LINE_NUMBERS, true);
   }
 
+  public boolean getShowIconTab() {
+    return getDefaultPreferences()
+        .getBoolean(Constants.SharedPreferenceKeys.KEY_SHOWTAB_ICON, false);
+  }
+  
+  public void setShowIconTab(boolean is){
+    getDefaultPreferences().edit().putBoolean(Constants.SharedPreferenceKeys.KEY_SHOWTAB_ICON,is).apply();
+  }
+
   public boolean enableMagnifier() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_MAGNIFIER, true);
@@ -421,4 +430,65 @@ public class PreferencesUtils {
         .apply();
   }
 
+  // ========== GitHub Account ==========
+
+  public String getGitHubToken() {
+    return getDefaultPreferences().getString(Constants.SharedPreferenceKeys.KEY_GITHUB_TOKEN, "");
+  }
+
+  public void setGitHubToken(String token) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_GITHUB_TOKEN, token)
+        .apply();
+  }
+
+  public String getGitHubUsername() {
+    return getDefaultPreferences()
+        .getString(Constants.SharedPreferenceKeys.KEY_GITHUB_USERNAME, "");
+  }
+
+  public void setGitHubUsername(String username) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_GITHUB_USERNAME, username)
+        .apply();
+  }
+
+  public String getGitHubName() {
+    return getDefaultPreferences().getString(Constants.SharedPreferenceKeys.KEY_GITHUB_NAME, "");
+  }
+
+  public void setGitHubName(String name) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_GITHUB_NAME, name)
+        .apply();
+  }
+
+  public String getGitHubAvatarUrl() {
+    return getDefaultPreferences()
+        .getString(Constants.SharedPreferenceKeys.KEY_GITHUB_AVATAR_URL, "");
+  }
+
+  public void setGitHubAvatarUrl(String avatarUrl) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_GITHUB_AVATAR_URL, avatarUrl)
+        .apply();
+  }
+
+  public boolean isGitHubLoggedIn() {
+    return !getGitHubToken().isEmpty();
+  }
+
+  public void clearGitHubAccount() {
+    getDefaultPreferences()
+        .edit()
+        .remove(Constants.SharedPreferenceKeys.KEY_GITHUB_TOKEN)
+        .remove(Constants.SharedPreferenceKeys.KEY_GITHUB_USERNAME)
+        .remove(Constants.SharedPreferenceKeys.KEY_GITHUB_NAME)
+        .remove(Constants.SharedPreferenceKeys.KEY_GITHUB_AVATAR_URL)
+        .apply();
+  }
 }

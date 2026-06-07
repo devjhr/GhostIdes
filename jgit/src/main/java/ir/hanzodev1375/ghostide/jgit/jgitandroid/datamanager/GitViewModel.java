@@ -1,0 +1,389 @@
+package ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FileChange;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.CommitInfo;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.RepositoryStatus;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.OperationResult;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.RemoteInfo;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.RemoteOperationResult;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.PushResult;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.PullResult;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FetchResult;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class GitViewModel extends ViewModel {
+
+  private GitManager gitManager = null;
+
+  private final MutableLiveData<List<FileChange>> _changedFiles = new MutableLiveData<>();
+  public final LiveData<List<FileChange>> changedFiles = _changedFiles;
+
+  private final MutableLiveData<List<CommitInfo>> _commitHistory = new MutableLiveData<>();
+  public final LiveData<List<CommitInfo>> commitHistory = _commitHistory;
+
+  private final MutableLiveData<String> _currentBranch = new MutableLiveData<>();
+  public final LiveData<String> currentBranch = _currentBranch;
+
+  private final MutableLiveData<List<String>> _branches = new MutableLiveData<>();
+  public final LiveData<List<String>> branches = _branches;
+
+  private final MutableLiveData<RepositoryStatus> _repositoryStatus = new MutableLiveData<>();
+  public final LiveData<RepositoryStatus> repositoryStatus = _repositoryStatus;
+
+  private final MutableLiveData<OperationResult> _operationResult = new MutableLiveData<>();
+  public final LiveData<OperationResult> operationResult = _operationResult;
+
+  private final MutableLiveData<List<RemoteInfo>> _remotes = new MutableLiveData<>();
+  public final LiveData<List<RemoteInfo>> remotes = _remotes;
+
+  private final MutableLiveData<Boolean> _isRepositoryInitialized = new MutableLiveData<>();
+  public final LiveData<Boolean> isRepositoryInitialized = _isRepositoryInitialized;
+
+  private final MutableLiveData<RemoteOperationResult> _pushPullResult = new MutableLiveData<>();
+  public final LiveData<RemoteOperationResult> pushPullResult = _pushPullResult;
+
+  private final MutableLiveData<String> _progressMessage = new MutableLiveData<>();
+  public final LiveData<String> progressMessage = _progressMessage;
+
+  private final ExecutorService executor = Executors.newFixedThreadPool(4);
+
+  public void setUserConfig(String name, String email) {
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.setUserConfig(name, email);
+          _operationResult.postValue(
+              new OperationResult(
+                  success, success ? "User config updated" : "Failed to update user config"));
+        });
+  }
+
+  public String[] getUserConfig() {
+    return gitManager != null ? gitManager.getUserConfig() : null;
+  }
+
+  public void checkRepositoryStatus(String projectPath) {
+    executor.execute(
+        () -> {
+          gitManager = new GitManager(projectPath);
+          boolean initialized = gitManager.isRepositoryInitialized();
+          _isRepositoryInitialized.postValue(initialized);
+
+          if (initialized) {
+            boolean opened = gitManager.openRepository();
+            if (opened) {
+              _repositoryStatus.postValue(RepositoryStatus.OPENED);
+              refreshAll();
+            }
+          }
+        });
+  }
+
+  public void initializeRepository(String path, String initialBranch) {
+    _progressMessage.postValue("Initializing repository...");
+    executor.execute(
+        () -> {
+          gitManager = new GitManager(path);
+          boolean success = gitManager.initRepository(initialBranch);
+          if (success) {
+            gitManager.openRepository();
+            _repositoryStatus.postValue(RepositoryStatus.INITIALIZED);
+            refreshAll();
+          } else {
+            _repositoryStatus.postValue(RepositoryStatus.ERROR);
+          }
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void initializeRepository(String path) {
+    initializeRepository(path, "main");
+  }
+
+  public void openExistingRepository(String path) {
+    _progressMessage.postValue("Opening repository...");
+    executor.execute(
+        () -> {
+          gitManager = new GitManager(path);
+          boolean success = gitManager.openRepository();
+          if (success) {
+            _repositoryStatus.postValue(RepositoryStatus.OPENED);
+            refreshAll();
+          } else {
+            _repositoryStatus.postValue(RepositoryStatus.ERROR);
+          }
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void cloneRepository(
+      String remoteUrl, String localPath, String username, String password) {
+    _progressMessage.postValue("Cloning repository...");
+    executor.execute(
+        () -> {
+          gitManager = new GitManager(localPath);
+          boolean success = gitManager.clone(remoteUrl, localPath, username, password);
+          if (success) {
+            _repositoryStatus.postValue(RepositoryStatus.INITIALIZED);
+            refreshAll();
+          } else {
+            _repositoryStatus.postValue(RepositoryStatus.ERROR);
+            _operationResult.postValue(new OperationResult(false, "Failed to clone repository"));
+          }
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void cloneRepository(String remoteUrl, String localPath) {
+    cloneRepository(remoteUrl, localPath, null, null);
+  }
+
+  public void stageFile(String filePath) {
+    _progressMessage.postValue("Staging file...");
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.stageFile(filePath);
+          _operationResult.postValue(
+              new OperationResult(success, success ? "File staged" : "Failed to stage file"));
+          if (success) refreshChangedFiles();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void stageAllFiles() {
+    _progressMessage.postValue("Staging all files...");
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.stageAllFiles();
+          _operationResult.postValue(
+              new OperationResult(success, success ? "All files staged" : "Failed to stage files"));
+          if (success) refreshChangedFiles();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void unstageFile(String filePath) {
+    _progressMessage.postValue("Unstaging file...");
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.unstageFile(filePath);
+          _operationResult.postValue(
+              new OperationResult(success, success ? "File unstaged" : "Failed to unstage file"));
+          if (success) refreshChangedFiles();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void discardChanges(String filePath) {
+    _progressMessage.postValue("Discarding changes...");
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.discardChanges(filePath);
+          _operationResult.postValue(
+              new OperationResult(
+                  success, success ? "Changes discarded" : "Failed to discard changes"));
+          if (success) refreshChangedFiles();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void commit(String message, String author, String email) {
+    _progressMessage.postValue("Committing changes...");
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.commit(message, author, email);
+          _operationResult.postValue(
+              new OperationResult(success, success ? "Changes committed" : "Failed to commit"));
+          if (success) {
+            refreshChangedFiles();
+            refreshCommitHistory();
+          }
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void commit(String message) {
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.commit(message);
+          _operationResult.postValue(
+              new OperationResult(success, success ? "Changes committed" : "Failed to commit"));
+          if (success) {
+            refreshChangedFiles();
+            refreshCommitHistory();
+          }
+        });
+  }
+
+  public void createBranch(String branchName) {
+    _progressMessage.postValue("Creating branch...");
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.createBranch(branchName);
+          _operationResult.postValue(
+              new OperationResult(success, success ? "Branch created" : "Failed to create branch"));
+          if (success) refreshBranches();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void checkoutBranch(String branchName) {
+    _progressMessage.postValue("Switching branch...");
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.checkoutBranch(branchName);
+          _operationResult.postValue(
+              new OperationResult(
+                  success, success ? "Switched to " + branchName : "Failed to checkout branch"));
+          if (success) refreshAll();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void deleteBranch(String branchName) {
+    _progressMessage.postValue("Deleting branch...");
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.deleteBranch(branchName);
+          _operationResult.postValue(
+              new OperationResult(success, success ? "Branch deleted" : "Failed to delete branch"));
+          if (success) refreshBranches();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void refreshRemotes() {
+    executor.execute(
+        () -> {
+          List<RemoteInfo> remotesList =
+              gitManager != null ? gitManager.getRemotes() : Collections.emptyList();
+          _remotes.postValue(remotesList);
+        });
+  }
+
+  public void addRemote(String name, String url) {
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.addRemote(name, url);
+          _operationResult.postValue(
+              new OperationResult(
+                  success, success ? "Remote added successfully" : "Failed to add remote"));
+          if (success) refreshRemotes();
+        });
+  }
+
+  public void removeRemote(String name) {
+    executor.execute(
+        () -> {
+          boolean success = gitManager != null && gitManager.removeRemote(name);
+          _operationResult.postValue(
+              new OperationResult(success, success ? "Remote removed" : "Failed to remove remote"));
+          if (success) refreshRemotes();
+        });
+  }
+
+  public void push(String remoteName, String branchName, String username, String password) {
+    _progressMessage.postValue("Pushing to remote...");
+    executor.execute(
+        () -> {
+          PushResult result =
+              gitManager != null
+                  ? gitManager.push(remoteName, branchName, username, password)
+                  : new PushResult(false, "Git manager not initialized");
+          _pushPullResult.postValue(
+              new RemoteOperationResult(result.isSuccess(), result.getMessage(), "push"));
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void push() {
+    push("origin", null, null, null);
+  }
+
+  public void pull(String remoteName, String branchName, String username, String password) {
+    _progressMessage.postValue("Pulling from remote...");
+    executor.execute(
+        () -> {
+          PullResult result =
+              gitManager != null
+                  ? gitManager.pull(remoteName, branchName, username, password)
+                  : new PullResult(false, "Git manager not initialized");
+          _pushPullResult.postValue(
+              new RemoteOperationResult(result.isSuccess(), result.getMessage(), "pull"));
+          if (result.isSuccess()) refreshAll();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void pull() {
+    pull("origin", null, null, null);
+  }
+
+  public void fetch(String remoteName, String username, String password) {
+    _progressMessage.postValue("Fetching from remote...");
+    executor.execute(
+        () -> {
+          FetchResult result =
+              gitManager != null
+                  ? gitManager.fetch(remoteName, username, password)
+                  : new FetchResult(false, "Git manager not initialized");
+          _pushPullResult.postValue(
+              new RemoteOperationResult(result.isSuccess(), result.getMessage(), "fetch"));
+          if (result.isSuccess()) refreshCommitHistory();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void fetch() {
+    fetch("origin", null, null);
+  }
+
+  public void refreshAll() {
+    refreshChangedFiles();
+    refreshCommitHistory();
+    refreshBranches();
+    refreshRemotes();
+  }
+
+  public void refreshChangedFiles() {
+    executor.execute(
+        () -> {
+          List<FileChange> changes =
+              gitManager != null ? gitManager.getChangedFiles() : Collections.emptyList();
+          _changedFiles.postValue(changes);
+        });
+  }
+
+  public void refreshCommitHistory() {
+    executor.execute(
+        () -> {
+          List<CommitInfo> commits =
+              gitManager != null ? gitManager.getCommitHistory() : Collections.emptyList();
+          _commitHistory.postValue(commits);
+        });
+  }
+
+  public void refreshBranches() {
+    executor.execute(
+        () -> {
+          String current = gitManager != null ? gitManager.getCurrentBranch() : null;
+          _currentBranch.postValue(current != null ? current : "");
+
+          List<String> allBranches =
+              gitManager != null ? gitManager.getAllBranches() : Collections.emptyList();
+          _branches.postValue(allBranches);
+        });
+  }
+
+  @Override
+  protected void onCleared() {
+    super.onCleared();
+    if (gitManager != null) gitManager.close();
+    executor.shutdown();
+  }
+}

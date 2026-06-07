@@ -1,16 +1,8 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.html;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import io.github.rosemoe.sora.lang.analysis.IncrementalAnalyzeManager.LineTokenizeResult;
 import io.github.rosemoe.sora.lang.completion.IdentifierAutoComplete;
 import io.github.rosemoe.sora.lang.styling.Span;
-import io.github.rosemoe.sora.lang.styling.TextStyle;
-import io.github.rosemoe.sora.lang.styling.color.ConstColor;
-import io.github.rosemoe.sora.lang.styling.color.ResolvableColor;
-import io.github.rosemoe.sora.lang.styling.line.LineBackground;
-import io.github.rosemoe.sora.lang.styling.line.LineGutterBackground;
-import io.github.rosemoe.sora.lang.styling.line.LineSideIcon;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CodeAnalyzer;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.IncrementalToken;
@@ -274,6 +266,6 @@ public class HTMLAnalyzer extends CodeAnalyzer {
   @Override
   protected boolean isCodeBlockEnd(IncrementalToken token) {
     int type = token.getType();
-    return type == HTMLLexer.OPEN_SLASH|| type == HTMLLexer.RBRACE;
+    return type == HTMLLexer.OPEN_SLASH || type == HTMLLexer.RBRACE;
   }
 }

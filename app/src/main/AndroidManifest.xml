@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     
 >
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission
@@ -36,6 +37,7 @@
         tools:targetApi="31"
         
     >
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -66,20 +68,86 @@
             android:exported="false"
             
         />
+
         <activity
             android:name=".activity.EditorActivity"
-            android:exported="false"
+            android:exported="true"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize"
             
-        />
+        >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="text/*" />
+                <data android:mimeType="application/json" />
+                <data android:mimeType="application/xml" />
+                <data android:mimeType="application/javascript" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.java" />
+                <data android:pathPattern=".*\\.kt" />
+                <data android:pathPattern=".*\\.xml" />
+                <data android:pathPattern=".*\\.js" />
+                <data android:pathPattern=".*\\.html" />
+                <data android:pathPattern=".*\\.css" />
+                <data android:pathPattern=".*\\.txt" />
+                <data android:pathPattern=".*\\.json" />
+                <data android:pathPattern=".*\\.md" />
+                <data android:pathPattern=".*\\.py" />
+                <data android:pathPattern=".*\\.php" />
+                <data android:pathPattern=".*\\.g4" />
+                <data android:pathPattern=".*\\.c" />
+                <data android:pathPattern=".*\\.cpp" />
+                <data android:pathPattern=".*\\.h" />
+                <data android:pathPattern=".*\\.cs" />
+                <data android:pathPattern=".*\\.go" />
+                <data android:pathPattern=".*\\.rb" />
+                <data android:pathPattern=".*\\.swift" />
+                <data android:pathPattern=".*\\.rs" />
+                <data android:pathPattern=".*\\.dart" />
+                <data android:pathPattern=".*\\.sql" />
+                <data android:pathPattern=".*\\.sh" />
+                <data android:pathPattern=".*\\.bat" />
+                <data android:pathPattern=".*\\.properties" />
+                <data android:pathPattern=".*\\.gradle" />
+                <data android:pathPattern=".*\\.yml" />
+                <data android:pathPattern=".*\\.yaml" />
+                <data android:pathPattern=".*\\.toml" />
+                <data android:pathPattern=".*\\.ini" />
+                <data android:pathPattern=".*\\.cfg" />
+                <data android:pathPattern=".*\\.conf" />
+                <data android:pathPattern=".*\\.log" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.java" />
+                <data android:pathPattern=".*\\.kt" />
+            </intent-filter>
+
+        </activity>
+
         <activity
             android:name=".activity.SettingActivity"
             android:exported="false"
+            android:launchMode="singleTop"
             
         />
+
         <activity android:name=".activity.ErrorManagerActivity" />
         <activity android:name=".activity.WebViewActivity" />
         <activity android:name="ir.theme.themeeditor.ThemeEditorActivity" />
-    </application>
 
+    </application>
 </manifest>

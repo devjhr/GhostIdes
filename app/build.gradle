@@ -7,7 +7,16 @@ plugins {
 android {
     namespace 'ir.hanzodev1375.ghostide'
     compileSdk 36
- 
+
+    signingConfigs {
+        release {
+            storeFile file("my-release-key.jks")
+            storePassword "HanzoDev1375"
+            keyAlias "myalias"
+            keyPassword "HanzoDev1375"
+        }
+    }
+
     defaultConfig {
         applicationId 'ir.hanzodev1375.ghostide'
         minSdk 26
@@ -18,15 +27,22 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+        }
+    }
+
     buildFeatures {
         viewBinding true
     }
 
     compileOptions {
-     //   coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
     kotlin {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
@@ -38,6 +54,7 @@ dependencies {
     implementation project(path: ":editor")
     implementation project(path: ":materialfileicon")
     implementation project(path: ":components")
+    implementation project(path: ":jgit")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

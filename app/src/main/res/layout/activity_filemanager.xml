@@ -7,7 +7,6 @@
      android:fitsSystemWindows="true"
      android:id="@+id/coordinator">
 
-
     <LinearLayout
          android:layout_height="match_parent"
          android:layout_width="match_parent"
@@ -20,6 +19,42 @@
              android:padding="8dp"
              android:orientation="vertical"
              android:id="@+id/headtop">
+
+            <LinearLayout
+                 android:layout_height="match_parent"
+                 android:layout_width="match_parent"
+                 android:gravity="center_vertical"
+                 android:layout_marginEnd="8dp"
+                 android:layout_marginStart="8dp"
+                 android:orientation="horizontal">
+
+                <ImageView
+                     android:layout_height="38dp"
+                     android:layout_width="38dp"
+                     android:src="@drawable/user"
+                     android:scaleType="centerCrop"
+                     android:layout_marginStart="8dp"
+                     android:id="@+id/userAvatar" />
+
+                <TextView
+                     android:layout_height="wrap_content"
+                     android:layout_width="0dp"
+                     android:textSize="16sp"
+                     android:layout_marginStart="12dp"
+                     android:layout_weight="1"
+                     android:textStyle="bold"
+                     android:id="@+id/userNameText" />
+
+                <ImageButton
+                     android:layout_height="40dp"
+                     android:layout_width="40dp"
+                     android:src="@drawable/settings"
+                     android:layout_marginEnd="8dp"
+                     android:tint="?colorOnSurface"
+                     android:background="?attr/selectableItemBackgroundBorderless"
+                     android:id="@+id/btnSettings" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -73,11 +108,10 @@
 
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <ir.hanzodev1375.ghostide.customui.FloatingToolbarView
          android:layout_height="wrap_content"
          android:layout_width="wrap_content"
          android:layout_marginBottom="30dp"
-         android:src="@drawable/add"
          android:layout_marginLeft="16dp"
          android:layout_marginRight="16dp"
          android:layout_marginTop="16dp"

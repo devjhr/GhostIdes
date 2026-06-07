@@ -17,6 +17,7 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.css.CssLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
 import ir.theme.ThemeManager;
@@ -83,6 +84,8 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new CssLanguage());
     } else if (filePath.endsWith(".js")) {
       editor.setEditorLanguage(new JsLanguage());
+    }else if(filePath.endsWith(".py")){
+      editor.setEditorLanguage(new Python3Language());
     }
   }
 

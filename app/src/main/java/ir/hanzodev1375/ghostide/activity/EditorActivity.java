@@ -2,40 +2,52 @@ package ir.hanzodev1375.ghostide.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.PopupMenu;
-
 import android.widget.Toast;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+import com.bumptech.glide.Glide;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.skydoves.powermenu.PowerMenuItem;
-import ir.hanzodev1375.ghostide.adapters.ToolbarListAdapter;
-import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
-import androidx.fragment.app.Fragment;
-import ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch;
-import ir.hanzodev1375.ghostide.fragments.EditorFragment;
-import ir.hanzodev1375.ghostide.models.ToolbarModel;
-import ir.hanzodev1375.ghostide.plugin.PluginManager;
+import com.blankj.utilcode.util.FileIOUtils;
+import ir.hanzodev1375.ghostide.customui.TabCustomView;
+import ir.hanzodev1375.ghostide.jgit.GitHubClient;
+import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.adapters.EditorPagerAdapter;
+import ir.hanzodev1375.ghostide.adapters.ToolbarListAdapter;
+import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
+import ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch;
 import ir.hanzodev1375.ghostide.databinding.ActivityEditorBinding;
+import ir.hanzodev1375.ghostide.fragments.EditorFragment;
 import ir.hanzodev1375.ghostide.models.TabModel;
+import ir.hanzodev1375.ghostide.models.ToolbarModel;
+import ir.hanzodev1375.ghostide.plugin.PluginManager;
+import ir.hanzodev1375.ghostide.utils.FileUtil;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 
@@ -76,6 +88,8 @@ public class EditorActivity extends BaseCompat {
     theme.applyView(binding.mainContent);
     theme.applyImageBackground(binding.backgroundicon);
 
+    handleIncomingIntent(getIntent());
+
     String path = getIntent().getStringExtra("file_path");
     String name = getIntent().getStringExtra("file_name");
     if (path != null && name != null) {
@@ -83,6 +97,36 @@ public class EditorActivity extends BaseCompat {
     }
     stepToolbar();
     setupKeyboardListener();
+
+    GitHubClient gitHub = new GitHubClient(this);
+    if (gitHub.isLoggedIn()) {
+      binding.userName.setText(gitHub.getName());
+      Glide.with(this)
+          .load(gitHub.getAvatarUrl())
+          .circleCrop()
+          .placeholder(R.drawable.user)
+          .into(binding.userIcon);
+    }
+
+    binding.userIcon.setOnClickListener(
+        v -> {
+          if (gitHub.isLoggedIn()) {
+            GitHubProfileSheet.newInstance().show(getSupportFragmentManager(), "github_profile");
+          } else {
+            new MaterialAlertDialogBuilder(v.getContext())
+                .setTitle(getString(R.string.github_tokenerrortitle))
+                .setMessage(getString(R.string.github_tokenerrormsg))
+                .setPositiveButton(
+                    getString(R.string.ok),
+                    (c, e) -> {
+                      Intent i = new Intent(getApplicationContext(), SettingActivity.class);
+                      i.putExtra("open_section", "githublogin");
+                      startActivity(i);
+                    })
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show();
+          }
+        });
     binding.symbolBarContainer.hide();
     binding.symbolBarContainer.bindEditor(getEditor());
 
@@ -96,9 +140,8 @@ public class EditorActivity extends BaseCompat {
             navBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
           }
 
-          var mainContent = binding.mainContent;
-          if (mainContent != null) {
-            mainContent.setPadding(0, statusBarHeight, 0, navBarHeight);
+          if (binding.mainContent != null) {
+            binding.mainContent.setPadding(0, statusBarHeight, 0, navBarHeight);
           }
           CoordinatorLayout.LayoutParams fabParams =
               (CoordinatorLayout.LayoutParams) binding.fabineditor.getLayoutParams();
@@ -110,11 +153,10 @@ public class EditorActivity extends BaseCompat {
                       originalFabBottomMarginDp,
                       getResources().getDisplayMetrics());
           int newFabMargin = navBarHeight + originalFabBottomMarginPx;
-          if (imeHeight > 0) {
-            newFabMargin += imeHeight;
-          }
+          if (imeHeight > 0) newFabMargin += imeHeight;
           fabParams.bottomMargin = newFabMargin;
           binding.fabineditor.setLayoutParams(fabParams);
+
           CoordinatorLayout.LayoutParams searchParams =
               (CoordinatorLayout.LayoutParams) binding.editorSearch.getLayoutParams();
           int gapFromKeyboardDp = 8;
@@ -137,6 +179,7 @@ public class EditorActivity extends BaseCompat {
             searchParams.bottomMargin = defaultPx;
           }
           binding.editorSearch.setLayoutParams(searchParams);
+
           CoordinatorLayout.LayoutParams symbolParams =
               (CoordinatorLayout.LayoutParams) binding.symbolBarContainer.getLayoutParams();
           if (imeHeight > 0) {
@@ -152,9 +195,122 @@ public class EditorActivity extends BaseCompat {
             symbolParams.bottomMargin = defaultPx;
           }
           binding.symbolBarContainer.setLayoutParams(symbolParams);
-
           return insets;
         });
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
+    handleIncomingIntent(intent);
+  }
+
+  private void handleIncomingIntent(Intent intent) {
+    if (intent == null) return;
+    String directPath = intent.getStringExtra("open_file_direct");
+    if (directPath != null && !directPath.isEmpty()) {
+      openFileDirect(directPath);
+      return;
+    }
+    String action = intent.getAction();
+    if (Intent.ACTION_VIEW.equals(action) || Intent.ACTION_EDIT.equals(action)) {
+      Uri uri = intent.getData();
+      if (uri != null) {
+        String path = getRealPathFromUri(uri);
+        File file = new File(path);
+        if (path != null && file.exists()) {
+          openFile(path);
+        } else {
+          Toast.makeText(this, "خطا: فایل معتبر نیست", Toast.LENGTH_SHORT).show();
+        }
+      }
+    }
+    if (Intent.ACTION_SEND.equals(action)
+        && intent.getType() != null
+        && "text/plain".equals(intent.getType())) {
+      Uri sharedUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+      if (sharedUri != null) {
+        String path = getRealPathFromUri(sharedUri);
+        if (path != null) openFile(path);
+      } else {
+        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (sharedText != null) saveAndOpenSharedText(sharedText);
+      }
+    }
+  }
+
+  private void saveAndOpenSharedText(String text) {
+    String tempDir = Environment.getExternalStorageDirectory() + "/GhostIDE/temp/";
+    File dir = new File(tempDir);
+    if (!dir.exists()) dir.mkdirs();
+    String fileName = "shared_text_" + System.currentTimeMillis() + ".txt";
+    File file = new File(dir, fileName);
+    FileIOUtils.writeFileFromString(file.getAbsolutePath(), text);
+    openFile(file.getAbsolutePath());
+  }
+
+  private String getRealPathFromUri(Uri uri) {
+    if (uri == null) return null;
+    if ("file".equals(uri.getScheme())) {
+      return uri.getPath();
+    }
+    if ("content".equals(uri.getScheme())) {
+      String[] projection = {MediaStore.MediaColumns.DATA};
+      try (Cursor cursor = getContentResolver().query(uri, projection, null, null, null)) {
+        if (cursor != null && cursor.moveToFirst()) {
+          int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+          String path = cursor.getString(columnIndex);
+          if (path != null) return path;
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      return copyFileFromContentUri(uri);
+    }
+    return null;
+  }
+
+  private String copyFileFromContentUri(Uri uri) {
+    String fileName = "temp_file_" + System.currentTimeMillis();
+    try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+      if (cursor != null && cursor.moveToFirst()) {
+        int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        if (nameIndex != -1) fileName = cursor.getString(nameIndex);
+      }
+    } catch (Exception ignored) {
+    }
+    File tempDir = new File(Environment.getExternalStorageDirectory(), "GhostIDE/temp");
+    if (!tempDir.exists()) tempDir.mkdirs();
+    File destFile = new File(tempDir, fileName);
+    try (InputStream is = getContentResolver().openInputStream(uri);
+        FileOutputStream os = new FileOutputStream(destFile)) {
+      byte[] buffer = new byte[8192];
+      int len;
+      while ((len = is.read(buffer)) != -1) os.write(buffer, 0, len);
+      return destFile.getAbsolutePath();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  private void openFileDirect(String filePath) {
+    File file = new File(filePath);
+    if (!file.exists()) return;
+    for (int i = 0; i < tabsList.size(); i++) {
+      if (tabsList.get(i).getFilePath().equals(filePath)) {
+        binding.viewPager.setCurrentItem(i);
+        return;
+      }
+    }
+    openFile(filePath, file.getName());
+  }
+
+  private void openFile(String filePath) {
+    File file = new File(filePath);
+    if (!file.exists()) return;
+    openFile(filePath, file.getName());
   }
 
   private void setupKeyboardListener() {
@@ -171,9 +327,7 @@ public class EditorActivity extends BaseCompat {
                 binding.symbolBarContainer.hide();
                 return;
               }
-
               if (keypadHeight > screenHeight * 0.15) {
-                
                 binding
                     .backgroundicon
                     .animate()
@@ -183,7 +337,6 @@ public class EditorActivity extends BaseCompat {
                     .start();
                 binding.symbolBarContainer.show();
               } else {
-                
                 binding
                     .backgroundicon
                     .animate()
@@ -196,12 +349,12 @@ public class EditorActivity extends BaseCompat {
               }
             });
   }
+
   void stepToolbar() {
     toolbarModel.add(new ToolbarModel(R.drawable.outline_search, "search"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo"));
     toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
-
     listAdapter =
         new ToolbarListAdapter(
             toolbarModel,
@@ -236,7 +389,6 @@ public class EditorActivity extends BaseCompat {
           @Override
           public void onViewHide() {
             binding.fabineditor.show();
-            // binding.symbolBarContainer.show();
           }
         });
     binding.editorSearch.showAndHide();
@@ -264,28 +416,26 @@ public class EditorActivity extends BaseCompat {
   }
 
   private void setupTabLayout() {
-    if (tabMediator != null) {
-      tabMediator.detach();
-    }
+    if (tabMediator != null) tabMediator.detach();
     tabMediator =
         new TabLayoutMediator(
             binding.tab,
             binding.viewPager,
             (tab, position) -> {
               if (position < tabsList.size()) {
-                tab.setText(tabsList.get(position).getFileName());
+                TabCustomView customView = new TabCustomView(this);
+                customView.bind(tabsList.get(position));
+                tab.setCustomView(customView);
               }
             });
     tabMediator.attach();
-
     binding.tab.addOnTabSelectedListener(
         new TabLayout.OnTabSelectedListener() {
           @Override
           public void onTabSelected(TabLayout.Tab tab) {
             int position = tab.getPosition();
-            if (binding.viewPager.getCurrentItem() != position) {
+            if (binding.viewPager.getCurrentItem() != position)
               binding.viewPager.setCurrentItem(position, false);
-            }
             saveCurrentPosition(position);
           }
 
@@ -297,16 +447,13 @@ public class EditorActivity extends BaseCompat {
             showPopupMenu(tab.view, tab.getPosition());
           }
         });
-
     binding.viewPager.registerOnPageChangeCallback(
         new ViewPager2.OnPageChangeCallback() {
           @Override
           public void onPageSelected(int position) {
             super.onPageSelected(position);
             TabLayout.Tab tab = binding.tab.getTabAt(position);
-            if (tab != null && !tab.isSelected()) {
-              tab.select();
-            }
+            if (tab != null && !tab.isSelected()) tab.select();
             binding.symbolBarContainer.bindEditor(getEditor());
             saveCurrentPosition(position);
           }
@@ -319,18 +466,14 @@ public class EditorActivity extends BaseCompat {
       try {
         Type type = new TypeToken<List<TabModel>>() {}.getType();
         List<TabModel> saved = gson.fromJson(json, type);
-        if (saved != null) {
-          tabsList = saved;
-        }
+        if (saved != null) tabsList = saved;
       } catch (Exception e) {
         tabsList = new ArrayList<>();
       }
     } else {
       tabsList = new ArrayList<>();
     }
-
     adapter.setTabs(new ArrayList<>(tabsList));
-
     int savedPosition = 0;
     String posStr = prefs.getString(KEY_POSITION, "0");
     try {
@@ -354,7 +497,6 @@ public class EditorActivity extends BaseCompat {
   }
 
   private void openFile(String path, String name) {
-
     for (int i = 0; i < tabsList.size(); i++) {
       if (tabsList.get(i).getFilePath().equals(path)) {
         binding.viewPager.setCurrentItem(i);
@@ -375,9 +517,7 @@ public class EditorActivity extends BaseCompat {
 
   private void closeTab(int position) {
     if (position >= 0 && position < tabsList.size()) {
-      if (tabsList.get(position).isPinned()) {
-        return;
-      }
+      if (tabsList.get(position).isPinned()) return;
       tabsList.remove(position);
       adapter.setTabs(new ArrayList<>(tabsList));
       saveTabs();
@@ -397,29 +537,23 @@ public class EditorActivity extends BaseCompat {
     List<TabModel> newList = new ArrayList<>();
     newList.add(current);
     for (int i = 0; i < tabsList.size(); i++) {
-      if (i != position && tabsList.get(i).isPinned()) {
-        newList.add(tabsList.get(i));
-      }
+      if (i != position && tabsList.get(i).isPinned()) newList.add(tabsList.get(i));
     }
     tabsList = newList;
     adapter.setTabs(new ArrayList<>(tabsList));
     saveTabs();
-    int newPos = 0;
-    binding.viewPager.setCurrentItem(newPos);
-    saveCurrentPosition(newPos);
+    binding.viewPager.setCurrentItem(0);
+    saveCurrentPosition(0);
   }
 
   private void closeAllTabs() {
     List<TabModel> pinned = new ArrayList<>();
-    for (TabModel tab : tabsList) {
-      if (tab.isPinned()) pinned.add(tab);
-    }
+    for (TabModel tab : tabsList) if (tab.isPinned()) pinned.add(tab);
     tabsList = pinned;
     adapter.setTabs(new ArrayList<>(tabsList));
     saveTabs();
-    if (tabsList.isEmpty()) {
-      finish();
-    } else {
+    if (tabsList.isEmpty()) finish();
+    else {
       binding.viewPager.setCurrentItem(0);
       saveCurrentPosition(0);
     }
@@ -431,15 +565,17 @@ public class EditorActivity extends BaseCompat {
       tab.setPinned(!tab.isPinned());
       adapter.setTabs(new ArrayList<>(tabsList));
       saveTabs();
-      binding.tab.getTabAt(position).setText(tab.getFileName());
+      TabLayout.Tab layoutTab = binding.tab.getTabAt(position);
+      if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
+        ((TabCustomView) layoutTab.getCustomView()).bind(tab);
+      }
     }
   }
 
   private String getCurrentFilePath() {
     int currentPos = binding.viewPager.getCurrentItem();
-    if (currentPos >= 0 && currentPos < tabsList.size()) {
+    if (currentPos >= 0 && currentPos < tabsList.size())
       return tabsList.get(currentPos).getFilePath();
-    }
     return null;
   }
 
@@ -447,7 +583,7 @@ public class EditorActivity extends BaseCompat {
     binding.fabineditor.setOnClickListener(
         v -> {
           String currentFilePath = getCurrentFilePath();
-          if (currentFilePath.endsWith(".html")) {
+          if (currentFilePath != null && currentFilePath.endsWith(".html")) {
             Intent intent = new Intent(EditorActivity.this, WebViewActivity.class);
             intent.putExtra("keyweb", currentFilePath);
             startActivity(intent);
@@ -479,9 +615,7 @@ public class EditorActivity extends BaseCompat {
     if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
       String path = data.getStringExtra("selected_file_path");
       String name = data.getStringExtra("selected_file_name");
-      if (path != null) {
-        openFile(path, name);
-      }
+      if (path != null) openFile(path, name);
     }
   }
 
@@ -490,7 +624,6 @@ public class EditorActivity extends BaseCompat {
       Toast.makeText(this, "هیچ فایلی باز نیست", Toast.LENGTH_SHORT).show();
       return;
     }
-
     int savedCount = 0;
     List<Fragment> fragments = getSupportFragmentManager().getFragments();
     for (Fragment fragment : fragments) {
@@ -499,22 +632,22 @@ public class EditorActivity extends BaseCompat {
         savedCount++;
       }
     }
-
-    Toast.makeText(this, savedCount + " فایل ذخیره شد", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, savedCount + getString(R.string.editorac_savefile), Toast.LENGTH_SHORT)
+        .show();
   }
 
   private void saveCurrentTab() {
     if (binding.viewPager == null || adapter == null || adapter.getItemCount() == 0) {
-      Toast.makeText(this, "هیچ فایلی باز نیست", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, getString(R.string.editorac_notopenfile), Toast.LENGTH_SHORT).show();
       return;
     }
     int currentPos = binding.viewPager.getCurrentItem();
     Fragment currentFragment = adapter.getFragmentAtPosition(currentPos, this);
     if (currentFragment instanceof EditorFragment) {
       ((EditorFragment) currentFragment).saveCurrentFile();
-      Toast.makeText(this, "فایل جاری ذخیره شد", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, getString(R.string.editorac_wassaved), Toast.LENGTH_SHORT).show();
     } else {
-      Toast.makeText(this, "خطا در یافت فرگمنت", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, getString(R.string.editorac_errorfargment), Toast.LENGTH_SHORT).show();
     }
   }
 
@@ -522,11 +655,8 @@ public class EditorActivity extends BaseCompat {
     if (adapter == null || adapter.getItemCount() == 0) return null;
     int currentPos = binding.viewPager.getCurrentItem();
     if (currentPos < 0 || currentPos >= adapter.getItemCount()) return null;
-
     Fragment fragment = adapter.getFragmentAtPosition(currentPos, this);
-    if (fragment instanceof EditorFragment) {
-      return ((EditorFragment) fragment).getEditor();
-    }
+    if (fragment instanceof EditorFragment) return ((EditorFragment) fragment).getEditor();
     return null;
   }
 }

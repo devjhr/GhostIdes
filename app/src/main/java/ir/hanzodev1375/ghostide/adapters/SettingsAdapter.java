@@ -35,6 +35,11 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
     return new ViewHolder(view);
   }
 
+  public void updateItem(int position, SettingItem newItem) {
+    items.set(position, newItem);
+    notifyItemChanged(position);
+  }
+
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     SettingItem item = items.get(position);

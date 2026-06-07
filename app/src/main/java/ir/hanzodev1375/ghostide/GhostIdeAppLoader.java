@@ -1,6 +1,5 @@
 package ir.hanzodev1375.ghostide;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -11,15 +10,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
-
 import ir.hanzodev1375.ghostide.activity.ErrorManagerActivity;
+import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import java.util.Calendar;
 
 public class GhostIdeAppLoader extends Application {
 
   private static Context mApplicationContext;
   private static GhostIdeAppLoader loader;
-
   private Thread.UncaughtExceptionHandler defaultExceptionHandler;
   private final StringBuilder softwareInfo = new StringBuilder();
 
@@ -37,7 +35,9 @@ public class GhostIdeAppLoader extends Application {
     loader = this;
     mApplicationContext = getApplicationContext();
 
-    
+    // راه‌اندازی ThemeEngine و اعمال به تمام Activityها
+    ThemeEngine.applyToActivities(this);
+
     softwareInfo
         .append("SDK: ")
         .append(Build.VERSION.SDK_INT)
@@ -52,7 +52,6 @@ public class GhostIdeAppLoader extends Application {
         .append(Build.VERSION.INCREMENTAL)
         .append("\n");
 
- 
     defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
     Thread.setDefaultUncaughtExceptionHandler(
         (thread, throwable) -> {
@@ -64,7 +63,6 @@ public class GhostIdeAppLoader extends Application {
           intent.putExtra("Date", dateTime);
           intent.putExtra("Software", softwareInfo.toString());
 
-          
           new Handler(Looper.getMainLooper())
               .postDelayed(
                   () -> {
@@ -76,7 +74,6 @@ public class GhostIdeAppLoader extends Application {
                   },
                   500);
 
-          
           new Handler(Looper.getMainLooper())
               .postDelayed(
                   () -> {
@@ -89,6 +86,15 @@ public class GhostIdeAppLoader extends Application {
                   },
                   1500);
         });
+  }
+
+  public void restartApp() {
+    Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+    if (intent != null) {
+      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+      startActivity(intent);
+    }
+    Process.killProcess(Process.myPid());
   }
 
   public boolean isSdkS() {
