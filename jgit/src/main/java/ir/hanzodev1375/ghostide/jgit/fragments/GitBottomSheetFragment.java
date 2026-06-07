@@ -116,7 +116,7 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
     tabTitles.add("History");
     tabTitles.add("Branches");
     tabTitles.add("Remotes");
-
+    tabTitles.add("Diff");
     ViewPager2 viewPager = root.findViewById(R.id.viewPager);
     ViewPagerAdapter adapter = new ViewPagerAdapter(requireActivity(), tabTitles);
     viewPager.setAdapter(adapter);
@@ -133,8 +133,7 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
     builder.setTitle("Git User Configuration");
 
-    View view =
-        LayoutInflater.from(requireContext()).inflate(R.layout.git_local_config, null);
+    View view = LayoutInflater.from(requireContext()).inflate(R.layout.git_local_config, null);
     EditText etName = view.findViewById(R.id.etGitUserName);
     EditText etEmail = view.findViewById(R.id.etGitUserEmail);
 

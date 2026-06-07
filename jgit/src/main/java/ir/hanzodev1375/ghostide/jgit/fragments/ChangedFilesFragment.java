@@ -15,6 +15,7 @@ import ir.hanzodev1375.ghostide.jgit.adapter.FileChangeAdapter;
 import ir.hanzodev1375.ghostide.jgit.dialogs.CommitDialog;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FileChange;
+import java.io.File;
 
 public class ChangedFilesFragment extends Fragment {
   private GitViewModel viewModel;
@@ -42,6 +43,11 @@ public class ChangedFilesFragment extends Fragment {
           @Override
           public void onStageClick(FileChange change) {
             viewModel.stageFile(change.getPath());
+            String repoPath = viewModel.currentRepoPath.getValue();
+            if (repoPath != null) {
+              String fullPath = new File(repoPath, change.getPath()).getAbsolutePath();
+              viewModel.setSelectedDiffFile(fullPath);
+            }
           }
 
           @Override

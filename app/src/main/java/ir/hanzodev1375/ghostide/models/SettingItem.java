@@ -51,4 +51,12 @@ public class SettingItem {
   public interface OnSwitchChangeListener {
     void onCheckedChanged(boolean isChecked);
   }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
 }

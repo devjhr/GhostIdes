@@ -52,6 +52,11 @@ public class GitViewModel extends ViewModel {
   public final LiveData<String> progressMessage = _progressMessage;
 
   private final ExecutorService executor = Executors.newFixedThreadPool(4);
+  private final MutableLiveData<String> _selectedDiffFile = new MutableLiveData<>();
+  public final LiveData<String> selectedDiffFile = _selectedDiffFile;
+
+  private final MutableLiveData<String> _currentRepoPath = new MutableLiveData<>();
+  public final LiveData<String> currentRepoPath = _currentRepoPath;
 
   public void setUserConfig(String name, String email) {
     executor.execute(
@@ -93,12 +98,17 @@ public class GitViewModel extends ViewModel {
           if (success) {
             gitManager.openRepository();
             _repositoryStatus.postValue(RepositoryStatus.INITIALIZED);
+            _currentRepoPath.postValue(path);
             refreshAll();
           } else {
             _repositoryStatus.postValue(RepositoryStatus.ERROR);
           }
           _progressMessage.postValue(null);
         });
+  }
+
+  public void setSelectedDiffFile(String path) {
+    _selectedDiffFile.setValue(path);
   }
 
   public void initializeRepository(String path) {
@@ -113,6 +123,7 @@ public class GitViewModel extends ViewModel {
           boolean success = gitManager.openRepository();
           if (success) {
             _repositoryStatus.postValue(RepositoryStatus.OPENED);
+            _currentRepoPath.postValue(path);
             refreshAll();
           } else {
             _repositoryStatus.postValue(RepositoryStatus.ERROR);

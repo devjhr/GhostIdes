@@ -7,6 +7,7 @@ import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.PushResult;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.PullResult;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FetchResult;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.ChangeType;
+import java.io.ByteArrayOutputStream;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.lib.Constants;
@@ -323,6 +324,21 @@ public class GitManager {
     } catch (Exception e) {
       e.printStackTrace();
       return false;
+    }
+  }
+
+  public String getFullDiff() {
+    try {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      git.diff().setOutputStream(out).call();
+      String result = out.toString();
+      if (result.isEmpty()) {
+        return "No changes detected.";
+      }
+      return result;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return "Error getting diff: " + e.getMessage();
     }
   }
 

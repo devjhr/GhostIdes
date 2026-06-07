@@ -44,6 +44,11 @@
                  android:layout_width="match_parent"
                  android:id="@+id/expandApp" />
 
+            <ir.hanzodev1375.ghostide.customui.ExpandableLayout
+                 android:layout_height="wrap_content"
+                 android:layout_width="match_parent"
+                 android:id="@+id/expandAi" />
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

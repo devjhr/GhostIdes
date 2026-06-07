@@ -31,6 +31,7 @@ import ir.hanzodev1375.components.RenameDialogFragment;
 import ir.hanzodev1375.components.TextInputDialogFragment;
 import ir.hanzodev1375.ghostide.adapters.FileManagerAdapter;
 import ir.hanzodev1375.ghostide.adapters.ToolbarAdapter;
+import ir.hanzodev1375.ghostide.ai.chat.AiChatActivity;
 import ir.hanzodev1375.ghostide.databinding.ActivityFilemanagerBinding;
 import ir.hanzodev1375.ghostide.databinding.SelectionPanelBinding;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
@@ -133,7 +134,17 @@ public class FileManagerActivity extends BaseCompat {
     List<Integer> listIcon = new ArrayList<>();
     listIcon.add(R.drawable.folder);
     listIcon.add(R.drawable.more_vert);
-    bind.fab.getRecyclerView().setAdapter(new ToolbarAdapter(listIcon, (view2, mypos) -> {}));
+    bind.fab
+        .getRecyclerView()
+        .setAdapter(
+            new ToolbarAdapter(
+                listIcon,
+                (view2, mypos) -> {
+                  switch (mypos) {
+                    case 0 -> startActivity(
+                        new Intent(getApplicationContext(), AiChatActivity.class));
+                  }
+                }));
 
     bind.fab
         .getFab()
@@ -142,6 +153,7 @@ public class FileManagerActivity extends BaseCompat {
               if (!bind.fab.isExpanded()) {
                 bind.fab.expand();
               } else bind.fab.collapse();
+              startActivity(new Intent(getApplicationContext(), AiChatActivity.class));
             });
 
     bind.navmodel

@@ -148,6 +148,6 @@
         <activity android:name=".activity.ErrorManagerActivity" />
         <activity android:name=".activity.WebViewActivity" />
         <activity android:name="ir.theme.themeeditor.ThemeEditorActivity" />
-
+        <activity android:name="ir.hanzodev1375.ghostide.ai.chat.AiChatActivity"/>
     </application>
 </manifest>

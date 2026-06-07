@@ -55,6 +55,7 @@ dependencies {
     implementation project(path: ":materialfileicon")
     implementation project(path: ":components")
     implementation project(path: ":jgit")
+    implementation project(path: ":aimodel")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

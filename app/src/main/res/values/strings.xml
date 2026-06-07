@@ -128,5 +128,15 @@
     <string name="error_file_format_not_supported">File format not supported</string>
     <string name="selected_items_count">Item select %d</string>
     <string name="dialog_exit_title">Exit</string>
-<string name="dialog_exit_message">Exit Ghost IDE?</string>
+    <string name="dialog_exit_message">Exit Ghost IDE?</string>
+    <string name="ai_section_title">AI Services</string>
+    <string name="ai_provider">AI Provider</string>
+    <string name="ai_provider_desc">Current: %s</string>
+    <string name="claude_api_key">Claude API Key</string>
+    <string name="chatgpt_api_key">ChatGPT API Key</string>
+    <string name="deepseek_api_key">DeepSeek API Key</string>
+    <string name="gemini_api_key">Gemini API Key</string>
+    <string name="not_set">Not set</string>
+    <string name="key_saved">API key saved</string>
+    <string name="key_cleared">API key cleared</string>
 </resources>

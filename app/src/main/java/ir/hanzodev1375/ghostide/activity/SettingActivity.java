@@ -25,6 +25,8 @@ import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.MainActivity;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.adapters.SettingsAdapter;
+import ir.hanzodev1375.ghostide.ai.utils.AiConstants;
+import ir.hanzodev1375.ghostide.ai.utils.AiPreferencesUtils;
 import ir.hanzodev1375.ghostide.customui.ExpandableLayout;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.models.SettingItem;
@@ -49,12 +51,13 @@ public class SettingActivity extends BaseCompat {
   private RecyclerView rvEditor, rvApp;
   private SettingsAdapter editorAdapter, appAdapter;
   private ThemeEngine themeEngine;
+  private AiPreferencesUtils aiPrefs;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_setting);
-
+    aiPrefs = new AiPreferencesUtils(this);
     prefs = new PreferencesUtils(this);
     themeEngine = ThemeEngine.getInstance(this);
     MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -79,7 +82,12 @@ public class SettingActivity extends BaseCompat {
 
     rvEditor.setAdapter(editorAdapter);
     rvApp.setAdapter(appAdapter);
-
+    ExpandableLayout expandAi = findViewById(R.id.expandAi);
+    expandAi.setTitle(getString(R.string.ai_section_title));
+    RecyclerView rvAi = expandAi.getRecyclerView();
+    rvAi.setLayoutManager(new LinearLayoutManager(this));
+    SettingsAdapter aiAdapter = new SettingsAdapter(getAiItems());
+    rvAi.setAdapter(aiAdapter);
     editorAdapter.setOnItemClickListener(
         position -> {
           if (position == 17) showTabSizeDialog();
@@ -95,6 +103,20 @@ public class SettingActivity extends BaseCompat {
           else if (position == 3) showGitHubAccountDialog();
           else if (position == 4) showLanguageDialog();
         });
+    aiAdapter.setOnItemClickListener(
+        position -> {
+          if (position == 0) {
+            showProviderDialog(aiAdapter);
+          } else if (position == 1) {
+            showApiKeyDialog("claude", aiAdapter);
+          } else if (position == 2) {
+            showApiKeyDialog("chatgpt", aiAdapter);
+          } else if (position == 3) {
+            showApiKeyDialog("deepseek", aiAdapter);
+          } else if (position == 4) {
+            showApiKeyDialog("gemini", aiAdapter);
+          }
+        });
     if ("githublogin".equals(getIntent().getStringExtra("open_section"))) {
       ThreadUtils.runOnUiThreadDelayed(
           () -> {
@@ -103,6 +125,62 @@ public class SettingActivity extends BaseCompat {
           },
           500);
     }
+  }
+
+  private List<SettingItem> getAiItems() {
+    List<SettingItem> items = new ArrayList<>();
+    String currentProvider = aiPrefs.getSelectedProvider();
+    String providerDisplay = "";
+    switch (currentProvider) {
+      case AiConstants.AiProvider.CLAUDE:
+        providerDisplay = "Claude";
+        break;
+      case AiConstants.AiProvider.CHATGPT:
+        providerDisplay = "ChatGPT";
+        break;
+      case AiConstants.AiProvider.DEEPSEEK:
+        providerDisplay = "DeepSeek";
+        break;
+      case AiConstants.AiProvider.GEMINI:
+        providerDisplay = "Gemini";
+        break;
+    }
+    items.add(
+        new SettingItem(
+            getString(R.string.ai_provider),
+            getString(R.string.ai_provider_desc, providerDisplay),
+            false,
+            0,
+            null));
+    items.add(
+        new SettingItem(
+            getString(R.string.claude_api_key),
+            aiPrefs.hasClaudeApiKey() ? "••••••••" : getString(R.string.not_set),
+            false,
+            0,
+            null));
+    items.add(
+        new SettingItem(
+            getString(R.string.chatgpt_api_key),
+            aiPrefs.hasChatGptApiKey() ? "••••••••" : getString(R.string.not_set),
+            false,
+            0,
+            null));
+    items.add(
+        new SettingItem(
+            getString(R.string.deepseek_api_key),
+            aiPrefs.hasDeepSeekApiKey() ? "••••••••" : getString(R.string.not_set),
+            false,
+            0,
+            null));
+    items.add(
+        new SettingItem(
+            getString(R.string.gemini_api_key),
+            aiPrefs.hasGeminiApiKey() ? "••••••••" : getString(R.string.not_set),
+            false,
+            0,
+            null));
+    return items;
   }
 
   private List<SettingItem> getEditorItems() {
@@ -572,6 +650,137 @@ public class SettingActivity extends BaseCompat {
                           }))
           .show(getSupportFragmentManager(), "github_token");
     }
+  }
+
+  private void showProviderDialog(SettingsAdapter adapter) {
+    String[] providers = {"Claude", "ChatGPT", "DeepSeek", "Gemini"};
+    String[] values = {
+      AiConstants.AiProvider.CLAUDE,
+      AiConstants.AiProvider.CHATGPT,
+      AiConstants.AiProvider.DEEPSEEK,
+      AiConstants.AiProvider.GEMINI
+    };
+    int checked = 0;
+    String current = aiPrefs.getSelectedProvider();
+    for (int i = 0; i < values.length; i++) {
+      if (values[i].equals(current)) {
+        checked = i;
+        break;
+      }
+    }
+
+    new MaterialAlertDialogBuilder(this)
+        .setTitle(R.string.ai_provider)
+        .setSingleChoiceItems(
+            providers,
+            checked,
+            (dialog, which) -> {
+              aiPrefs.setSelectedProvider(values[which]);
+              dialog.dismiss();
+              String newProvider = "";
+              switch (values[which]) {
+                case AiConstants.AiProvider.CLAUDE:
+                  newProvider = "Claude";
+                  break;
+                case AiConstants.AiProvider.CHATGPT:
+                  newProvider = "ChatGPT";
+                  break;
+                case AiConstants.AiProvider.DEEPSEEK:
+                  newProvider = "DeepSeek";
+                  break;
+                case AiConstants.AiProvider.GEMINI:
+                  newProvider = "Gemini";
+                  break;
+              }
+              SettingItem item = adapter.getItemAtPosition(0);
+              if (item != null) {
+                item.setDescription(getString(R.string.ai_provider_desc, newProvider));
+                adapter.notifyItemChanged(0);
+              }
+            })
+        .setNegativeButton(R.string.cancel, null)
+        .show();
+  }
+
+  int position = 0;
+
+  private void showApiKeyDialog(String provider, SettingsAdapter adapter) {
+    String title = "";
+    String currentKey = "";
+
+    switch (provider) {
+      case "claude":
+        title = getString(R.string.claude_api_key);
+        currentKey = aiPrefs.getClaudeApiKey();
+        position = 1;
+        break;
+      case "chatgpt":
+        title = getString(R.string.chatgpt_api_key);
+        currentKey = aiPrefs.getChatGptApiKey();
+        position = 2;
+        break;
+      case "deepseek":
+        title = getString(R.string.deepseek_api_key);
+        currentKey = aiPrefs.getDeepSeekApiKey();
+        position = 3;
+        break;
+      case "gemini":
+        title = getString(R.string.gemini_api_key);
+        currentKey = aiPrefs.getGeminiApiKey();
+        position = 4;
+        break;
+    }
+    TextInputDialogFragment.newInstance(
+            title, "Enter API key", currentKey.isEmpty() ? null : currentKey)
+        .setCallback(
+            text -> {
+              if (text.isEmpty()) {
+                switch (provider) {
+                  case "claude":
+                    aiPrefs.setClaudeApiKey("");
+                    break;
+                  case "chatgpt":
+                    aiPrefs.setChatGptApiKey("");
+                    break;
+                  case "deepseek":
+                    aiPrefs.setDeepSeekApiKey("");
+                    break;
+                  case "gemini":
+                    aiPrefs.setGeminiApiKey("");
+                    break;
+                }
+
+                Toast.makeText(this, R.string.key_cleared, Toast.LENGTH_SHORT).show();
+                SettingItem item = adapter.getItemAtPosition(position);
+                if (item != null) {
+                  item.setDescription(getString(R.string.not_set));
+                  adapter.notifyItemChanged(position);
+                }
+              } else {
+                switch (provider) {
+                  case "claude":
+                    aiPrefs.setClaudeApiKey(text);
+                    break;
+                  case "chatgpt":
+                    aiPrefs.setChatGptApiKey(text);
+                    break;
+                  case "deepseek":
+                    aiPrefs.setDeepSeekApiKey(text);
+                    break;
+                  case "gemini":
+                    aiPrefs.setGeminiApiKey(text);
+                    break;
+                }
+                Toast.makeText(this, R.string.key_saved, Toast.LENGTH_SHORT).show();
+                SettingItem item = adapter.getItemAtPosition(position);
+                if (item != null) {
+
+                  item.setDescription("••••••••");
+                  adapter.notifyItemChanged(position);
+                }
+              }
+            })
+        .show(getSupportFragmentManager(), "api_key_dialog");
   }
 
   @Override

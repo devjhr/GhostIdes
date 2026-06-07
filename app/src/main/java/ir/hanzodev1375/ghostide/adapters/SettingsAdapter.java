@@ -73,6 +73,10 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
     return items.size();
   }
 
+  public SettingItem getItemAtPosition(int position) {
+    return items.get(position);
+  }
+
   static class ViewHolder extends RecyclerView.ViewHolder {
     PreferenceSwitchGroup switchGroup;
 
