@@ -5,7 +5,7 @@ plugins {
 android {
     namespace 'ir.hanzodev1375.ghostide.javac'
     compileSdk {
-        version = release(37)
+        version = release(36)
     }
 
     defaultConfig {

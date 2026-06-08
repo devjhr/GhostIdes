@@ -353,7 +353,7 @@ public class EditorActivity extends BaseCompat {
 
   void stepToolbar() {
     toolbarModel.add(new ToolbarModel(R.drawable.outline_search, "search"));
-    toolbarModel.add(new ToolbarModel(R.drawable.ic_back, "git"));
+    toolbarModel.add(new ToolbarModel(com.bluewhaleyt.materialfileicon.R.drawable.ic_material_git, "git"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo"));
     toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));

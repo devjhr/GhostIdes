@@ -33,10 +33,24 @@ public class AiClientFactory {
             AiConstants.ApiEndpoints.DEEPSEEK_BASE_URL,
             AiConstants.AiProvider.DEEPSEEK);
       case AiConstants.AiProvider.OPENROUTER:
+        String openRouterModel = prefs.getOpenRouterModel();
+        if (openRouterModel == null
+            || openRouterModel.trim().isEmpty()
+            || !openRouterModel.contains("/")) {
+          openRouterModel = "qwen/qwen3.6-plus-preview:free";
+        }
+        String openRouterBaseUrl = AiConstants.ApiEndpoints.OPENROUTER_BASE_URL;
+        if (!openRouterBaseUrl.endsWith("/chat/completions")) {
+          if (openRouterBaseUrl.endsWith("/")) {
+            openRouterBaseUrl = openRouterBaseUrl + "chat/completions";
+          } else {
+            openRouterBaseUrl = openRouterBaseUrl + "/chat/completions";
+          }
+        }
         return new OpenAiCompatibleClient(
             prefs.getOpenRouterApiKey(),
-            prefs.getOpenRouterModel(),
-            AiConstants.ApiEndpoints.OPENROUTER_BASE_URL,
+            openRouterModel,
+            openRouterBaseUrl,
             AiConstants.AiProvider.OPENROUTER);
       case AiConstants.AiProvider.GEMINI:
         return new GeminiClient(prefs.getGeminiApiKey(), prefs.getGeminiModel());

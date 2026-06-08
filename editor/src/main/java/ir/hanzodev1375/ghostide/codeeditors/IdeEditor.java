@@ -17,7 +17,7 @@ import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorCompletionAdapter;
 import java.util.Objects;
-
+//test
 public class IdeEditor extends CodeEditor
     implements SharedPreferences.OnSharedPreferenceChangeListener {
 

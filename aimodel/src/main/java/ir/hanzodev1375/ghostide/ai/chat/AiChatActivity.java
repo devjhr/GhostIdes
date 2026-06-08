@@ -1,6 +1,8 @@
 package ir.hanzodev1375.ghostide.ai.chat;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
+import com.google.android.material.transition.platform.MaterialSharedAxis;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -495,5 +497,20 @@ public class AiChatActivity extends AppCompatActivity {
   protected void onDestroy() {
     super.onDestroy();
     executor.shutdownNow();
+  }
+
+  @Override
+  public void startActivity(Intent i) {
+    ActivityOptions op = ActivityOptions.makeSceneTransitionAnimation(this);
+    MaterialSharedAxis enter = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
+    enter.setDuration(1000);
+    MaterialSharedAxis exit = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
+    exit.setDuration(1000);
+    MaterialSharedAxis reenter = new MaterialSharedAxis(MaterialSharedAxis.Y, true);
+    reenter.setDuration(1000);
+    getWindow().setExitTransition(exit);
+    getWindow().setEnterTransition(enter);
+    getWindow().setReenterTransition(reenter);
+    super.startActivity(i, op.toBundle());
   }
 }

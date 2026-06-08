@@ -44,8 +44,10 @@ public class ToolbarAdapter extends RecyclerView.Adapter<ToolbarAdapter.Holder> 
 
   @Override
   public void onBindViewHolder(@NonNull Holder holder, int position) {
-
     holder.image.setImageResource(icons.get(position));
+    holder.image.setOnClickListener(c ->{
+      click.click(c,position);
+    });
   }
 
   @Override

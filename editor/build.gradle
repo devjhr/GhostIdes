@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    compileSdk = 37
+    compileSdk = 36
     namespace = 'ir.hanzodev1375.ghostide.codeeditors'
     
     buildFeatures {

@@ -6,16 +6,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.view.ActionMode;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -36,6 +31,7 @@ import ir.hanzodev1375.ghostide.databinding.ActivityFilemanagerBinding;
 import ir.hanzodev1375.ghostide.databinding.SelectionPanelBinding;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
+import ir.hanzodev1375.ghostide.jgit.fragments.GitBottomSheetFragment;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
@@ -61,6 +57,7 @@ public class FileManagerActivity extends BaseCompat {
   private boolean isCutOperation = false;
   private List<FileManagerModel> pendingClipboard = new ArrayList<>();
   private SelectionPanelBinding selectionPanelBinding;
+  private FileManagerModel fileModels;
   private Set<String> itemname =
       new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py"));
 
@@ -88,12 +85,12 @@ public class FileManagerActivity extends BaseCompat {
     bind.rvfiles.addItemDecoration(new MarginItemDecoration(this));
 
     adapter.setupSelectionTracker(bind.rvfiles);
-
     viewModel
         .getFiles()
         .observe(
             this,
             files -> {
+              fileModels = files.get(0);
               adapter.submitList(new ArrayList<>(files));
               bind.rvfiles.post(
                   () -> {
@@ -129,11 +126,16 @@ public class FileManagerActivity extends BaseCompat {
           } else {
             setupClick(item.getPath(), item.getName());
           }
+          String currentPath = viewModel.getCurrentPath().getValue();
+          if (currentPath != null) {
+            bind.gitActionButton.setVisibility(
+                isGitRepository(currentPath) ? View.VISIBLE : View.GONE);
+          }
         });
 
     List<Integer> listIcon = new ArrayList<>();
     listIcon.add(R.drawable.folder);
-    listIcon.add(R.drawable.more_vert);
+    listIcon.add(R.drawable.ic_fileicon);
     bind.fab
         .getRecyclerView()
         .setAdapter(
@@ -141,8 +143,8 @@ public class FileManagerActivity extends BaseCompat {
                 listIcon,
                 (view2, mypos) -> {
                   switch (mypos) {
-                    case 0 -> startActivity(
-                        new Intent(getApplicationContext(), AiChatActivity.class));
+                    case 0 -> creatorFolder(fileModels);
+                    case 1 -> creatorFile(fileModels);
                   }
                 }));
 
@@ -153,7 +155,6 @@ public class FileManagerActivity extends BaseCompat {
               if (!bind.fab.isExpanded()) {
                 bind.fab.expand();
               } else bind.fab.collapse();
-              startActivity(new Intent(getApplicationContext(), AiChatActivity.class));
             });
 
     bind.navmodel
@@ -189,8 +190,14 @@ public class FileManagerActivity extends BaseCompat {
             }
           }
         });
+    bind.buttonAi.setOnClickListener(
+        v -> {
+          startActivity(new Intent(getApplicationContext(), AiChatActivity.class));
+        });
 
     setOnBackPress();
+    setupGitButton();
+    observePathForGit();
   }
 
   void setupClick(String path, String name) {
@@ -210,6 +217,52 @@ public class FileManagerActivity extends BaseCompat {
       Toast.makeText(this, getString(R.string.error_file_format_not_supported), Toast.LENGTH_SHORT)
           .show();
     }
+  }
+
+  private void setupGitButton() {
+    bind.gitActionButton.setOnClickListener(
+        v -> {
+          String repoPath = findGitRepositoryPath();
+          if (repoPath == null) {
+            Toast.makeText(this, "Git dir nlt found", Toast.LENGTH_LONG).show();
+            return;
+          }
+          var bottomSheet = GitBottomSheetFragment.newInstance(repoPath);
+          bottomSheet.show(getSupportFragmentManager(), "git_bottom_sheet");
+        });
+  }
+
+  private String findGitRepositoryPath() {
+    String currentDir = viewModel.getCurrentPath().getValue();
+    if (currentDir == null) return null;
+    File dir = new File(currentDir);
+    while (dir != null) {
+      File gitDir = new File(dir, ".git");
+      if (gitDir.exists() && gitDir.isDirectory()) {
+        return dir.getAbsolutePath();
+      }
+      dir = dir.getParentFile();
+    }
+    return null;
+  }
+
+  private void observePathForGit() {
+    viewModel
+        .getCurrentPath()
+        .observe(
+            this,
+            path -> {
+              if (path != null && isGitRepository(path)) {
+                bind.gitActionButton.setVisibility(View.VISIBLE);
+              } else {
+                bind.gitActionButton.setVisibility(View.GONE);
+              }
+            });
+  }
+
+  private boolean isGitRepository(String path) {
+    File gitDir = new File(path, ".git");
+    return gitDir.exists() && gitDir.isDirectory();
   }
 
   private void setupSelectionPanel() {
@@ -349,6 +402,11 @@ public class FileManagerActivity extends BaseCompat {
                 if (viewModel.getCurrentPath().getValue() != null
                     && !viewModel.getCurrentPath().getValue().equals("/storage/emulated/0")) {
                   viewModel.navigateUp();
+                  String currentPath = viewModel.getCurrentPath().getValue();
+                  if (currentPath != null) {
+                    bind.gitActionButton.setVisibility(
+                        isGitRepository(currentPath) ? View.VISIBLE : View.GONE);
+                  }
                 } else {
                   new MaterialAlertDialogBuilder(FileManagerActivity.this)
                       .setTitle(getString(R.string.dialog_exit_title))
@@ -369,9 +427,6 @@ public class FileManagerActivity extends BaseCompat {
 
           menu.addItem(new PowerMenuItem(getString(R.string.removed)));
           menu.addItem(new PowerMenuItem(getString(R.string.rename)));
-          menu.addItem(new PowerMenuItem(getString(R.string.filemanagerac_creatorfile)));
-          menu.addItem(new PowerMenuItem(getString(R.string.filemanagerac_creatorfolder)));
-
           menu.setMenuColor(
               MaterialColors.getColor(
                   view.getContext(), com.google.android.material.R.attr.colorSurface, 0));
@@ -390,8 +445,6 @@ public class FileManagerActivity extends BaseCompat {
                 switch (index) {
                   case 0 -> removedItem(filemodel);
                   case 1 -> renameItem(filemodel);
-                  case 2 -> creatorFile(filemodel);
-                  case 3 -> creatorFolder(filemodel);
                 }
               });
 
@@ -512,5 +565,9 @@ public class FileManagerActivity extends BaseCompat {
   protected void onResume() {
     super.onResume();
     setupHeader();
+    String currentPath = viewModel.getCurrentPath().getValue();
+    if (currentPath != null) {
+      bind.gitActionButton.setVisibility(isGitRepository(currentPath) ? View.VISIBLE : View.GONE);
+    }
   }
 }

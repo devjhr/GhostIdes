@@ -1,7 +1,6 @@
 package ir.hanzodev1375.ghostide.activity;
 
 import android.app.ActivityOptions;
-import android.os.Build;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
 import android.content.Context;
 import android.content.Intent;
@@ -108,10 +107,6 @@ public class BaseCompat extends AppCompatActivity
     getWindow().setExitTransition(exit);
     getWindow().setEnterTransition(enter);
     getWindow().setReenterTransition(reenter);
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-      op.setPendingIntentBackgroundActivityLaunchAllowed(true);
-    }
     super.startActivity(i, op.toBundle());
   }
 }
