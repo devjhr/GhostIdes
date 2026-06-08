@@ -155,28 +155,28 @@ public class SettingActivity extends BaseCompat {
     items.add(
         new SettingItem(
             getString(R.string.claude_api_key),
-            aiPrefs.hasClaudeApiKey() ? "••••••••" : getString(R.string.not_set),
+            aiPrefs.hasClaudeApiKey() ? "*********" : getString(R.string.not_set),
             false,
             0,
             null));
     items.add(
         new SettingItem(
             getString(R.string.chatgpt_api_key),
-            aiPrefs.hasChatGptApiKey() ? "••••••••" : getString(R.string.not_set),
+            aiPrefs.hasChatGptApiKey() ? "*********" : getString(R.string.not_set),
             false,
             0,
             null));
     items.add(
         new SettingItem(
             getString(R.string.deepseek_api_key),
-            aiPrefs.hasDeepSeekApiKey() ? "••••••••" : getString(R.string.not_set),
+            aiPrefs.hasDeepSeekApiKey() ? "*********" : getString(R.string.not_set),
             false,
             0,
             null));
     items.add(
         new SettingItem(
             getString(R.string.gemini_api_key),
-            aiPrefs.hasGeminiApiKey() ? "••••••••" : getString(R.string.not_set),
+            aiPrefs.hasGeminiApiKey() ? "*********" : getString(R.string.not_set),
             false,
             0,
             null));
@@ -775,7 +775,7 @@ public class SettingActivity extends BaseCompat {
                 SettingItem item = adapter.getItemAtPosition(position);
                 if (item != null) {
 
-                  item.setDescription("••••••••");
+                  item.setDescription("*********");
                   adapter.notifyItemChanged(position);
                 }
               }
