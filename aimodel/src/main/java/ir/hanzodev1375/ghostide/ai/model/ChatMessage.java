@@ -12,6 +12,7 @@ public class ChatMessage {
   private String provider;
   private long timestamp;
   private String imageUri;
+  private String fileType;
 
   public ChatMessage(String content, int type, String provider) {
     this(content, type, provider, null);
@@ -63,5 +64,13 @@ public class ChatMessage {
 
   public void setImageUri(String imageUri) {
     this.imageUri = imageUri;
+  }
+
+  public void setMimeType(String fileType) {
+    this.fileType = fileType;
+  }
+
+  public String getMimeType() {
+    return fileType;
   }
 }

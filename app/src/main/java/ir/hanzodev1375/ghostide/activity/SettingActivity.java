@@ -103,6 +103,7 @@ public class SettingActivity extends BaseCompat {
           else if (position == 3) showGitHubAccountDialog();
           else if (position == 4) showLanguageDialog();
         });
+
     aiAdapter.setOnItemClickListener(
         position -> {
           if (position == 0) {
@@ -115,8 +116,11 @@ public class SettingActivity extends BaseCompat {
             showApiKeyDialog("deepseek", aiAdapter);
           } else if (position == 4) {
             showApiKeyDialog("gemini", aiAdapter);
+          } else if (position == 5) {
+            showApiKeyDialog("openrouter", aiAdapter);
           }
         });
+
     if ("githublogin".equals(getIntent().getStringExtra("open_section"))) {
       ThreadUtils.runOnUiThreadDelayed(
           () -> {
@@ -143,6 +147,9 @@ public class SettingActivity extends BaseCompat {
         break;
       case AiConstants.AiProvider.GEMINI:
         providerDisplay = "Gemini";
+        break;
+      case AiConstants.AiProvider.OPENROUTER:
+        providerDisplay = "OpenRouter";
         break;
     }
     items.add(
@@ -177,6 +184,14 @@ public class SettingActivity extends BaseCompat {
         new SettingItem(
             getString(R.string.gemini_api_key),
             aiPrefs.hasGeminiApiKey() ? "*********" : getString(R.string.not_set),
+            false,
+            0,
+            null));
+    // OpenRouter
+    items.add(
+        new SettingItem(
+            "OpenRouter API Key",
+            aiPrefs.hasOpenRouterApiKey() ? "*********" : getString(R.string.not_set),
             false,
             0,
             null));
@@ -391,7 +406,6 @@ public class SettingActivity extends BaseCompat {
 
   private void showLanguageDialog() {
     int checkedIndex = LocaleHelper.getSavedLanguageIndex(this);
-
     new MaterialAlertDialogBuilder(this)
         .setTitle(R.string.pref_language)
         .setSingleChoiceItems(
@@ -405,7 +419,6 @@ public class SettingActivity extends BaseCompat {
                   "default".equals(selectedCode)
                       ? LocaleListCompat.getEmptyLocaleList()
                       : LocaleListCompat.forLanguageTags(selectedCode);
-
               AppCompatDelegate.setApplicationLocales(localeList);
             })
         .setNegativeButton(R.string.cancel, null)
@@ -653,12 +666,13 @@ public class SettingActivity extends BaseCompat {
   }
 
   private void showProviderDialog(SettingsAdapter adapter) {
-    String[] providers = {"Claude", "ChatGPT", "DeepSeek", "Gemini"};
+    String[] providers = {"Claude", "ChatGPT", "DeepSeek", "Gemini", "OpenRouter"};
     String[] values = {
       AiConstants.AiProvider.CLAUDE,
       AiConstants.AiProvider.CHATGPT,
       AiConstants.AiProvider.DEEPSEEK,
-      AiConstants.AiProvider.GEMINI
+      AiConstants.AiProvider.GEMINI,
+      AiConstants.AiProvider.OPENROUTER
     };
     int checked = 0;
     String current = aiPrefs.getSelectedProvider();
@@ -677,21 +691,7 @@ public class SettingActivity extends BaseCompat {
             (dialog, which) -> {
               aiPrefs.setSelectedProvider(values[which]);
               dialog.dismiss();
-              String newProvider = "";
-              switch (values[which]) {
-                case AiConstants.AiProvider.CLAUDE:
-                  newProvider = "Claude";
-                  break;
-                case AiConstants.AiProvider.CHATGPT:
-                  newProvider = "ChatGPT";
-                  break;
-                case AiConstants.AiProvider.DEEPSEEK:
-                  newProvider = "DeepSeek";
-                  break;
-                case AiConstants.AiProvider.GEMINI:
-                  newProvider = "Gemini";
-                  break;
-              }
+              String newProvider = providers[which];
               SettingItem item = adapter.getItemAtPosition(0);
               if (item != null) {
                 item.setDescription(getString(R.string.ai_provider_desc, newProvider));
@@ -729,7 +729,13 @@ public class SettingActivity extends BaseCompat {
         currentKey = aiPrefs.getGeminiApiKey();
         position = 4;
         break;
+      case "openrouter":
+        title = "OpenRouter API Key";
+        currentKey = aiPrefs.getOpenRouterApiKey();
+        position = 5;
+        break;
     }
+
     TextInputDialogFragment.newInstance(
             title, "Enter API key", currentKey.isEmpty() ? null : currentKey)
         .setCallback(
@@ -748,8 +754,10 @@ public class SettingActivity extends BaseCompat {
                   case "gemini":
                     aiPrefs.setGeminiApiKey("");
                     break;
+                  case "openrouter":
+                    aiPrefs.setOpenRouterApiKey("");
+                    break;
                 }
-
                 Toast.makeText(this, R.string.key_cleared, Toast.LENGTH_SHORT).show();
                 SettingItem item = adapter.getItemAtPosition(position);
                 if (item != null) {
@@ -770,11 +778,13 @@ public class SettingActivity extends BaseCompat {
                   case "gemini":
                     aiPrefs.setGeminiApiKey(text);
                     break;
+                  case "openrouter":
+                    aiPrefs.setOpenRouterApiKey(text);
+                    break;
                 }
                 Toast.makeText(this, R.string.key_saved, Toast.LENGTH_SHORT).show();
                 SettingItem item = adapter.getItemAtPosition(position);
                 if (item != null) {
-
                   item.setDescription("*********");
                   adapter.notifyItemChanged(position);
                 }

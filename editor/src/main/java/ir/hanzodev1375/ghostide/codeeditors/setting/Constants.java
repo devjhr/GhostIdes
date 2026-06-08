@@ -1,7 +1,7 @@
 package ir.hanzodev1375.ghostide.codeeditors.setting;
 
 public class Constants {
-
+  
   public static class SharedPreferenceKeys {
     // Editor Preferences
     public static final String KEY_CODE_EDITOR_FONT_LIAGTURES = "pref_code_editor_font_liagtures";
@@ -49,7 +49,8 @@ public class Constants {
 
     public static final String KEY_GIT_LOCAL_USER_NAME = "git_local_user_name";
     public static final String KEY_GIT_LOCAL_USER_EMAIL = "git_local_user_email";
-
+    public static final String KEY_DEVNAMEGIT = "git_pref_name";
+    public static final String KEY_EMAILGIT="git_pref_gitname";
     private SharedPreferenceKeys() {
       throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }

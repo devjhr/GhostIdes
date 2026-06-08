@@ -521,6 +521,36 @@ public class PreferencesUtils {
     return !getGitHubToken().isEmpty();
   }
 
+  public String getGitCommitName() {
+    return getDefaultPreferences().getString(Constants.SharedPreferenceKeys.KEY_DEVNAMEGIT, "");
+  }
+
+  public void setGitCommitName(String data) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_DEVNAMEGIT, data)
+        .apply();
+  }
+
+  public String getGitCommitEmail() {
+    return getDefaultPreferences().getString(Constants.SharedPreferenceKeys.KEY_EMAILGIT, "");
+  }
+
+  public void setGitCommitEmail(String data) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_EMAILGIT, data)
+        .apply();
+  }
+
+  public void setRemovedDataCommit() {
+    getDefaultPreferences()
+        .edit()
+        .remove(Constants.SharedPreferenceKeys.KEY_DEVNAMEGIT)
+        .remove(Constants.SharedPreferenceKeys.KEY_EMAILGIT)
+        .apply();
+  }
+
   public void clearGitHubAccount() {
     getDefaultPreferences()
         .edit()

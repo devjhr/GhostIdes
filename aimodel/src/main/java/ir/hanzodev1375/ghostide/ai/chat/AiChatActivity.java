@@ -67,10 +67,11 @@ public class AiChatActivity extends AppCompatActivity {
     AiConstants.AiProvider.CLAUDE,
     AiConstants.AiProvider.CHATGPT,
     AiConstants.AiProvider.DEEPSEEK,
-    AiConstants.AiProvider.GEMINI
+    AiConstants.AiProvider.GEMINI,
+    AiConstants.AiProvider.OPENROUTER
   };
   private static final String[] PROVIDER_LABELS = {
-    "Claude (Anthropic)", "ChatGPT (OpenAI)", "DeepSeek", "Gemini (Google)"
+    "Claude (Anthropic)", "ChatGPT (OpenAI)", "DeepSeek", "Gemini (Google) , OpenRouter"
   };
 
   @NonNull

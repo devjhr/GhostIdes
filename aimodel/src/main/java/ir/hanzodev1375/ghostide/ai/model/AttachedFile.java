@@ -9,8 +9,8 @@ public class AttachedFile {
 
   private final Uri uri;
   private final String name;
-  private final int fileType; 
-  private String textContent; 
+  private final int fileType;
+  private String textContent;
   private String base64Data;
 
   public AttachedFile(Uri uri, String name, int fileType) {
@@ -49,5 +49,9 @@ public class AttachedFile {
 
   public boolean isImage() {
     return fileType == TYPE_IMAGE;
+  }
+
+  public String getMimeType() {
+    return "*/*";
   }
 }

@@ -100,6 +100,27 @@ public class AiPreferencesUtils {
         getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_MODEL, model).apply();
     }
 
+    // ========== OpenRouter ==========
+    public String getOpenRouterApiKey() {
+        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_API_KEY, "");
+    }
+
+    public void setOpenRouterApiKey(String apiKey) {
+        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_API_KEY, apiKey).apply();
+    }
+
+    public boolean hasOpenRouterApiKey() {
+        return !getOpenRouterApiKey().isEmpty();
+    }
+
+    public String getOpenRouterModel() {
+        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_MODEL, AiConstants.DefaultModels.OPENROUTER_DEFAULT);
+    }
+
+    public void setOpenRouterModel(String model) {
+        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_MODEL, model).apply();
+    }
+
     // ========== Selected Provider ==========
     public String getSelectedProvider() {
         return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_SELECTED_PROVIDER, AiConstants.AiProvider.CLAUDE);
@@ -110,7 +131,7 @@ public class AiPreferencesUtils {
     }
 
     public boolean hasApiKeyForProvider(String provider) {
-        switch(provider) {
+        switch (provider) {
             case AiConstants.AiProvider.CLAUDE:
                 return hasClaudeApiKey();
             case AiConstants.AiProvider.CHATGPT:
@@ -119,12 +140,20 @@ public class AiPreferencesUtils {
                 return hasDeepSeekApiKey();
             case AiConstants.AiProvider.GEMINI:
                 return hasGeminiApiKey();
+            case AiConstants.AiProvider.OPENROUTER:
+                return hasOpenRouterApiKey();
             default:
                 return false;
         }
     }
 
     public void clearAllApiKeys() {
-        getPrefs().edit().remove(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_API_KEY).remove(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_API_KEY).remove(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_API_KEY).remove(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_API_KEY).apply();
+        getPrefs().edit()
+                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_API_KEY)
+                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_API_KEY)
+                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_API_KEY)
+                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_API_KEY)
+                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_API_KEY)
+                .apply();
     }
 }
