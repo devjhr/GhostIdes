@@ -2,7 +2,7 @@
 agp = "8.13.0"
 kotlin = "2.1.0"
 coreKtx = "1.6.0"
-appcompat = "1.7.1"
+appcompat = "1.8.0-alpha01"
 material = "1.14.0"
 guava = "33.2.1-android"
 constraintlayout = "2.2.1"
@@ -24,7 +24,7 @@ antlrv = "4.13.2"
 #powermenu
 powermenu = "2.2.4"
 #git
-jgit = "7.3.0.202506031305-r"
+jgit = "7.6.0.202603022253-r"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

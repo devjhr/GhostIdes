@@ -44,7 +44,7 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 - Sass / SCSS / Less compilers soon
 - TypeScript / TSX / JSX support soon
 - JavaFX compiler soon
-- Git integration soon
+- Git integration
 - HTML preview support 
 
 ### 🌐 Supported Languages

@@ -71,8 +71,8 @@ public class AiChatActivity extends AppCompatActivity {
     AiConstants.AiProvider.OPENROUTER
   };
   private static final String[] PROVIDER_LABELS = {
-    "Claude (Anthropic)", "ChatGPT (OpenAI)", "DeepSeek", "Gemini (Google) , OpenRouter"
-  };
+  "Claude (Anthropic)", "ChatGPT (OpenAI)", "DeepSeek", "Gemini (Google)", "OpenRouter"
+};
 
   @NonNull
   private final ActivityResultLauncher<Intent> filePicker =

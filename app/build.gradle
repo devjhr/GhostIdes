@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace 'ir.hanzodev1375.ghostide'
-    compileSdk 36
+    compileSdk 37
 
     signingConfigs {
         release {
