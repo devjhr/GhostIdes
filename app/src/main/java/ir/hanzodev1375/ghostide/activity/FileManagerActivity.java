@@ -86,7 +86,7 @@ public class FileManagerActivity extends BaseCompat {
     bind.rvfiles.setAdapter(adapter);
     bind.rvfiles.addItemDecoration(new MarginItemDecoration(this));
     app = new UpadteAppView(this, bind.downloader, () -> {});
-
+    app.init();
     adapter.setupSelectionTracker(bind.rvfiles);
     viewModel
         .getFiles()
