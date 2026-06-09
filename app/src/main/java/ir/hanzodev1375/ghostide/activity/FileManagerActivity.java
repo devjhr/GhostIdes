@@ -61,7 +61,7 @@ public class FileManagerActivity extends BaseCompat {
   private FileManagerModel fileModels;
   private UpadteAppView app;
   private Set<String> itemname =
-      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py"));
+      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py",".json"));
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {

@@ -17,6 +17,7 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.css.CssLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
@@ -84,8 +85,10 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new CssLanguage());
     } else if (filePath.endsWith(".js")) {
       editor.setEditorLanguage(new JsLanguage());
-    }else if(filePath.endsWith(".py")){
+    } else if (filePath.endsWith(".py")) {
       editor.setEditorLanguage(new Python3Language());
+    } else if (filePath.endsWith(".json")) {
+      editor.setEditorLanguage(new JsonLanguage());
     }
   }
 
@@ -124,8 +127,7 @@ public class EditorFragment extends Fragment {
           Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
           int bottomInset = Math.max(imeInsets.bottom, navInsets.bottom);
 
-          v.setPadding(
-              v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottomInset);
+          v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottomInset);
           return insets;
         });
   }
