@@ -350,8 +350,8 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
 
       String iconPath = item.isDirectory() ? item.getName() + "/" : item.getName();
       FileIconHelper iconHelper = new FileIconHelper(iconPath);
-      iconHelper.setDynamicFolderEnabled(true);
-      iconHelper.setEnvironmentEnabled(true);
+      iconHelper.setDynamicFolderEnabled(false);
+      iconHelper.setEnvironmentEnabled(false);
       Glide.with(ivIcon.getContext())
           .load(iconHelper.getFileIcon())
           .error(R.drawable.ic_close)

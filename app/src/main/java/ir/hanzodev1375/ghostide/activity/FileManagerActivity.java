@@ -46,7 +46,9 @@ import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.hanzodev1375.ghostide.utils.MarginItemDecoration;
 import ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver;
+import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
+import ir.hanzodev1375.ghostide.utils.ZipUtil;
 import ir.theme.themeeditor.ThemeEditorActivity;
 import java.io.File;
 import java.util.ArrayList;
@@ -516,7 +518,7 @@ public class FileManagerActivity extends BaseCompat
     btnClose = selectionPanelBinding.btnClose;
     btnSelectall = selectionPanelBinding.btnSelectall;
     selectionPanelBinding.getRoot().setBackground(ShapeUtil.shapeCustomView(this));
-
+    var selectionMore = selectionPanelBinding.selectionmore;
     btnCopy.setOnClickListener(
         v -> {
           List<FileManagerModel> selected = adapter.getSelectedItems();
@@ -599,7 +601,35 @@ public class FileManagerActivity extends BaseCompat
           btnPaste.clearColorFilter();
           selectionPanel.setVisibility(View.GONE);
         });
+    selectionMore.setOnClickListener(
+        v -> {
+          List<FileManagerModel> selected = adapter.getSelectedItems();
+          if (selected.isEmpty()) return;
 
+          PowerMenu menu = new PowerMenu.Builder(this).setIsMaterial(true).build();
+          menu.addItem(new PowerMenuItem(getString(R.string.zip)));
+          menu.setMenuColor(
+              MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface, 0));
+          menu.setTextColor(
+              MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, 0));
+          menu.setShowBackground(false);
+          menu.setAutoDismiss(true);
+          menu.setMenuRadius(30f);
+          menu.setAnimation(MenuAnimation.FADE);
+          menu.setOnMenuItemClickListener(
+              (index, item) -> {
+                if (index == 0) {
+                  List<File> filesToZip = new ArrayList<>();
+                  for (FileManagerModel model : selected) {
+                    filesToZip.add(new File(model.getPath()));
+                  }
+                  btnClose.performClick();
+                  ZipUtil.showZipDialog(FileManagerActivity.this, filesToZip);
+                }
+              });
+           ObjectUtil.showFixPos(menu,selectionMore);   
+          
+        });
     selectionPanel.setVisibility(View.GONE);
   }
 
@@ -687,19 +717,7 @@ public class FileManagerActivity extends BaseCompat
                   case 1 -> renameItem(filemodel);
                 }
               });
-          int[] location = new int[2];
-          view.getLocationOnScreen(location);
-          int x = location[0];
-          int y = location[1];
-          var dm = view.getResources().getDisplayMetrics();
-          int screenHeight = dm.heightPixels;
-          int menuHeight = menu.getContentViewHeight();
-          if (menuHeight <= 0) menuHeight = 200;
-          int spaceBelow = screenHeight - (y + view.getHeight());
-          int spaceAbove = y;
-          if (spaceBelow < menuHeight && spaceAbove > spaceBelow) y -= menuHeight;
-          else y += view.getHeight();
-          menu.showAtLocation(view, Gravity.TOP | Gravity.START, x, y);
+          ObjectUtil.showFixPos(menu,view);
         });
   }
 
