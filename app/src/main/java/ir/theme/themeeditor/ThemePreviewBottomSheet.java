@@ -232,7 +232,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
   private void applyBackgroundImage() {
     String imagePath =
         (currentTheme.getWidget() != null) ? currentTheme.getWidget().getImagepath() : null;
-      getView().setBackgroundColor(Color.parseColor(currentTheme.getActivity().getBackground()));
+    getView().setBackgroundColor(Color.parseColor(currentTheme.getActivity().getBackground()));
     if (imagePath != null && !imagePath.isEmpty()) {
       Glide.with(this).load(imagePath).into(ivBackground);
       ivBackground.setVisibility(View.VISIBLE);
@@ -296,7 +296,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
                 + "    <p>This is a sample HTML file.</p>\n"
                 + "</body>\n"
                 + "</html>";
-        editorPreview.setEditorLanguage(new HtmlLanguage());
+        editorPreview.setEditorLanguage(new HtmlLanguage(getContext(), ""));
         break;
       case 2:
         code =
@@ -306,7 +306,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
                 + "\n"
                 + "const result = greet('User');\n"
                 + "console.log(result);";
-        editorPreview.setEditorLanguage(new JsLanguage());
+        editorPreview.setEditorLanguage(new JsLanguage(getContext(), ""));
         break;
       case 3:
         code =

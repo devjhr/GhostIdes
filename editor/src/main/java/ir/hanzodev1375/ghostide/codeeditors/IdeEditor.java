@@ -75,35 +75,6 @@ public class IdeEditor extends CodeEditor
     getProps().showMinimap = enabled;
   }
 
-  public void setInlay(int line, int col, String text, boolean removed) {
-    var hint = new InlayHintsContainer();
-    if (removed) {
-      hint.add(new TextInlayHint(line, col, text));
-    } else hint.remove(new TextInlayHint(line, col, text));
-    setInlayHints(hint);
-    registerInlayHintRenderer(TextInlayHintRenderer.Companion.getDefaultInstance());
-  }
-
-  public void setInlayDrawable(int line, int col, Drawable text, boolean removed) {
-    var hint = new InlayHintsContainer();
-    if (removed) {
-      hint.add(new DrawableInlayHint(line, col, text));
-    } else hint.remove(new DrawableInlayHint(line, col, text));
-    setInlayHints(hint);
-    registerInlayHintRenderer(new DrawableInlayHintRenderer());
-  }
-
-  public void updateHintWelcom() {
-    var hint = new InlayHintsContainer();
-    String text = "Welcome to Ghost Ide write something....";
-    if (getText().isEmpty()) {
-      hint.add(new TextInlayHint(0, 0, text));
-    } else {
-      hint.remove(new TextInlayHint(0, 0, text));
-    }
-    setInlayHints(hint);
-    registerInlayHintRenderer(TextInlayHintRenderer.Companion.getDefaultInstance());
-  }
 
   public void setWebIdeColor(boolean mod) {
     if (mod) {

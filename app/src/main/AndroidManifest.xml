@@ -68,7 +68,7 @@
         <activity
             android:name=".activity.FileManagerActivity"
             android:exported="false"
-            
+            android:windowSoftInputMode="adjustResize"
         />
 
         <activity
@@ -151,5 +151,14 @@
         <activity android:name=".activity.WebViewActivity" />
         <activity android:name="ir.theme.themeeditor.ThemeEditorActivity" />
         <activity android:name="ir.hanzodev1375.ghostide.ai.chat.AiChatActivity" />
+        <receiver
+            android:enabled="false"
+            android:exported="true"
+            android:name="ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver"
+            >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

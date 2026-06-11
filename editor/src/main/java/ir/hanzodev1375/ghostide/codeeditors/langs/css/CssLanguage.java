@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.css;
 
+import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,11 +45,14 @@ public class CssLanguage implements Language {
 
   private final HTMLAnalyzer analyzer;
   private final IdentifierAutoComplete autoComplete;
+  private Context context;
+  private String path;
 
-  public CssLanguage() {
+  public CssLanguage(Context context,String path) {
     String[] htmlKeywords = {"!", "DOCTYPE"};
     autoComplete = new IdentifierAutoComplete(htmlKeywords);
     analyzer = new HTMLAnalyzer();
+    analyzer.init(context,path);
   }
 
   @NonNull

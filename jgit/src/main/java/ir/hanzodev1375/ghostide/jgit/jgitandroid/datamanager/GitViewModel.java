@@ -14,6 +14,9 @@ import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.PullResult;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FetchResult;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.StashInfo;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.ConflictFile;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.TagInfo;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.ResetMode;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.BlameInfo;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -58,6 +61,15 @@ public class GitViewModel extends ViewModel {
 
   private final MutableLiveData<List<ConflictFile>> _conflictFiles = new MutableLiveData<>();
   public final LiveData<List<ConflictFile>> conflictFiles = _conflictFiles;
+
+  private final MutableLiveData<List<TagInfo>> _tags = new MutableLiveData<>();
+  public final LiveData<List<TagInfo>> tags = _tags;
+
+  private final MutableLiveData<String> _gitIgnoreContent = new MutableLiveData<>();
+  public final LiveData<String> gitIgnoreContent = _gitIgnoreContent;
+
+  private final MutableLiveData<List<BlameInfo>> _blameResult = new MutableLiveData<>();
+  public final LiveData<List<BlameInfo>> blameResult = _blameResult;
 
   private final ExecutorService executor = Executors.newFixedThreadPool(4);
   private final MutableLiveData<String> _selectedDiffFile = new MutableLiveData<>();
@@ -573,6 +585,104 @@ public class GitViewModel extends ViewModel {
             refreshChangedFiles();
             refreshConflictFiles();
           }
+        });
+  }
+
+  // ─────────────────────────── BLAME ───────────────────────────
+
+  public void loadBlame(String filePath) {
+    _progressMessage.postValue("Loading blame...");
+    executor.execute(
+        () -> {
+          List<BlameInfo> list =
+              gitManager != null ? gitManager.getBlame(filePath) : Collections.emptyList();
+          _blameResult.postValue(list);
+          _progressMessage.postValue(null);
+        });
+  }
+
+  // ─────────────────────────── RESET ───────────────────────────
+
+  public void reset(ResetMode mode, int stepsBack) {
+    _progressMessage.postValue("Resetting…");
+    executor.execute(
+        () -> {
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.reset(mode, stepsBack)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) refreshAll();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  // ─────────────────────────── TAGS ───────────────────────────
+
+  public void refreshTags() {
+    executor.execute(
+        () -> {
+          List<TagInfo> list = gitManager != null ? gitManager.getTags() : Collections.emptyList();
+          _tags.postValue(list);
+        });
+  }
+
+  public void createTag(String name, String message) {
+    _progressMessage.postValue("Creating tag…");
+    executor.execute(
+        () -> {
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.createTag(name, message)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) refreshTags();
+          _progressMessage.postValue(null);
+        });
+  }
+
+  public void deleteTag(String name) {
+    executor.execute(
+        () -> {
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.deleteTag(name)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) refreshTags();
+        });
+  }
+
+  // ─────────────────────────── GITIGNORE ───────────────────────────
+
+  public void loadGitIgnore() {
+    executor.execute(
+        () -> {
+          String content = gitManager != null ? gitManager.readGitIgnore() : "";
+          _gitIgnoreContent.postValue(content);
+        });
+  }
+
+  public void saveGitIgnore(String content) {
+    executor.execute(
+        () -> {
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.saveGitIgnore(content)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+        });
+  }
+
+  public void addToGitIgnore(String pattern) {
+    executor.execute(
+        () -> {
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.addToGitIgnore(pattern)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) loadGitIgnore();
         });
   }
 

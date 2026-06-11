@@ -1,5 +1,10 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.html;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 import io.github.rosemoe.sora.lang.analysis.IncrementalAnalyzeManager.LineTokenizeResult;
 import io.github.rosemoe.sora.lang.completion.IdentifierAutoComplete;
 import io.github.rosemoe.sora.lang.styling.Span;
@@ -8,15 +13,28 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CodeAnalyzer;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.IncrementalToken;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.LineState;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.FileInputStream;
+import com.caverock.androidsvg.SVG;
+import android.graphics.drawable.PictureDrawable;
+import io.github.rosemoe.sora.lang.styling.line.LineSideIcon;
 import java.util.ArrayList;
 import java.util.List;
 
 import static ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme.*;
 
 public class HTMLAnalyzer extends CodeAnalyzer {
+  private Context context;
+  private String jsonFilePath;
 
   public HTMLAnalyzer() {
     super(HTMLLexer.class);
+  }
+
+  public void init(Context context, String jsonFilePath) {
+    this.context = context;
+    this.jsonFilePath = jsonFilePath;
   }
 
   @Override
@@ -47,7 +65,6 @@ public class HTMLAnalyzer extends CodeAnalyzer {
       final int type = token.getType();
       final int offset = token.getStartIndex();
       final String text = token.getText();
-
       switch (type) {
         case HTMLLexer.ABSTRACT:
         case HTMLLexer.ASSERT:
@@ -173,6 +190,9 @@ public class HTMLAnalyzer extends CodeAnalyzer {
 
         case HTMLLexer.STRING:
         case HTMLLexer.CHATREF:
+          int currentLine = tokens.state.lineNumber;
+          String value = text.substring(1, text.length() - 1);
+          loadImageToLine(value, currentLine);
           spans.add(Span.obtain(offset, LITERAL));
           break;
 
@@ -208,7 +228,6 @@ public class HTMLAnalyzer extends CodeAnalyzer {
           } else if (pretoken == HTMLLexer.DOT) {
             color = GhostColorScheme.COLORNEXTDOT;
           } else if (pretoken == HTMLLexer.CLASS
-              || pretoken == HTMLLexer.CLASS
               || pretoken == HTMLLexer.ABSTRACT
               || pretoken == HTMLLexer.FUNCTION) {
             color = COLORNEXTCHAR;
@@ -222,14 +241,9 @@ public class HTMLAnalyzer extends CodeAnalyzer {
           } else {
             color = TEXT_NORMAL;
           }
-          //          if (token.getText().equals("main")) {
-          //            getManagedStyles()
-          //                .addLineStyle(new LineSideIcon(token.getLine(), new
-          // ColorDrawable(Color.CYAN)));
-          //          }
+
           spans.add(Span.obtain(offset, color));
           break;
-
         default:
           spans.add(Span.obtain(offset, TEXT_NORMAL));
           break;
@@ -267,5 +281,94 @@ public class HTMLAnalyzer extends CodeAnalyzer {
   protected boolean isCodeBlockEnd(IncrementalToken token) {
     int type = token.getType();
     return type == HTMLLexer.OPEN_SLASH || type == HTMLLexer.RBRACE;
+  }
+
+  private boolean isImagePath(String path) {
+    String lower = path.toLowerCase();
+    return lower.endsWith(".png")
+        || lower.endsWith(".jpg")
+        || lower.endsWith(".jpeg")
+        || lower.endsWith(".webp")
+        || lower.endsWith(".gif")
+        || lower.endsWith(".svg");
+  }
+
+  private void loadSvgToLine(String value, int currentLine) {
+    if (value.startsWith("./")) {
+      value = value.substring(2);
+    }
+    File file = new File(value);
+    if (!file.isAbsolute()) {
+      File parent = new File(jsonFilePath).getParentFile();
+      if (parent != null) {
+        file = new File(parent, value);
+      }
+    }
+    try {
+      file = file.getCanonicalFile();
+    } catch (IOException e) {
+      e.printStackTrace();
+      return;
+    }
+    if (!file.exists()) return;
+    try (FileInputStream fis = new FileInputStream(file)) {
+      SVG svg = SVG.getFromInputStream(fis);
+      svg.setDocumentWidth(48);
+      svg.setDocumentHeight(48);
+      PictureDrawable drawable = new PictureDrawable(svg.renderToPicture());
+      if (getManagedStyles() != null) {
+        getManagedStyles().eraseLineStyle(currentLine, LineSideIcon.class);
+        getManagedStyles().addLineStyle(new LineSideIcon(currentLine, drawable));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void loadImageToLine(String value, int currentLine) {
+    if (value.toLowerCase().endsWith(".svg")) {
+      loadSvgToLine(value, currentLine);
+      return;
+    }
+    if (!isImagePath(value)) {
+      if (getManagedStyles() != null) {
+        getManagedStyles().eraseLineStyle(currentLine, LineSideIcon.class);
+      }
+      return;
+    }
+    if (value.startsWith("./")) {
+      value = value.substring(2);
+    }
+    File file = new File(value);
+    if (!file.isAbsolute()) {
+      File parent = new File(jsonFilePath).getParentFile();
+      if (parent != null) {
+        file = new File(parent, value);
+      }
+    }
+    try {
+      file = file.getCanonicalFile();
+    } catch (IOException e) {
+      e.printStackTrace();
+      return;
+    }
+    if (!file.exists()) {
+      if (getManagedStyles() != null) {
+        getManagedStyles().eraseLineStyle(currentLine, LineSideIcon.class);
+      }
+      return;
+    }
+    Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+    if (bitmap == null) {
+      if (getManagedStyles() != null) {
+        getManagedStyles().eraseLineStyle(currentLine, LineSideIcon.class);
+      }
+      return;
+    }
+    Drawable drawable = new BitmapDrawable(context.getResources(), bitmap);
+    if (getManagedStyles() != null) {
+      getManagedStyles().eraseLineStyle(currentLine, LineSideIcon.class);
+      getManagedStyles().addLineStyle(new LineSideIcon(currentLine, drawable));
+    }
   }
 }

@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.html;
 
+import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,11 +56,13 @@ public class HtmlLanguage implements Language {
   private static final CodeSnippet INPUT_SNIPPET =
       CodeSnippetParser.parse(
           "<input type=\"${1:text}\" name=\"${2:name}\" id=\"${3:id}\" placeholder=\"${4:Enter...}\">$0");
-
-  public HtmlLanguage() {
+  private Context context;
+  private String path;
+  public HtmlLanguage(Context context,String path) {
     String[] htmlKeywords = {"!", "DOCTYPE"};
     autoComplete = new IdentifierAutoComplete(htmlKeywords);
     analyzer = new HTMLAnalyzer();
+    analyzer.init(context,path);
   }
 
   @NonNull

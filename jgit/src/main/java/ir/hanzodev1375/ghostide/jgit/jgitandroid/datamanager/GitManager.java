@@ -861,4 +861,174 @@ public class GitManager {
       return false;
     }
   }
+
+  // ─────────────────────────── BLAME ───────────────────────────
+
+  public java.util.List<ir.hanzodev1375.ghostide.jgit.jgitandroid.model.BlameInfo> getBlame(
+      String filePath) {
+    java.util.List<ir.hanzodev1375.ghostide.jgit.jgitandroid.model.BlameInfo> result =
+        new ArrayList<>();
+    try {
+      if (git == null) return result;
+      org.eclipse.jgit.blame.BlameResult blame =
+          git.blame().setFilePath(filePath).setFollowFileRenames(true).call();
+      if (blame == null) return result;
+      blame.computeAll();
+      int lines = blame.getResultContents().size();
+      for (int i = 0; i < lines; i++) {
+        org.eclipse.jgit.revwalk.RevCommit commit = blame.getSourceCommit(i);
+        String hash = commit != null ? commit.getName().substring(0, 7) : "???????";
+        String author = commit != null ? commit.getAuthorIdent().getName() : "Unknown";
+        long ts = commit != null ? (long) commit.getCommitTime() * 1000 : 0;
+        String line = blame.getResultContents().getString(i);
+        result.add(
+            new ir.hanzodev1375.ghostide.jgit.jgitandroid.model.BlameInfo(
+                i + 1, line, hash, author, ts));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return result;
+  }
+
+  // ─────────────────────────── RESET ───────────────────────────
+
+  public ir.hanzodev1375.ghostide.jgit.jgitandroid.model.OperationResult reset(
+      ir.hanzodev1375.ghostide.jgit.jgitandroid.model.ResetMode mode, int stepsBack) {
+    try {
+      if (git == null) return new OperationResult(false, "Repository not open");
+      org.eclipse.jgit.lib.ObjectId targetId = repository.resolve("HEAD~" + stepsBack);
+      if (targetId == null)
+        return new OperationResult(false, "No commit found at HEAD~" + stepsBack);
+      org.eclipse.jgit.api.ResetCommand.ResetType resetType;
+      switch (mode) {
+        case SOFT:
+          resetType = org.eclipse.jgit.api.ResetCommand.ResetType.SOFT;
+          break;
+        case HARD:
+          resetType = org.eclipse.jgit.api.ResetCommand.ResetType.HARD;
+          break;
+        default:
+          resetType = org.eclipse.jgit.api.ResetCommand.ResetType.MIXED;
+          break;
+      }
+      git.reset().setMode(resetType).setRef(targetId.getName()).call();
+      return new OperationResult(true, "Reset " + mode.name().toLowerCase() + " successful");
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new OperationResult(false, e.getMessage() != null ? e.getMessage() : "Reset failed");
+    }
+  }
+
+  // ─────────────────────────── TAGS ───────────────────────────
+
+  public ir.hanzodev1375.ghostide.jgit.jgitandroid.model.OperationResult createTag(
+      String name, String message) {
+    try {
+      if (git == null) return new OperationResult(false, "Repository not open");
+      var cmd = git.tag().setName(name);
+      if (message != null && !message.isEmpty()) {
+        cmd.setMessage(message).setAnnotated(true);
+      } else {
+        cmd.setAnnotated(false);
+      }
+      cmd.call();
+      return new OperationResult(true, "Tag '" + name + "' created");
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new OperationResult(false, e.getMessage() != null ? e.getMessage() : "Tag failed");
+    }
+  }
+
+  public java.util.List<ir.hanzodev1375.ghostide.jgit.jgitandroid.model.TagInfo> getTags() {
+    java.util.List<ir.hanzodev1375.ghostide.jgit.jgitandroid.model.TagInfo> tags =
+        new ArrayList<>();
+    try {
+      if (git == null) return tags;
+      java.util.List<org.eclipse.jgit.lib.Ref> refs = git.tagList().call();
+      try (org.eclipse.jgit.revwalk.RevWalk walk =
+          new org.eclipse.jgit.revwalk.RevWalk(repository)) {
+        for (org.eclipse.jgit.lib.Ref ref : refs) {
+          String tagName = ref.getName().replaceFirst("^refs/tags/", "");
+          try {
+            org.eclipse.jgit.revwalk.RevObject obj = walk.parseAny(ref.getObjectId());
+            String hash = ref.getObjectId().getName().substring(0, 7);
+            String msg = "";
+            long ts = 0;
+            if (obj instanceof org.eclipse.jgit.revwalk.RevTag) {
+              org.eclipse.jgit.revwalk.RevTag tag = (org.eclipse.jgit.revwalk.RevTag) obj;
+              msg = tag.getFullMessage() != null ? tag.getFullMessage() : "";
+              if (tag.getTaggerIdent() != null) ts = tag.getTaggerIdent().getWhen().getTime();
+            } else if (obj instanceof org.eclipse.jgit.revwalk.RevCommit) {
+              org.eclipse.jgit.revwalk.RevCommit commit = (org.eclipse.jgit.revwalk.RevCommit) obj;
+              ts = (long) commit.getCommitTime() * 1000;
+            }
+            tags.add(
+                new ir.hanzodev1375.ghostide.jgit.jgitandroid.model.TagInfo(
+                    tagName, hash, msg, ts));
+          } catch (Exception ignored) {
+          }
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return tags;
+  }
+
+  public ir.hanzodev1375.ghostide.jgit.jgitandroid.model.OperationResult deleteTag(String name) {
+    try {
+      if (git == null) return new OperationResult(false, "Repository not open");
+      git.tagDelete().setTags(name).call();
+      return new OperationResult(true, "Tag '" + name + "' deleted");
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new OperationResult(false, e.getMessage() != null ? e.getMessage() : "Delete failed");
+    }
+  }
+
+  // ─────────────────────────── GITIGNORE ───────────────────────────
+
+  public String readGitIgnore() {
+    try {
+      java.io.File f = new java.io.File(projectPath, ".gitignore");
+      if (!f.exists()) return "";
+      return new String(
+          java.nio.file.Files.readAllBytes(f.toPath()), java.nio.charset.StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return "";
+    }
+  }
+
+  public ir.hanzodev1375.ghostide.jgit.jgitandroid.model.OperationResult saveGitIgnore(
+      String content) {
+    try {
+      java.io.File f = new java.io.File(projectPath, ".gitignore");
+      java.nio.file.Files.write(
+          f.toPath(), content.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      return new OperationResult(true, "Gitignore saved");
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new OperationResult(false, "Failed to save gitignore: " + e.getMessage());
+    }
+  }
+
+  public ir.hanzodev1375.ghostide.jgit.jgitandroid.model.OperationResult addToGitIgnore(
+      String pattern) {
+    try {
+      String current = readGitIgnore();
+      if (current.contains(pattern)) return new OperationResult(true, "Pattern already exists");
+      String newContent =
+          current.isEmpty()
+              ? pattern + "\n"
+              : (current.endsWith("\n")
+                  ? current + pattern + "\n"
+                  : current + "\n" + pattern + "\n");
+      return saveGitIgnore(newContent);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new OperationResult(false, "Failed: " + e.getMessage());
+    }
+  }
 }

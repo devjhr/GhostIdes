@@ -113,13 +113,17 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
 
   private void setupViewPager(View root) {
     List<GitTab> tabs = new ArrayList<>();
-    tabs.add(new GitTab("Changes", new ChangedFilesFragment()));
-    tabs.add(new GitTab("History", new CommitHistoryFragment()));
-    tabs.add(new GitTab("Branches", new BranchesFragment()));
-    tabs.add(new GitTab("Remotes", new RemotesFragment()));
-    tabs.add(new GitTab("Stash", new StashFragment()));
-    tabs.add(new GitTab("Conflicts", new ConflictResolverFragment()));
-    tabs.add(new GitTab("Diff", new DiffViewerFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_changes), new ChangedFilesFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_history), new CommitHistoryFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_branches), new BranchesFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_remotes), new RemotesFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_stash), new StashFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_conflicts), new ConflictResolverFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_reset), new ResetFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_tags), new TagsFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_gitignore), new GitignoreFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_blame), new BlameFragment()));
+    tabs.add(new GitTab(getString(R.string.tab_diff), new DiffViewerFragment()));
 
     ViewPager2 viewPager = root.findViewById(R.id.viewPager);
     ViewPagerAdapter adapter = new ViewPagerAdapter(requireActivity(), tabs);

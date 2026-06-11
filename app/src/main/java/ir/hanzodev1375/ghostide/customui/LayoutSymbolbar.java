@@ -112,7 +112,7 @@ public class LayoutSymbolbar extends LinearLayoutCompat {
 
   public void hide() {
     if (isShowing) {
-      Transition sharedAxis = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
+      Transition sharedAxis = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
       TransitionManager.beginDelayedTransition(this, sharedAxis);
       setVisibility(View.GONE);
       isShowing = false;

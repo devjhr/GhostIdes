@@ -1,12 +1,15 @@
 package ir.hanzodev1375.ghostide.activity;
 
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +39,7 @@ import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.hanzodev1375.ghostide.utils.MarginItemDecoration;
+import ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
 import ir.theme.themeeditor.ThemeEditorActivity;
 import java.io.File;
@@ -47,7 +51,8 @@ import ir.hanzodev1375.ghostide.R;
 import java.util.Set;
 import ninja.coder.appuploader.main.appupdate.UpadteAppView;
 
-public class FileManagerActivity extends BaseCompat {
+public class FileManagerActivity extends BaseCompat
+    implements NetworkChangeReceiver.CallBackNetWork {
 
   private ActivityFilemanagerBinding bind;
   private FileViewModel viewModel;
@@ -60,8 +65,9 @@ public class FileManagerActivity extends BaseCompat {
   private SelectionPanelBinding selectionPanelBinding;
   private FileManagerModel fileModels;
   private UpadteAppView app;
+  private NetworkChangeReceiver networkChangeReceiver;
   private Set<String> itemname =
-      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py",".json"));
+      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py", ".json"));
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +75,11 @@ public class FileManagerActivity extends BaseCompat {
     bind = ActivityFilemanagerBinding.inflate(getLayoutInflater());
     setContentView(bind.getRoot());
     setupInsets();
+    setupSearchLayoutInsets(); // <-- اضافه شد: هماهنگی SearchLayout با کیبورد و FAB
+
+    networkChangeReceiver = new NetworkChangeReceiver(this);
+    IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+    this.registerReceiver(networkChangeReceiver, filter);
     new Handler(Looper.getMainLooper())
         .postDelayed(
             () -> {
@@ -86,7 +97,7 @@ public class FileManagerActivity extends BaseCompat {
     bind.rvfiles.setAdapter(adapter);
     bind.rvfiles.addItemDecoration(new MarginItemDecoration(this));
     app = new UpadteAppView(this, bind.downloader, () -> {});
-    app.init();
+    stepSearch();
     adapter.setupSelectionTracker(bind.rvfiles);
     viewModel
         .getFiles()
@@ -202,6 +213,52 @@ public class FileManagerActivity extends BaseCompat {
     setupGitButton();
     observePathForGit();
   }
+
+  // ========== اضافه شده: مدیریت حاشیه SearchLayout متناسب با FAB و کیبورد ==========
+  private void setupSearchLayoutInsets() {
+    // صبر می‌کنیم تا layout کامل شود و موقعیت FAB مشخص گردد
+    bind.fab.post(
+        () -> {
+          ViewCompat.setOnApplyWindowInsetsListener(
+              bind.ser,
+              (view, insets) -> {
+                int imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+                int systemBarsBottom =
+                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+
+                int fabBottomMargin = getFabBottomMargin();
+                int targetBottomMargin;
+
+                if (imeHeight > 0) {
+                  // کیبورد باز است: سرچ باکس را دقیقاً بالای کیبورد قرار بده
+                  targetBottomMargin = imeHeight;
+                } else {
+                  // کیبورد بسته: سرچ باکس را بالای FAB قرار بده (با فاصله 8dp)
+                  targetBottomMargin =
+                      fabBottomMargin + (int) (8 * getResources().getDisplayMetrics().density);
+                }
+
+                ViewGroup.MarginLayoutParams params =
+                    (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+                params.bottomMargin = targetBottomMargin;
+                view.setLayoutParams(params);
+
+                return insets;
+              });
+
+          // درخواست اعمال مجدد insets
+          ViewCompat.requestApplyInsets(bind.ser);
+        });
+  }
+
+  private int getFabBottomMargin() {
+    // فاصله از پایین صفحه تا انتهای FAB را برمی‌گرداند
+    int fabBottom = bind.fab.getBottom();
+    int screenHeight = bind.fab.getRootView().getHeight();
+    return screenHeight - fabBottom;
+  }
+
+  // ====================================================================
 
   void setupClick(String path, String name) {
     int lastDot = name.lastIndexOf(".");
@@ -374,16 +431,19 @@ public class FileManagerActivity extends BaseCompat {
         bind.coordinator,
         (view, insets) -> {
           Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+          int imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
           bind.headtop.setPadding(0, systemBars.top, 0, 0);
 
           bind.fab.post(
               () -> {
                 int fabSpace = bind.fab.getHeight() + 48;
+                // اگر کیبورد باز است padding پایینی RecyclerView را افزایش بده
+                int extraBottom = (imeBottom > 0) ? imeBottom : 0;
                 bind.rvfiles.setPadding(
                     bind.rvfiles.getPaddingLeft(),
                     bind.rvfiles.getPaddingTop(),
                     bind.rvfiles.getPaddingRight(),
-                    systemBars.bottom + fabSpace);
+                    systemBars.bottom + fabSpace + extraBottom);
               });
           return insets;
         });
@@ -393,6 +453,7 @@ public class FileManagerActivity extends BaseCompat {
   protected void onDestroy() {
     super.onDestroy();
     bind = null;
+    this.unregisterReceiver(networkChangeReceiver);
   }
 
   private void setOnBackPress() {
@@ -560,8 +621,7 @@ public class FileManagerActivity extends BaseCompat {
           }
         });
 
-    bind.btnSettings.setOnClickListener(
-        v -> startActivity(new Intent(this, SettingActivity.class)));
+    bind.btnSettings.setOnClickListener(v -> stepButton());
   }
 
   @Override
@@ -572,5 +632,52 @@ public class FileManagerActivity extends BaseCompat {
     if (currentPath != null) {
       bind.gitActionButton.setVisibility(isGitRepository(currentPath) ? View.VISIBLE : View.GONE);
     }
+  }
+
+  void stepButton() {
+    var menu = new PowerMenu.Builder(this).build();
+    menu.addItem(new PowerMenuItem("Setting"));
+    menu.addItem(new PowerMenuItem("Serach"));
+    menu.setAutoDismiss(true);
+    menu.setShowBackground(false);
+    menu.setAnimation(MenuAnimation.FADE);
+    menu.setTextColor(
+        MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, 0));
+    menu.setMenuColor(
+        MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface, 0));
+    menu.setOnMenuItemClickListener(
+        (c, f) -> {
+          switch (c) {
+            case 0 -> startActivity(new Intent(getApplicationContext(), SettingActivity.class));
+            case 1 -> {
+              if (!bind.ser.isShow()) {
+                bind.ser.show();
+                bind.fab.setVisibility(View.GONE);
+              } else {
+                bind.ser.hide();
+                bind.fab.setVisibility(View.VISIBLE);
+              }
+            }
+          }
+        });
+
+    menu.showAsDropDown(bind.btnSettings);
+  }
+
+  void stepSearch() {
+    bind.ser.setOnTextChangedListener(
+        (qer) -> {
+          if (qer.length() > 0) adapter.search(qer);
+        });
+    bind.ser.setIconClose(R.drawable.ic_close);
+    bind.ser.setIconSearch(R.drawable.outline_search);
+  }
+
+  @Override
+  public void ConnectionNOT() {}
+
+  @Override
+  public void ConnectionIS() {
+    app.init();
   }
 }

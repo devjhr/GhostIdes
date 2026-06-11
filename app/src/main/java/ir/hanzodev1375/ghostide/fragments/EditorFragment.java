@@ -11,8 +11,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import io.github.rosemoe.sora.event.ContentChangeEvent;
-import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.css.CssLanguage;
@@ -82,25 +80,15 @@ public class EditorFragment extends Fragment {
     } else if (filePath.endsWith(".cpp")) {
       editor.setEditorLanguage(new CppLanguage());
     } else if (filePath.endsWith(".html")) {
-      editor.setEditorLanguage(new HtmlLanguage());
+      editor.setEditorLanguage(new HtmlLanguage(getContext(), filePath));
     } else if (filePath.endsWith(".css")) {
-      editor.setEditorLanguage(new CssLanguage());
+      editor.setEditorLanguage(new CssLanguage(getContext(), filePath));
     } else if (filePath.endsWith(".js")) {
-      editor.setEditorLanguage(new JsLanguage());
+      editor.setEditorLanguage(new JsLanguage(getContext(), filePath));
     } else if (filePath.endsWith(".py")) {
       editor.setEditorLanguage(new Python3Language());
     } else if (filePath.endsWith(".json")) {
       editor.setEditorLanguage(new JsonLanguage(getContext(), filePath));
-    }
-    try {
-      editor.subscribeEvent(
-          ContentChangeEvent.class,
-          (e, v) -> {
-            editor.updateHintWelcom();
-          });
-
-    } catch (Exception err) {
-      err.printStackTrace();
     }
   }
 

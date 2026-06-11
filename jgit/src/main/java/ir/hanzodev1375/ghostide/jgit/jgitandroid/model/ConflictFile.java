@@ -13,8 +13,19 @@ public class ConflictFile {
     this.baseContent = baseContent;
   }
 
-  public String getPath() { return path; }
-  public String getOursContent() { return oursContent; }
-  public String getTheirsContent() { return theirsContent; }
-  public String getBaseContent() { return baseContent; }
+  public String getPath() {
+    return path;
+  }
+
+  public String getOursContent() {
+    return oursContent;
+  }
+
+  public String getTheirsContent() {
+    return theirsContent;
+  }
+
+  public String getBaseContent() {
+    return baseContent;
+  }
 }
