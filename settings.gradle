@@ -1,24 +1,36 @@
 pluginManagement {
     repositories {
-       // google()
-        //mavenCentral()
-        //gradlePluginPortal()
-        maven { url 'https://maven.myket.ir' }
+        try {
+            if (!uri("https://maven.myket.ir").toURL().readLines().isEmpty()) {
+                maven { url 'https://maven.myket.ir' }
+            }
+        } catch (Exception ignored) {
+            //ignored
+        }
+        google()
+        mavenCentral()
+        gradlePluginPortal()
     }
 }
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-       // google()
-      //  mavenCentral()
-        maven { url 'https://maven.myket.ir' }
+        try {
+            if (!uri("https://maven.myket.ir").toURL().readLines().isEmpty()) {
+                maven { url 'https://maven.myket.ir' }
+            }
+        } catch (Exception ignored) {
+            //ignored
+        }
+        google()
+        mavenCentral()
     }
 }
 
 rootProject.name = "Ghostide"
 
-include(":app",":logcat")
+include(":app", ":logcat")
 include(':editor')
 include(':components')
 include(':materialfileicon')
