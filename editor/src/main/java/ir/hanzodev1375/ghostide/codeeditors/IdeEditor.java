@@ -64,6 +64,25 @@ public class IdeEditor extends CodeEditor
     updateEditorFontLigatures();
     updateEditorPinLineNumber();
     updateEditorMiniMap();
+    updateEditorTypeFace();
+    editorBinder();
+  }
+
+  @SuppressWarnings({"Deprecated", "all"})
+  void editorBinder() {
+    setLigatureEnabled(true);
+    setHighlightCurrentLine(false);
+    setLineInfoTextSize(15f);
+    ensureSelectionVisible();
+    setRenderFunctionCharacters(true);
+    setDisableSoftKbdIfHardKbdAvailable(true);
+  }
+
+  public void setCutLine() {
+    this.cutLine();
+    // duplicateLine()
+    // selectCurrentWord()
+
   }
 
   private void updateEditorPinLineNumber() {
@@ -74,7 +93,6 @@ public class IdeEditor extends CodeEditor
     var enabled = setting.enableMiniMap();
     getProps().showMinimap = enabled;
   }
-
 
   public void setWebIdeColor(boolean mod) {
     if (mod) {
@@ -92,6 +110,12 @@ public class IdeEditor extends CodeEditor
     getProps().stickyScroll = enabled;
     setStickyScroll(enabled);
     setStickyScrollMaxLines(4);
+  }
+
+  private void updateEditorTypeFace() {
+    var typeface = getContext().getResources().getFont(setting.getCurrentEditorFont());
+    setTypefaceText(typeface);
+    setTypefaceLineNumber(typeface);
   }
 
   public void setStickyScroll(boolean enabled) {
@@ -255,8 +279,11 @@ public class IdeEditor extends CodeEditor
       case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_ICU:
         useICULibrary(setting.useICULibrary());
         break;
+      case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT:
+        updateEditorTypeFace();
+        break;
+
       default:
-        // nothing
     }
   }
 }

@@ -41,6 +41,9 @@ import ir.hanzodev1375.ghostide.fragments.FilePropertiesSheet;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
 import ir.hanzodev1375.ghostide.jgit.fragments.GitBottomSheetFragment;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitManager;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FileChange;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import ir.hanzodev1375.ghostide.models.ZipEntryModel;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkBottomSheet;
@@ -59,6 +62,9 @@ import ir.hanzodev1375.ghostide.utils.ShapeUtil;
 import ir.hanzodev1375.ghostide.utils.ZipUtil;
 import ir.theme.themeeditor.ThemeEditorActivity;
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -89,12 +95,20 @@ public class FileManagerActivity extends BaseCompat
   private NetworkChangeReceiver networkChangeReceiver;
   private Set<String> itemname =
       new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py", ".json"));
+  private Set<String> images =
+      new HashSet<>(
+          Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));
   private CopyProgressDialog copyProgressDialog;
   private DeleteProgressDialog deleteProgressDialog;
   private boolean isZipMode = false;
   private String currentZipFilePath = null;
   private HistoryViewModel historyViewModel;
   private BookmarkViewModel bookmarkViewModel;
+  private final ExecutorService gitStatusExecutor = Executors.newSingleThreadExecutor();
+  private Set<String> gitChangedAbsPaths = new HashSet<>();
+  private GitViewModel gitViewModel;
+  private final AtomicBoolean gitStatusRunning = new AtomicBoolean(false);
+  private final AtomicBoolean gitStatusPending = new AtomicBoolean(false);
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +136,14 @@ public class FileManagerActivity extends BaseCompat
     viewModel = new ViewModelProvider(this).get(FileViewModel.class);
     historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
     bookmarkViewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
+    gitViewModel = new ViewModelProvider(this).get(GitViewModel.class);
+    gitViewModel.changedFiles.observe(
+        this,
+        changes -> {
+          String repoRoot = findGitRepositoryPath();
+          if (repoRoot == null) return;
+          applyChangedFiles(repoRoot, changes);
+        });
     adapter = new FileManagerAdapter(this);
     bind.rvfiles.setLayoutManager(new LinearLayoutManager(this));
     bind.rvfiles.setAdapter(adapter);
@@ -145,6 +167,7 @@ public class FileManagerActivity extends BaseCompat
                 bind.emptystates.setVisibility(View.GONE);
                 bind.rvfiles.setVisibility(View.VISIBLE);
               }
+              refreshGitStatus();
             });
 
     viewModel
@@ -225,8 +248,14 @@ public class FileManagerActivity extends BaseCompat
                 listIcon,
                 (view2, mypos) -> {
                   switch (mypos) {
-                    case 0 -> creatorFolder(fileModels);
-                    case 1 -> creatorFile(fileModels);
+                    case 0 -> {
+                      creatorFolder(fileModels);
+                      bind.fab.dismiss();
+                    }
+                    case 1 -> {
+                      creatorFile(fileModels);
+                      bind.fab.dismiss();
+                    }
                     case 2 -> {
                       String currentDir = viewModel.getCurrentPath().getValue();
                       if (currentDir != null) {
@@ -245,6 +274,7 @@ public class FileManagerActivity extends BaseCompat
                                         }))
                             .show();
                       }
+                      bind.fab.dismiss();
                     }
                   }
                 }));
@@ -405,7 +435,7 @@ public class FileManagerActivity extends BaseCompat
     zipAdapter.loadZip(zipFilePath, "");
     bind.fab.setVisibility(View.GONE);
     bind.gitActionButton.setVisibility(View.GONE);
-    bind.navmodel.setVisibility(View.GONE);
+   // bind.navmodel.setVisibility(View.GONE);
   }
 
   private void exitZipMode() {
@@ -415,7 +445,7 @@ public class FileManagerActivity extends BaseCompat
     adapter.setupSelectionTracker(bind.rvfiles);
     viewModel.loadFiles(viewModel.getCurrentPath().getValue());
     bind.fab.setVisibility(View.VISIBLE);
-    bind.navmodel.setVisibility(View.VISIBLE);
+   // bind.navmodel.setVisibility(View.VISIBLE);
     String currentPath = viewModel.getCurrentPath().getValue();
     if (currentPath != null) {
       bind.gitActionButton.setVisibility(isGitRepository(currentPath) ? View.VISIBLE : View.GONE);
@@ -433,16 +463,17 @@ public class FileManagerActivity extends BaseCompat
                     entry.getEntryPath(), cacheDir.getAbsolutePath(), entry.getName());
                 runOnUiThread(
                     () -> {
-                      Intent intent = new Intent(FileManagerActivity.this, EditorActivity.class);
-                      intent.putExtra("file_path", outFile.getAbsolutePath());
-                      intent.putExtra("file_name", entry.getName());
-                      startActivity(intent);
+                      if (entry.isEncrypted()) {
+                        Toast.makeText(
+                                FileManagerActivity.this, "File Has Encrypted", Toast.LENGTH_LONG)
+                            .show();
+                      } else setupClick(outFile.getAbsolutePath(), entry.getName());
                     });
               } catch (Exception e) {
                 runOnUiThread(
                     () ->
                         Toast.makeText(
-                                FileManagerActivity.this, "خطا در استخراج فایل", Toast.LENGTH_SHORT)
+                                FileManagerActivity.this, "Error to UnZip", Toast.LENGTH_SHORT)
                             .show());
               }
             })
@@ -492,6 +523,34 @@ public class FileManagerActivity extends BaseCompat
       Intent i = new Intent(FileManagerActivity.this, ThemeEditorActivity.class);
       i.putExtra(ThemeEditorActivity.EXTRA_THEME_PATH, path);
       startActivity(i);
+    } else if (images.contains(extension)) {
+      String currentDir = new File(path).getParent();
+      File dir = new File(currentDir);
+      File[] allFiles = dir.listFiles();
+      ArrayList<String> imagePaths = new ArrayList<>();
+      int currentIndex = 0;
+      if (allFiles != null) {
+        for (int i = 0; i < allFiles.length; i++) {
+          File f = allFiles[i];
+          if (f.isFile()) {
+            String ext = "";
+            int dot = f.getName().lastIndexOf(".");
+            if (dot > 0) ext = f.getName().substring(dot).toLowerCase();
+            if (images.contains(ext)) {
+              imagePaths.add(f.getAbsolutePath());
+              if (f.getAbsolutePath().equals(path)) currentIndex = imagePaths.size() - 1;
+            }
+          }
+        }
+      }
+      if (!imagePaths.isEmpty()) {
+        Intent setImage = new Intent(FileManagerActivity.this, ImageViewerActivity.class);
+        setImage.putStringArrayListExtra(ImageViewerActivity.EXTRA_IMAGE_URIS, imagePaths);
+        setImage.putExtra(ImageViewerActivity.EXTRA_CURRENT_INDEX, currentIndex);
+        startActivity(setImage);
+      } else {
+        Toast.makeText(this, "No image found", Toast.LENGTH_SHORT).show();
+      }
     } else {
       Toast.makeText(this, getString(R.string.error_file_format_not_supported), Toast.LENGTH_SHORT)
           .show();
@@ -540,6 +599,65 @@ public class FileManagerActivity extends BaseCompat
   private boolean isGitRepository(String path) {
     File gitDir = new File(path, ".git");
     return gitDir.exists() && gitDir.isDirectory();
+  }
+
+  /**
+   * Refreshes the git status of the repository that the current directory belongs to and highlights
+   * files/folders with uncommitted changes in the file list. Call this whenever the visible
+   * directory may have changed on disk (navigation, returning to the activity, after commit/push,
+   * etc).
+   */
+  private void refreshGitStatus() {
+    String repoRoot = findGitRepositoryPath();
+    if (repoRoot == null) {
+      gitStatusPending.set(false);
+      if (!gitChangedAbsPaths.isEmpty()) {
+        gitChangedAbsPaths = new HashSet<>();
+        if (adapter != null && bind != null) {
+          Set<String> empty = gitChangedAbsPaths;
+          bind.rvfiles.post(() -> adapter.setGitChangedPaths(empty));
+        }
+      }
+      return;
+    }
+    if (!gitStatusRunning.compareAndSet(false, true)) {
+      // A scan is already running; make sure it re-runs once more after it finishes
+      // so the latest state on disk is reflected.
+      gitStatusPending.set(true);
+      return;
+    }
+    gitStatusExecutor.execute(
+        () -> {
+          try {
+            GitManager manager = new GitManager(repoRoot);
+            if (manager.openRepository()) {
+              applyChangedFiles(repoRoot, manager.getChangedFiles());
+            }
+          } finally {
+            gitStatusRunning.set(false);
+            if (gitStatusPending.compareAndSet(true, false)) {
+              refreshGitStatus();
+            }
+          }
+        });
+  }
+
+  private void applyChangedFiles(String repoRoot, List<FileChange> changes) {
+    Set<String> absPaths = new HashSet<>();
+    if (changes != null) {
+      for (FileChange change : changes) {
+        if (change.getPath() != null) {
+          absPaths.add(new File(repoRoot, change.getPath()).getAbsolutePath());
+        }
+      }
+    }
+    runOnUiThread(
+        () -> {
+          gitChangedAbsPaths = absPaths;
+          if (adapter != null && bind != null) {
+            bind.rvfiles.post(() -> adapter.setGitChangedPaths(gitChangedAbsPaths));
+          }
+        });
   }
 
   private void setupSelectionPanel() {
@@ -698,6 +816,7 @@ public class FileManagerActivity extends BaseCompat
     super.onDestroy();
     bind = null;
     this.unregisterReceiver(networkChangeReceiver);
+    gitStatusExecutor.shutdownNow();
   }
 
   private void setOnBackPress() {
@@ -863,6 +982,7 @@ public class FileManagerActivity extends BaseCompat
       if (currentPath != null) {
         bind.gitActionButton.setVisibility(isGitRepository(currentPath) ? View.VISIBLE : View.GONE);
       }
+      refreshGitStatus();
     }
   }
 

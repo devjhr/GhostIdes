@@ -12,7 +12,7 @@
         android:maxSdkVersion="32"
         
     />
-    <!-- install from upadte app -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -69,7 +69,9 @@
             android:name=".activity.FileManagerActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"
+            
         />
+        <activity android:name=".activity.ImageViewerActivity" />
 
         <activity
             android:name=".activity.EditorActivity"
@@ -155,7 +157,8 @@
             android:enabled="false"
             android:exported="true"
             android:name="ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver"
-            >
+            
+        >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>

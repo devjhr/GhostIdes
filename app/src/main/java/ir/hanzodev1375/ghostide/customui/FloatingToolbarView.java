@@ -25,7 +25,7 @@ public class FloatingToolbarView extends FrameLayout {
   private FrameLayout cardView;
   private LinearLayout root;
   private Orientation orientation = Orientation.Left;
-  private boolean expanded = false; 
+  private boolean expanded = false;
 
   public enum Orientation {
     Left,
@@ -49,7 +49,7 @@ public class FloatingToolbarView extends FrameLayout {
 
   private void updateShapeForOrientation() {
     float roundedCorner = dp(20);
-    float flatCorner = dp(20); 
+    float flatCorner = dp(20);
 
     ShapeAppearanceModel model;
     if (orientation == Orientation.Right) {
@@ -60,7 +60,7 @@ public class FloatingToolbarView extends FrameLayout {
               .setBottomLeftCornerSize(roundedCorner)
               .setBottomRightCornerSize(flatCorner)
               .build();
-    } else { 
+    } else {
       model =
           ShapeAppearanceModel.builder()
               .setTopLeftCornerSize(flatCorner)
@@ -72,7 +72,7 @@ public class FloatingToolbarView extends FrameLayout {
 
     MaterialShapeDrawable drawable = new MaterialShapeDrawable(model);
     drawable.setFillColor(ColorStateList.valueOf(ShapeUtil.getcolorSurfaceContainer(cardView)));
-    drawable.setStroke(3.3f,ColorStateList.valueOf(ShapeUtil.getcolorPrimaryContainer(cardView)));
+    drawable.setStroke(3.3f, ColorStateList.valueOf(ShapeUtil.getcolorPrimaryContainer(cardView)));
     drawable.setElevation(dp(8));
     cardView.setBackground(drawable);
   }
@@ -94,7 +94,7 @@ public class FloatingToolbarView extends FrameLayout {
     cardView = new FrameLayout(context);
     updateShapeForOrientation();
     cardView.setScaleX(0f);
-    cardView.setVisibility(GONE); 
+    cardView.setVisibility(GONE);
 
     recyclerView = new RecyclerView(context);
     recyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
@@ -103,7 +103,7 @@ public class FloatingToolbarView extends FrameLayout {
 
     fab.setOnClickListener(v -> toggleToolbar());
     fab.setCustomSize(dp(70));
-    applyOrientation(); 
+    applyOrientation();
   }
 
   private void applyOrientation() {
@@ -114,19 +114,19 @@ public class FloatingToolbarView extends FrameLayout {
         new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, dp(56));
 
     if (orientation == Orientation.Right) {
-      
+
       root.addView(fab, fabParams);
       root.addView(cardView, cardParams);
       cardParams.leftMargin = dp(2);
       cardParams.rightMargin = 0;
-      cardView.setPivotX(0f); 
-    } else { 
-      
+      cardView.setPivotX(0f);
+    } else {
+
       root.addView(cardView, cardParams);
       root.addView(fab, fabParams);
       cardParams.rightMargin = dp(2);
       cardParams.leftMargin = 0;
-      cardView.setPivotX(1f); 
+      cardView.setPivotX(1f);
     }
     cardView.setLayoutParams(cardParams);
   }
@@ -134,7 +134,7 @@ public class FloatingToolbarView extends FrameLayout {
   public void setOrientation(Orientation orientation) {
     this.orientation = orientation;
     applyOrientation();
-    
+
     if (expanded) {
       cardView.setVisibility(VISIBLE);
       cardView.setScaleX(1f);
@@ -147,7 +147,7 @@ public class FloatingToolbarView extends FrameLayout {
 
   private void toggleToolbar() {
     if (expanded) {
-      
+
       cardView
           .animate()
           .scaleX(0f)
@@ -177,7 +177,7 @@ public class FloatingToolbarView extends FrameLayout {
   private void playWiggleAnimation() {
     int delta = dp(4);
     if (orientation == Orientation.Left) {
-      
+
       cardView
           .animate()
           .translationX(-delta)
@@ -205,7 +205,7 @@ public class FloatingToolbarView extends FrameLayout {
                       .start())
           .start();
     } else {
-      
+
       cardView
           .animate()
           .translationX(delta)
@@ -257,6 +257,12 @@ public class FloatingToolbarView extends FrameLayout {
 
   public boolean isExpanded() {
     return expanded;
+  }
+
+  public void dismiss() {
+    if (isExpanded()) {
+      collapse();
+    }
   }
 
   private int dp(float value) {

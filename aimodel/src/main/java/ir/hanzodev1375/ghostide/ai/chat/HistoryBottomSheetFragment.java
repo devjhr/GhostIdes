@@ -10,41 +10,39 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
-import com.google.android.material.listitem.ListItemViewHolder;
+import ir.hanzodev1375.ghostide.ai.R;
+import ir.hanzodev1375.ghostide.ai.database.ChatRepository;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Date; 
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import ir.hanzodev1375.ghostide.ai.R;
-import ir.hanzodev1375.ghostide.ai.database.ChatRepository;
 
 public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
 
   private ChatRepository repository;
   private HistoryAdapter adapter;
   private OnChatsSelectedListener listener;
-  private ProgressBar progressBar;
-  private RecyclerView recyclerView;
-  private View emptyView;
   private ExecutorService executor = Executors.newSingleThreadExecutor();
   private Handler mainHandler = new Handler(Looper.getMainLooper());
+  private RecyclerView rvHistory;
+  private ProgressBar progressHistory;
+  private LinearLayout emptyView;
+  private Button btnDeleteSelected;
+  private Button btnCancel;
 
   public interface OnChatsSelectedListener {
     void onLoadChat(long chatId);
@@ -78,20 +76,21 @@ public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    recyclerView = view.findViewById(R.id.rv_history);
-    progressBar = view.findViewById(R.id.progress_history);
+    rvHistory = view.findViewById(R.id.rvhistory);
+    progressHistory = view.findViewById(R.id.progresshistory);
     emptyView = view.findViewById(R.id.emptyview);
-    Button btnDelete = view.findViewById(R.id.btn_delete_selected);
-    Button btnCancel = view.findViewById(R.id.btn_cancel);
-
-    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    adapter = new HistoryAdapter();
-    recyclerView.setAdapter(adapter);
-    recyclerView.addItemDecoration(new MarginItemDecoration());
+    btnDeleteSelected = view.findViewById(R.id.btndeleteselected);
+    btnCancel = view.findViewById(R.id.btncancel);
+    if (rvHistory != null) {
+      rvHistory.setLayoutManager(new LinearLayoutManager(getContext()));
+      rvHistory.addItemDecoration(new MarginItemDecoration());
+      adapter = new HistoryAdapter();
+      rvHistory.setAdapter(adapter);
+    }
 
     loadChatsAsync();
 
-    btnDelete.setOnClickListener(
+    btnDeleteSelected.setOnClickListener(
         v -> {
           List<Long> selectedIds = adapter.getSelectedIds();
           if (!selectedIds.isEmpty() && listener != null) {
@@ -109,21 +108,21 @@ public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
   }
 
   private void loadChatsAsync() {
-    if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+    if (progressHistory != null) progressHistory.setVisibility(View.VISIBLE);
     executor.execute(
         () -> {
           try {
             List<ChatRepository.ChatItem> loaded = repository.getAllChats();
-            emptyView.setVisibility(!loaded.isEmpty() ? View.GONE : View.VISIBLE);
             mainHandler.post(
                 () -> {
+                  emptyView.setVisibility(!loaded.isEmpty() ? View.GONE : View.VISIBLE);
                   adapter.setData(loaded);
-                  if (progressBar != null) progressBar.setVisibility(View.GONE);
+                  progressHistory.setVisibility(View.GONE);
                 });
           } catch (Exception e) {
             mainHandler.post(
                 () -> {
-                  if (progressBar != null) progressBar.setVisibility(View.GONE);
+                  progressHistory.setVisibility(View.GONE);
                   Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT)
                       .show();
                 });
@@ -162,10 +161,10 @@ public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-      View v =
+      View itemView =
           LayoutInflater.from(parent.getContext())
               .inflate(R.layout.item_history_chat, parent, false);
-      return new ViewHolder(v);
+      return new ViewHolder(itemView);
     }
 
     @Override
@@ -174,15 +173,14 @@ public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault());
       String date = sdf.format(new Date(chat.createdAt));
       String title = (chat.title == null || chat.title.isEmpty()) ? "Chat " + chat.id : chat.title;
-      holder.tvTitle.setText(title);
-      holder.tvDate.setText(date);
-      holder.bind(position, getItemCount());
-      holder.checkBox.setOnCheckedChangeListener(null);
-      holder.checkBox.setChecked(selected.get(position));
-      holder.checkBox.setOnCheckedChangeListener(
-          (buttonView, isChecked) -> {
-            selected.set(position, isChecked);
-          });
+
+      holder.tvChatTitle.setText(title);
+      holder.tvChatDate.setText(date);
+
+      holder.checkboxSelect.setOnCheckedChangeListener(null);
+      holder.checkboxSelect.setChecked(selected.get(position));
+      holder.checkboxSelect.setOnCheckedChangeListener(
+          (buttonView, isChecked) -> selected.set(position, isChecked));
 
       holder.itemView.setOnClickListener(
           v -> {
@@ -198,21 +196,21 @@ public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
       return items.size();
     }
 
-    class ViewHolder extends ListItemViewHolder {
-      TextView tvTitle, tvDate;
-      CheckBox checkBox;
+    class ViewHolder extends RecyclerView.ViewHolder {
+      TextView tvChatTitle;
+      TextView tvChatDate;
+      CheckBox checkboxSelect;
       ListItemCardView card;
 
       ViewHolder(@NonNull View itemView) {
         super(itemView);
-        tvTitle = itemView.findViewById(R.id.tv_chat_title);
-        tvDate = itemView.findViewById(R.id.tv_chat_date);
-        checkBox = itemView.findViewById(R.id.checkbox_select);
+        tvChatTitle = itemView.findViewById(R.id.tv_chat_title);
+        tvChatDate = itemView.findViewById(R.id.tv_chat_date);
+        checkboxSelect = itemView.findViewById(R.id.checkbox_select);
         card = itemView.findViewById(R.id.card);
         card.setCardBackgroundColor(
             ColorStateList.valueOf(
-                MaterialColors.getColor(
-                    card, com.google.android.material.R.attr.colorSurfaceContainerHighest)));
+                MaterialColors.getColor(card, R.attr.colorSurfaceContainerHighest)));
       }
     }
   }
@@ -224,11 +222,7 @@ public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
   }
 
   class MarginItemDecoration extends RecyclerView.ItemDecoration {
-    private final int itemMargin;
-
-    public MarginItemDecoration() {
-      itemMargin = 2;
-    }
+    private final int itemMargin = 2;
 
     @Override
     public void getItemOffsets(

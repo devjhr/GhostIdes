@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.HashSet;
 import android.preference.PreferenceManager;
 import android.content.Context;
+import ir.hanzodev1375.ghostide.codeeditors.R;
 
 public class PreferencesUtils {
 
@@ -78,6 +79,11 @@ public class PreferencesUtils {
   public int getCursorBlinkPeriod() {
     return getDefaultPreferences()
         .getInt(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_CURSOR_BLINK_PERIOD, 500);
+  }
+
+  public String getCurrentEditorFontName() {
+    return getDefaultPreferences()
+        .getString(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT, "jetbrains_mono_regular");
   }
 
   public boolean enableAutoComplete() {
@@ -230,6 +236,38 @@ public class PreferencesUtils {
       default -> 2;
     };
   }
+
+  public int getCurrentEditorFont() {
+    var selectedFont =
+        getDefaultPreferences()
+            .getString(
+                Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT, "jetbrains_mono_regular");
+    return getEditorFont(selectedFont);
+  }
+
+  public void setCurrentEditorFont(String fontName) {
+    getDefaultPreferences()
+        .edit()
+        .putString(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT, fontName).apply();
+  }
+
+  private int getEditorFont(@NonNull String selectedFont) {
+    switch (selectedFont) {
+        case "inconsolata_regular":
+            return R.font.inconsolata_regular;
+        case "sourcecodepro_regular":
+            return R.font.sourcecodepro_regular;
+        case "firacode_regular":
+            return R.font.firacode_regular;
+        case "notosans_regular":
+            return R.font.notosans_regular;
+        case "notosans_italic":
+            return R.font.notosans_italic;
+        case "jetbrains_mono_regular":
+        default:
+            return R.font.jetbrains_mono_regular;
+    }
+}
 
   public int getCursorBlinkPeriod(int defaultBlinkPeriod) {
     return getDefaultPreferences()

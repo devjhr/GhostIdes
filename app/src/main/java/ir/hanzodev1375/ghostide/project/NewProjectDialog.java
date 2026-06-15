@@ -3,6 +3,7 @@ package ir.hanzodev1375.ghostide.project;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -18,6 +19,8 @@ public class NewProjectDialog {
   private final Context context;
   private final String savePath;
   private final OnProjectCreated callback;
+  private AlertDialog dialog;
+  private String projectPath;
 
   public NewProjectDialog(Context context, String savePath, OnProjectCreated callback) {
     this.context = context;
@@ -35,13 +38,7 @@ public class NewProjectDialog {
     TextInputEditText etPkg = view.findViewById(R.id.etPackageName);
     view.findViewById(R.id.chipHtml).performClick();
 
-    chipGroup.setOnCheckedStateChangeListener(
-        (group, checkedIds) -> {
-          boolean isJava = !checkedIds.isEmpty() && checkedIds.get(0) == R.id.chipJava;
-          tilPkg.setVisibility(isJava ? View.VISIBLE : View.GONE);
-        });
-
-    var dialog =
+    dialog =
         new MaterialAlertDialogBuilder(context)
             .setTitle(R.string.project_new_title)
             .setView(view)
@@ -68,7 +65,7 @@ public class NewProjectDialog {
                     String pkg = "";
                     if (type == ProjectCreator.ProjectType.JAVA) {
                       pkg = etPkg.getText() != null ? etPkg.getText().toString().trim() : "";
-                      if (pkg.isEmpty() || !pkg.contains(".")) {
+                      if (pkg.isEmpty() || !isValidPackage(pkg)) {
                         tilPkg.setError(context.getString(R.string.project_error_pkg_invalid));
                         return;
                       }
@@ -88,6 +85,7 @@ public class NewProjectDialog {
                               @Override
                               public void onSuccess(String projectPath) {
                                 if (callback != null) callback.onCreated(projectPath);
+                                projectPath = projectPath;
                               }
 
                               @Override
@@ -103,12 +101,47 @@ public class NewProjectDialog {
         });
 
     dialog.show();
+    chipGroup.setOnCheckedStateChangeListener(
+        (group, checkedIds) -> {
+          boolean isJava = !checkedIds.isEmpty() && checkedIds.get(0) == R.id.chipJava;
+          tilPkg.setVisibility(isJava ? View.VISIBLE : View.GONE);
+          ProjectCreator.ProjectType type = getSelectedType(chipGroup);
+          if (type == ProjectCreator.ProjectType.ANDROIDMODULE) {
+            dialog.dismiss();
+            new NewModuleDialog(
+                    context,
+                    savePath,
+                    (path) -> {
+                      callback.onCreated(path);
+                    })
+                .show();
+          }
+        });
   }
 
   private ProjectCreator.ProjectType getSelectedType(ChipGroup group) {
     int id = group.getCheckedChipId();
     if (id == R.id.chipNodejs) return ProjectCreator.ProjectType.NODEJS;
     if (id == R.id.chipJava) return ProjectCreator.ProjectType.JAVA;
+    if (id == R.id.chipFlutter) return ProjectCreator.ProjectType.FLUTTER;
+    if (id == R.id.chipPython) return ProjectCreator.ProjectType.PYTHON;
+    if (id == R.id.chipPythonC) return ProjectCreator.ProjectType.PYTHON_C;
+    if (id == R.id.chipPhp) return ProjectCreator.ProjectType.PHP;
+    if (id == R.id.chipC) return ProjectCreator.ProjectType.C;
+    if (id == R.id.chipCpp) return ProjectCreator.ProjectType.CPP;
+    if (id == R.id.chipRuby) return ProjectCreator.ProjectType.RUBY;
+    if (id == R.id.chipAndroidModule) return ProjectCreator.ProjectType.ANDROIDMODULE;
+
     return ProjectCreator.ProjectType.HTML;
+  }
+
+  /** package must have at least one dot, each segment starts with a letter */
+  private boolean isValidPackage(String pkg) {
+    if (!pkg.contains(".")) return false;
+    for (String segment : pkg.split("\\.", -1)) {
+      if (segment.isEmpty() || !Character.isLetter(segment.charAt(0))) return false;
+      if (!segment.matches("[a-zA-Z][a-zA-Z0-9_]*")) return false;
+    }
+    return true;
   }
 }

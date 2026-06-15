@@ -140,4 +140,6 @@
     <color name="md_theme_surfaceContainer_highContrast">#E3E1E9</color>
     <color name="md_theme_surfaceContainerHigh_highContrast">#D5D3DB</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#C7C5CD</color>
+    <color name="tab_git_modified">#FFA000</color>
+
 </resources>

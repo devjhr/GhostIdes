@@ -87,11 +87,11 @@ public class PreferenceSwitchGroup extends RelativeLayout implements View.OnClic
   }
 
 
-  public void setTitle(String title) {
+  public void setTitle(CharSequence title) {
     binding.preferenceName.setText(title);
   }
 
-  public void setDescription(String description) {
+  public void setDescription(CharSequence description) {
     binding.preferenceDescription.setText(description);
   }
 

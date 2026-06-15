@@ -3,6 +3,8 @@ package ir.hanzodev1375.ghostide.adapters;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -110,8 +112,7 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
         () -> {
           try {
             List<ZipEntryModel> result = readZipEntries(zipFilePath, internalPath);
-            android.os.Handler mainHandler =
-                new android.os.Handler(android.os.Looper.getMainLooper());
+            var mainHandler = new Handler(Looper.getMainLooper());
             mainHandler.post(
                 () -> {
                   submitList(result);
@@ -120,8 +121,7 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
                     zipLoadListener.onLoadFinished(internalPath, hasParent);
                 });
           } catch (ZipException e) {
-            android.os.Handler mainHandler =
-                new android.os.Handler(android.os.Looper.getMainLooper());
+            var mainHandler = new Handler(Looper.getMainLooper());
             mainHandler.post(
                 () -> {
                   if (zipLoadListener != null) zipLoadListener.onLoadError(e.getMessage());
@@ -349,13 +349,20 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
     void bind(ZipEntryModel item) {
 
       String iconPath = item.isDirectory() ? item.getName() + "/" : item.getName();
-      FileIconHelper iconHelper = new FileIconHelper(iconPath);
-      iconHelper.setDynamicFolderEnabled(false);
-      iconHelper.setEnvironmentEnabled(false);
-      Glide.with(ivIcon.getContext())
-          .load(iconHelper.getFileIcon())
-          .error(R.drawable.ic_close)
-          .into(ivIcon);
+      if (item.isDirectory()) {
+        ivIcon.setImageResource(R.drawable.folder);
+        ivIcon.setImageTintList(
+            ColorStateList.valueOf(MaterialColors.getColor(ivIcon, R.attr.colorOnSurface, 0)));
+      } else {
+        ivIcon.clearColorFilter();
+        FileIconHelper iconHelper = new FileIconHelper(iconPath);
+        iconHelper.setDynamicFolderEnabled(false);
+        iconHelper.setEnvironmentEnabled(false);
+        Glide.with(ivIcon.getContext())
+            .load(iconHelper.getFileIcon())
+            .error(R.drawable.ic_close)
+            .into(ivIcon);
+      }
 
       GradientDrawable gd = new GradientDrawable();
       gd.setColor(MaterialColors.getColor(ivIcon, com.google.android.material.R.attr.colorSurface));
@@ -392,7 +399,6 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
       return ss;
     }
   }
-
 
   private List<ZipEntryModel> readZipEntries(String zipPath, String internalPrefix)
       throws ZipException {

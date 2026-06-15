@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionTracker;
@@ -28,7 +29,10 @@ import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
+import ir.hanzodev1375.ghostide.utils.Icon;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
+import java.util.Collections;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +47,8 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   private OnItemClickListener itemClickListener;
   private OnMoreClickListener moreClickListener;
   private SelectionStateListener selectionStateListener;
+  private Set<String> gitChangedPaths = Collections.emptySet();
+  private Set<String> gitChangedDirPrefixes = Collections.emptySet();
 
   public interface OnItemClickListener {
     void onItemClick(FileManagerModel item, int position);
@@ -72,6 +78,47 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
 
   public void setOnMoreClickListener(OnMoreClickListener listener) {
     this.moreClickListener = listener;
+  }
+
+  /**
+   * Provides the set of absolute file paths that currently have uncommitted git changes
+   * (modified/added/untracked/etc). Items matching these paths (or folders that contain
+   * such items) are highlighted with the "modified" color. Pass an empty set to clear the
+   * highlighting (e.g. after commit/push, or when the current directory is outside a git
+   * repository).
+   */
+  public void setGitChangedPaths(Set<String> changedPaths) {
+    Set<String> newPaths = changedPaths != null ? changedPaths : Collections.emptySet();
+    if (newPaths.equals(this.gitChangedPaths)) return;
+
+    this.gitChangedPaths = newPaths;
+    this.gitChangedDirPrefixes = computeDirPrefixes(newPaths);
+    notifyDataSetChanged();
+  }
+
+  /**
+   * Builds the set of all ancestor directory paths for every changed file so that folder
+   * rows can be highlighted in O(1) instead of scanning the whole changed-files set for
+   * every row on every rebind.
+   */
+  private Set<String> computeDirPrefixes(Set<String> changedPaths) {
+    if (changedPaths.isEmpty()) return Collections.emptySet();
+    Set<String> prefixes = new java.util.HashSet<>();
+    for (String path : changedPaths) {
+      String parent = new java.io.File(path).getParent();
+      while (parent != null && prefixes.add(parent)) {
+        parent = new java.io.File(parent).getParent();
+      }
+    }
+    return prefixes;
+  }
+
+  private boolean isGitChanged(FileManagerModel item) {
+    if (gitChangedPaths.isEmpty()) return false;
+    String path = item.getPath();
+    if (path == null) return false;
+    if (!item.isDirectory()) return gitChangedPaths.contains(path);
+    return gitChangedDirPrefixes.contains(path);
   }
 
   public void setSelectionStateListener(SelectionStateListener listener) {
@@ -324,6 +371,8 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
           .load(iconHelper.getFileIcon())
           .error(R.drawable.ic_close)
           .into(ivIcon);
+      var icon = new Icon();
+      icon.bind(item.getPath(), ivIcon);
       if (searchQuery.isEmpty()) {
         tvName.setText(item.getName());
       } else {
@@ -351,8 +400,12 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
           color = MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorTertiary);
           break;
         default:
-          color =
-              MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorOnSurface);
+          if (isGitChanged(item)) {
+            color = ContextCompat.getColor(tvName.getContext(), R.color.tab_git_modified);
+          } else {
+            color =
+                MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorOnSurface);
+          }
       }
       tvName.setTextColor(color);
     }

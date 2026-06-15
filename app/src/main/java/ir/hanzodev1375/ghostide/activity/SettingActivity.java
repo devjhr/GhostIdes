@@ -11,6 +11,7 @@ import com.blankj.utilcode.util.ClipboardUtils;
 import com.blankj.utilcode.util.ThreadUtils;
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
+import ir.hanzodev1375.components.SearchLayout;
 import ir.hanzodev1375.components.TextInputDialogFragment;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +54,7 @@ public class SettingActivity extends BaseCompat {
   private SettingsAdapter editorAdapter, appAdapter;
   private ThemeEngine themeEngine;
   private AiPreferencesUtils aiPrefs;
+  private SearchLayout ser;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,7 @@ public class SettingActivity extends BaseCompat {
     prefs = new PreferencesUtils(this);
     themeEngine = ThemeEngine.getInstance(this);
     MaterialToolbar toolbar = findViewById(R.id.toolbar);
+    ser = findViewById(R.id.searchitem);
     setSupportActionBar(toolbar);
     if (getSupportActionBar() != null) {
       getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -80,6 +83,7 @@ public class SettingActivity extends BaseCompat {
     rvApp.setLayoutManager(new LinearLayoutManager(this));
     editorAdapter = new SettingsAdapter(getEditorItems());
     appAdapter = new SettingsAdapter(getAppItems());
+    ser.show();
 
     rvEditor.setAdapter(editorAdapter);
     rvApp.setAdapter(appAdapter);
@@ -89,12 +93,33 @@ public class SettingActivity extends BaseCompat {
     rvAi.setLayoutManager(new LinearLayoutManager(this));
     SettingsAdapter aiAdapter = new SettingsAdapter(getAiItems());
     rvAi.setAdapter(aiAdapter);
+    ser.setIconClose(R.drawable.ic_close);
+    ser.setIconSearch(R.drawable.outline_search);
+    ser.setOnTextChangedListener(
+        (item) -> {
+          if (item.length() > 0) {
+            editorAdapter.filter(item);
+            appAdapter.filter(item);
+            aiAdapter.filter(item);
+            if (!expandAi.isExpanded()) expandAi.expand();
+            if (!expandApp.isExpanded()) expandApp.expand();
+            if (!expandEditor.isExpanded()) expandEditor.expand();
+          } else {
+            editorAdapter.filter("");
+            appAdapter.filter("");
+            aiAdapter.filter("");
+            expandAi.collapse();
+            expandApp.collapse();
+            expandEditor.collapse();
+          }
+        });
     editorAdapter.setOnItemClickListener(
         position -> {
           if (position == 17) showTabSizeDialog();
           else if (position == 18) showLineHeightDialog();
           else if (position == 19) showCursorBlinkDialog();
-          else if (position == 21) showTranslateLanguageDialog();
+          else if (position == 21) showFontDialog();
+          else if (position == 22) showTranslateLanguageDialog();
         });
 
     appAdapter.setOnItemClickListener(
@@ -349,6 +374,16 @@ public class SettingActivity extends BaseCompat {
             prefs.enableMiniMap(),
             0,
             prefs::setMiniMap));
+
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_font),
+            getString(R.string.pref_font_desc)
+                + "\n"
+                + getFontDisplayName(prefs.getCurrentEditorFontName()),
+            false,
+            0,
+            null));
 
     String currentLangName = TranslateLanguages.getNameByCode(prefs.getTranslateTargetLang());
     items.add(
@@ -839,5 +874,65 @@ public class SettingActivity extends BaseCompat {
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == android.R.id.home) finish();
     return super.onOptionsItemSelected(item);
+  }
+
+  private void showFontDialog() {
+    final String[] fontKeys = {
+      "jetbrains_mono_regular",
+      "inconsolata_regular",
+      "sourcecodepro_regular",
+      "firacode_regular",
+      "notosans_regular",
+      "notosans_italic"
+    };
+    final String[] fontNames = {
+      getString(R.string.font_jetbrains_mono),
+      getString(R.string.font_inconsolata),
+      getString(R.string.font_source_code_pro),
+      getString(R.string.font_fira_code),
+      getString(R.string.font_noto_sans),
+      getString(R.string.font_noto_sans_italic)
+    };
+    String currentFont = prefs.getCurrentEditorFontName(); 
+    int checked = 0;
+    for (int i = 0; i < fontKeys.length; i++) {
+      if (fontKeys[i].equals(currentFont)) {
+        checked = i;
+        break;
+      }
+    }
+    new MaterialAlertDialogBuilder(this)
+        .setTitle(R.string.pref_font)
+        .setSingleChoiceItems(
+            fontNames,
+            checked,
+            (dialog, which) -> {
+              prefs.setCurrentEditorFont(fontKeys[which]);
+              dialog.dismiss();
+              SettingItem item = editorAdapter.getItemAtPosition(21);
+              if (item != null) {
+                item.setDescription(getString(R.string.pref_font_desc) + "\n" + fontNames[which]);
+                editorAdapter.notifyItemChanged(21);
+              }
+            })
+        .setNegativeButton(R.string.cancel, null)
+        .show();
+  }
+
+  private String getFontDisplayName(String fontKey) {
+    switch (fontKey) {
+      case "inconsolata_regular":
+        return getString(R.string.font_inconsolata);
+      case "sourcecodepro_regular":
+        return getString(R.string.font_source_code_pro);
+      case "firacode_regular":
+        return getString(R.string.font_fira_code);
+      case "notosans_regular":
+        return getString(R.string.font_noto_sans);
+      case "notosans_italic":
+        return "Noto Sans Italic";
+      default:
+        return getString(R.string.font_jetbrains_mono);
+    }
   }
 }

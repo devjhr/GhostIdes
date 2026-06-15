@@ -43,13 +43,13 @@
          android:layout_width="match_parent"
          android:nestedScrollingEnabled="false"
          android:layout_weight="1"
-         android:id="@+id/rv_history" />
+         android:id="@+id/rvhistory" />
 
     <ProgressBar
          android:layout_height="wrap_content"
          android:layout_width="wrap_content"
          android:visibility="gone"
-         android:id="@+id/progress_history"
+         android:id="@+id/progresshistory"
          android:layout_gravity="center" />
 
     <LinearLayout
@@ -63,7 +63,7 @@
              android:layout_width="0dp"
              style="@style/Widget.Material3.Button.OutlinedButton"
              android:layout_weight="1"
-             android:id="@+id/btn_delete_selected"
+             android:id="@+id/btndeleteselected"
              android:text="Delete Selected" />
 
         <Button
@@ -71,7 +71,7 @@
              android:layout_width="0dp"
              style="@style/Widget.Material3.Button.TextButton"
              android:layout_weight="1"
-             android:id="@+id/btn_cancel"
+             android:id="@+id/btncancel"
              android:text="Cancel" />
 
     </LinearLayout>

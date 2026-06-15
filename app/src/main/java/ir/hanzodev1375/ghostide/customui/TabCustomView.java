@@ -2,6 +2,7 @@ package ir.hanzodev1375.ghostide.customui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -21,6 +22,9 @@ public class TabCustomView extends LinearLayout
   private PreferencesUtils setting;
   private TabModel currentModel;
   private boolean showTabIcon = false;
+  private boolean gitChanged = false;
+  private final int normalTitleColor;
+  private final int gitModifiedTitleColor;
 
   public TabCustomView(Context context) {
     super(context);
@@ -29,6 +33,8 @@ public class TabCustomView extends LinearLayout
     if (binding != null) {
       addView(binding.getRoot());
     }
+    normalTitleColor = binding.tabTitle.getCurrentTextColor();
+    gitModifiedTitleColor = ContextCompat.getColor(context, R.color.tab_git_modified);
     setting = new PreferencesUtils(getContext());
     showTabIcon = setting.getShowIconTab();
     setting.getDefaultPreferences().registerOnSharedPreferenceChangeListener(this);
@@ -55,6 +61,24 @@ public class TabCustomView extends LinearLayout
     } else {
       binding.tabIcon.setVisibility(View.GONE);
     }
+
+    updateGitTextColor();
+  }
+
+
+  public void setGitChanged(boolean changed) {
+    if (this.gitChanged == changed) return;
+    this.gitChanged = changed;
+    updateGitTextColor();
+  }
+
+  public boolean isGitChanged() {
+    return gitChanged;
+  }
+
+  private void updateGitTextColor() {
+    if (binding == null || binding.tabTitle == null) return;
+    binding.tabTitle.setTextColor(gitChanged ? gitModifiedTitleColor : normalTitleColor);
   }
 
   @Override

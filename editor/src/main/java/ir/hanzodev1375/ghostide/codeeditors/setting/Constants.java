@@ -35,6 +35,7 @@ public class Constants {
     public static final String KEY_CODE_EDITOR_LINE_HEIGHT = "pref_code_editor_line_height";
     public static final String KEY_CODE_EDITOR_NP_PAINT_FLAGS = "pref_code_editor_npc";
     public static final String KEY_CODE_EDITORMINIMAP = "pref_code_editor_minimaprender";
+    public static final String KEY_CODE_EDITOR_FONT = "pref_code_editor_fontselect";
 
     // General Configuration Preferences
     public static final String KEY_BUFFER_SIZE = "pref_general_config_buffer_size";

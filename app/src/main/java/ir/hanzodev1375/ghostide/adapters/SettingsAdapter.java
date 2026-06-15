@@ -2,16 +2,29 @@ package ir.hanzodev1375.ghostide.adapters;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.color.MaterialColors;
 import ir.hanzodev1375.ghostide.models.SettingItem;
 import ir.hanzodev1375.ghostide.customui.PreferenceSwitchGroup;
 import java.util.List;
+import java.util.ArrayList;
+import android.widget.Filter;
+import android.widget.Filterable;
+import ir.hanzodev1375.ghostide.R;
 
-public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHolder> {
+public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHolder>
+    implements Filterable {
 
   private List<SettingItem> items;
+  private List<SettingItem> itemsFull;
   private OnItemClickListener listener;
+  private String currentQuery = "";
 
   public interface OnItemClickListener {
     void onItemClick(int position);
@@ -19,6 +32,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
   public SettingsAdapter(List<SettingItem> items) {
     this.items = items;
+    this.itemsFull = new ArrayList<>(items);
   }
 
   public void setOnItemClickListener(OnItemClickListener listener) {
@@ -44,10 +58,25 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     SettingItem item = items.get(position);
     holder.switchGroup.setListPosition(position, getItemCount());
-    holder.switchGroup.setTitle(item.getTitle());
-    if (item.getDescription() != null && !item.getDescription().isEmpty()) {
-      holder.switchGroup.setDescription(item.getDescription());
+
+    if (currentQuery != null && !currentQuery.isEmpty()) {
+      SpannableString highlightedTitle = highlightText(item.getTitle(), currentQuery, holder);
+      holder.switchGroup.setTitle(highlightedTitle);
+
+      if (item.getDescription() != null && !item.getDescription().isEmpty()) {
+        SpannableString highlightedDesc =
+            highlightText(item.getDescription(), currentQuery, holder);
+        holder.switchGroup.setDescription(highlightedDesc);
+      } else if (item.getDescription() != null && !item.getDescription().isEmpty()) {
+        holder.switchGroup.setDescription(item.getDescription());
+      }
+    } else {
+      holder.switchGroup.setTitle(item.getTitle());
+      if (item.getDescription() != null && !item.getDescription().isEmpty()) {
+        holder.switchGroup.setDescription(item.getDescription());
+      }
     }
+
     if (item.getIconRes() != 0) {
       holder.switchGroup.setIcon(item.getIconRes());
     }
@@ -68,6 +97,25 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
     }
   }
 
+  private SpannableString highlightText(String text, String query, ViewHolder holder) {
+    SpannableString spannableString = new SpannableString(text);
+    String lowerText = text.toLowerCase();
+    String lowerQuery = query.toLowerCase();
+    int startIndex = lowerText.indexOf(lowerQuery);
+
+    while (startIndex != -1) {
+      int endIndex = startIndex + query.length();
+      spannableString.setSpan(
+          new ForegroundColorSpan(
+              MaterialColors.getColor(holder.itemView.getContext(), R.attr.colorError, 0)),
+          startIndex,
+          endIndex,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      startIndex = lowerText.indexOf(lowerQuery, endIndex);
+    }
+    return spannableString;
+  }
+
   @Override
   public int getItemCount() {
     return items.size();
@@ -75,6 +123,45 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
   public SettingItem getItemAtPosition(int position) {
     return items.get(position);
+  }
+
+  @Override
+  public Filter getFilter() {
+    return new Filter() {
+      @Override
+      protected FilterResults performFiltering(CharSequence constraint) {
+        List<SettingItem> filteredList = new ArrayList<>();
+        if (constraint == null || constraint.length() == 0) {
+          filteredList.addAll(itemsFull);
+          currentQuery = "";
+        } else {
+          currentQuery = constraint.toString().toLowerCase().trim();
+          String filterPattern = currentQuery;
+          for (SettingItem item : itemsFull) {
+            if (item.getTitle().toLowerCase().contains(filterPattern)) {
+              filteredList.add(item);
+            } else if (item.getDescription() != null
+                && item.getDescription().toLowerCase().contains(filterPattern)) {
+              filteredList.add(item);
+            }
+          }
+        }
+        FilterResults results = new FilterResults();
+        results.values = filteredList;
+        return results;
+      }
+
+      @Override
+      protected void publishResults(CharSequence constraint, FilterResults results) {
+        items.clear();
+        items.addAll((List<SettingItem>) results.values);
+        notifyDataSetChanged();
+      }
+    };
+  }
+
+  public void filter(String query) {
+    getFilter().filter(query);
   }
 
   static class ViewHolder extends RecyclerView.ViewHolder {

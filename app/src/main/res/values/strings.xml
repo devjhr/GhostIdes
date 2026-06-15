@@ -192,5 +192,30 @@
     <string name="project_error_pkg_invalid">Enter a valid package name (e.g. com.example)</string>
     <string name="project_error_title">Error</string>
     <string name="project_created_toast">Project created successfully</string>
-
+    <string name="module_new_title">New Android Module</string>
+    <string name="module_create">Create</string>
+    <string name="module_creating">Creating module…</string>
+    <string name="module_project_root">Project: %s</string>
+    <string name="module_hint_name">Module name</string>
+    <string name="module_helper_name">e.g. core-network, feature-auth</string>
+    <string name="module_hint_package">Package name</string>
+    <string name="module_helper_package">e.g. com.example.network</string>
+    <string name="module_error_name_empty">Module name is required</string>
+    <string name="module_error_name_invalid">Use letters, digits, - or _ (must start with a letter)</string>
+    <string name="module_error_pkg_invalid">Invalid package — e.g. com.example.mylib</string>
+    <string name="module_error_title">Module Creation Failed</string>
+    <string name="pref_font">Font</string>
+    <string name="pref_font_desc">Select editor font</string>
+    <string name="font_jetbrains_mono">JetBrains Mono</string>
+    <string name="font_inconsolata">Inconsolata</string>
+    <string name="font_source_code_pro">Source Code Pro</string>
+    <string name="font_fira_code">Fira Code</string>
+    <string name="font_noto_sans">Noto Sans</string>
+    <string name="font_noto_sans_italic">Noto Sans Italic</string>
+    <string name="wallpaper_dialog_title">Set as Wallpaper</string>
+    <string name="wallpaper_option_home">Home Screen</string>
+    <string name="wallpaper_option_lock">Lock Screen</string>
+    <string name="wallpaper_option_both">Both</string>
+    <string name="wallpaper_set_success">Wallpaper set successfully</string>
+    <string name="wallpaper_set_failed">Failed to set wallpaper</string>
 </resources>

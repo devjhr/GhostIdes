@@ -31,12 +31,18 @@ import ir.hanzodev1375.ghostide.customui.TabCustomView;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
 import ir.hanzodev1375.ghostide.jgit.fragments.GitBottomSheetFragment;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitManager;
+import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FileChange;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.adapters.EditorPagerAdapter;
 import ir.hanzodev1375.ghostide.adapters.ToolbarListAdapter;
@@ -64,6 +70,9 @@ public class EditorActivity extends BaseCompat {
   private ToolbarListAdapter listAdapter;
   private boolean isShowSys = false;
   private List<ToolbarModel> toolbarModel = new ArrayList<>();
+  private final ExecutorService gitStatusExecutor = Executors.newSingleThreadExecutor();
+  private String gitStatusRepoPath;
+  private Set<String> gitChangedPaths = new HashSet<>();
   
 
   @Override
@@ -196,6 +205,22 @@ public class EditorActivity extends BaseCompat {
           binding.symbolBarContainer.setLayoutParams(symbolParams);
           return insets;
         });
+
+    refreshGitStatus();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    // Re-check git status whenever the activity resumes (e.g. after returning from the
+    // Git bottom sheet where the user may have committed/pushed changes).
+    refreshGitStatus();
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    gitStatusExecutor.shutdownNow();
   }
 
   @Override
@@ -421,6 +446,67 @@ public class EditorActivity extends BaseCompat {
     return null;
   }
 
+  /**
+   * Refreshes the git status of the project that the currently opened tab belongs to and
+   * updates the colored "modified" indicator on every open tab accordingly. Call this after
+   * any action that may change the working tree state: opening/saving files, switching tabs,
+   * resuming the activity (e.g. returning from the Git bottom sheet after commit/push).
+   */
+  private void refreshGitStatus() {
+    String repoPath = findGitRepositoryPath();
+    if (repoPath == null) {
+      gitStatusRepoPath = null;
+      gitChangedPaths.clear();
+      updateAllTabsGitStatus();
+      return;
+    }
+    gitStatusRepoPath = repoPath;
+    gitStatusExecutor.execute(
+        () -> {
+          GitManager manager = new GitManager(repoPath);
+          if (!manager.openRepository()) return;
+          List<FileChange> changes = manager.getChangedFiles();
+          runOnUiThread(
+              () -> {
+                updateGitChangedPaths(changes);
+                updateAllTabsGitStatus();
+              });
+        });
+  }
+
+  private void updateGitChangedPaths(List<FileChange> changes) {
+    gitChangedPaths.clear();
+    if (changes == null) return;
+    for (FileChange change : changes) {
+      if (change.getPath() != null) {
+        gitChangedPaths.add(change.getPath().replace(File.separatorChar, '/'));
+      }
+    }
+  }
+
+  private void updateAllTabsGitStatus() {
+    for (int i = 0; i < tabsList.size(); i++) {
+      TabLayout.Tab layoutTab = binding.tab.getTabAt(i);
+      if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
+        boolean changed = isFileGitChanged(tabsList.get(i).getFilePath());
+        ((TabCustomView) layoutTab.getCustomView()).setGitChanged(changed);
+      }
+    }
+  }
+
+  private boolean isFileGitChanged(String filePath) {
+    if (gitStatusRepoPath == null || filePath == null || gitChangedPaths.isEmpty()) return false;
+    try {
+      File repoDir = new File(gitStatusRepoPath);
+      File file = new File(filePath);
+      String relative =
+          repoDir.toPath().relativize(file.toPath()).toString().replace(File.separatorChar, '/');
+      return gitChangedPaths.contains(relative);
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
   void setupMenuCalltoAction(View v) {
     var menu = theme.apply(this);
     menu.addItem(new PowerMenuItem(getString(R.string.saveitemthis), false, R.drawable.save));
@@ -452,6 +538,7 @@ public class EditorActivity extends BaseCompat {
               if (position < tabsList.size()) {
                 TabCustomView customView = new TabCustomView(this);
                 customView.bind(tabsList.get(position));
+                customView.setGitChanged(isFileGitChanged(tabsList.get(position).getFilePath()));
                 tab.setCustomView(customView);
               }
             });
@@ -541,6 +628,7 @@ public class EditorActivity extends BaseCompat {
     int dot = path.lastIndexOf('.');
     if (dot != -1) ext = path.substring(dot + 1);
     PluginManager.getInstance().setCurrentEditorActivity(this, getEditor(), path, ext);
+    refreshGitStatus();
   }
 
   private void closeTab(int position) {
@@ -662,6 +750,7 @@ public class EditorActivity extends BaseCompat {
     }
     Toast.makeText(this, savedCount + getString(R.string.editorac_savefile), Toast.LENGTH_SHORT)
         .show();
+    refreshGitStatus();
   }
 
   private void saveCurrentTab() {
@@ -674,6 +763,7 @@ public class EditorActivity extends BaseCompat {
     if (currentFragment instanceof EditorFragment) {
       ((EditorFragment) currentFragment).saveCurrentFile();
       Toast.makeText(this, getString(R.string.editorac_wassaved), Toast.LENGTH_SHORT).show();
+      refreshGitStatus();
     } else {
       Toast.makeText(this, getString(R.string.editorac_errorfargment), Toast.LENGTH_SHORT).show();
     }
