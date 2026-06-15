@@ -69,7 +69,7 @@ public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
       @NonNull LayoutInflater inflater,
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.bottom_sheet_history, container, false);
+    return inflater.inflate(R.layout.bottom_sheet_history_fragment, container, false);
   }
 
   @Override
