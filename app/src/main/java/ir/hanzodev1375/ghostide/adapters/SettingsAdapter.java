@@ -83,16 +83,21 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
     holder.switchGroup.setValue(item.isChecked());
     holder.switchGroup.getSwitch().setOnCheckedChangeListener(null);
     if (item.getListener() != null) {
+      holder.switchGroup.getSwitch().setVisibility(android.view.View.VISIBLE);
       holder.switchGroup.setSwitchChangedListener(
           (button, isChecked) -> {
             item.setChecked(isChecked);
             item.getListener().onCheckedChanged(isChecked);
           });
+      holder.switchGroup.setOnClickListener(holder.switchGroup);
     } else {
       holder.switchGroup.getSwitch().setVisibility(android.view.View.GONE);
       holder.switchGroup.setOnClickListener(
           v -> {
-            if (listener != null) listener.onItemClick(position);
+            if (listener != null) {
+              int originalPosition = itemsFull.indexOf(item);
+              listener.onItemClick(originalPosition);
+            }
           });
     }
   }

@@ -29,6 +29,9 @@ jgit = "7.6.0.202603022253-r"
 svg = "1.4"
 #zip4j
 zip = "2.11.6"
+
+markwon = "4.6.2"
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -57,3 +60,14 @@ androidx-recyclerview-selection = { module = "androidx.recyclerview:recyclerview
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 androidsvg = { module = "com.caverock:androidsvg", version.ref = "svg"}
 zip4j = {module = "net.lingala.zip4j:zip4j",version.ref = "zip"}
+
+# Markwon
+markwon-core = { group = "io.noties.markwon", name = "core", version.ref = "markwon" }
+markwon-ext-strikethrough = { group = "io.noties.markwon", name = "ext-strikethrough", version.ref = "markwon" }
+markwon-linkify = { group = "io.noties.markwon", name = "linkify", version.ref = "markwon" }
+markwon-recycler = { group = "io.noties.markwon", name = "recycler", version.ref = "markwon" }
+markwon-html = { group = "io.noties.markwon", name = "html", version.ref = "markwon" }
+markwon-ext-tables = { group = "io.noties.markwon", name = "ext-tables", version.ref = "markwon" }
+markwon-ext-tasklist = { group = "io.noties.markwon", name = "ext-tasklist", version.ref = "markwon" }
+markwon-image = { group = "io.noties.markwon", name = "image", version.ref = "markwon" }
+markwon-syntax-highlight = { group = "io.noties.markwon", name = "syntax-highlight", version.ref = "markwon" }

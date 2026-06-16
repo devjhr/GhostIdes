@@ -18,7 +18,9 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.kotlin.KotlinLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
+import ir.hanzodev1375.ghostide.codeeditors.langs.xml.XmlLang;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
 import ir.theme.ThemeManager;
@@ -89,6 +91,10 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new Python3Language());
     } else if (filePath.endsWith(".json")) {
       editor.setEditorLanguage(new JsonLanguage(getContext(), filePath));
+    } else if (filePath.endsWith(".xml")) {
+      editor.setEditorLanguage(new XmlLang());
+    } else if (filePath.endsWith(".kt") || filePath.endsWith(".kts")) {
+      editor.setEditorLanguage(new KotlinLanguage());
     }
   }
 

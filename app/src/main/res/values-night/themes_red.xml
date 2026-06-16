@@ -1,10 +1,7 @@
 <resources>
   <style
     name="AppTheme.RED"
-    parent="Theme.Material3Expressive.Dark.NoActionBar">
-    <item name="popupMenuBackground">@drawable/menucustom</item>
-    <item name="textAppearanceLargePopupMenu">@style/TextAppearance.App.BodyLarge</item>
-    <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.App.BodyLarge</item>
+    parent="BaseThemeDark">
     <item name="colorPrimary">@color/md_theme_red_primary</item>
     <item name="colorOnPrimary">@color/md_theme_red_onPrimary</item>
     <item name="colorPrimaryContainer">@color/md_theme_red_primaryContainer</item>
@@ -51,7 +48,6 @@
     <item name="colorSurfaceContainer">@color/md_theme_red_surfaceContainer</item>
     <item name="colorSurfaceContainerHigh">@color/md_theme_red_surfaceContainerHigh</item>
     <item name="colorSurfaceContainerHighest">@color/md_theme_red_surfaceContainerHighest</item>
-    <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
-
+   
   </style>
 </resources>

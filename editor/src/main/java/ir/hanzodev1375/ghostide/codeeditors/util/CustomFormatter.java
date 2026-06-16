@@ -19,17 +19,10 @@ public class CustomFormatter extends AsyncFormatter {
     this.action = action;
   }
 
-  public String formatCode(String text) {
-    if (action == null) {
-      return text;
-    }
-    return action.format(text);
-  }
-
   @Override
   public TextRange formatAsync(Content text, TextRange cursorRange) {
 
-    String formatted = formatCode(text.toString());
+    String formatted = action.format(text.toString());
 
     if (!formatted.equals(text.toString())) {
 

@@ -1,6 +1,10 @@
 package ir.hanzodev1375.ghostide.activity;
 
 import android.app.ActivityOptions;
+import android.os.Build;
+import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +16,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import ir.hanzodev1375.ghostide.themeengine.Theme;
+import ir.hanzodev1375.ghostide.themeengine.ThemeEngineExtensions;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,14 +41,12 @@ public class BaseCompat extends AppCompatActivity
   @Override
   protected void onCreate(Bundle arg0) {
     prefs = new PreferencesUtils(this);
-
     EdgeToEdge.enable(this);
     ThemeEngine.applyToActivity(this);
+//    applyTransparentNavigationBar();
     lastTheme = ThemeEngine.getInstance(this).getStaticTheme();
     super.onCreate(arg0);
-
     ACTIVITIES.add(this);
-
     getWindow().setNavigationBarColor(Color.TRANSPARENT);
     getWindow().setStatusBarColor(Color.TRANSPARENT);
   }
@@ -59,7 +62,7 @@ public class BaseCompat extends AppCompatActivity
     super.onResume();
 
     Theme currentTheme = ThemeEngine.getInstance(this).getStaticTheme();
-
+ //   applyTransparentNavigationBar();
     if (currentTheme != lastTheme) {
       recreate();
       return;
@@ -78,18 +81,14 @@ public class BaseCompat extends AppCompatActivity
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {}
 
   public void recreateAllActivities() {
-
     List<BaseCompat> copy = new ArrayList<>(ACTIVITIES);
-
     for (BaseCompat activity : copy) {
-
       if (activity == null) {
         continue;
       }
       if (activity.isFinishing()) {
         continue;
       }
-
       activity.runOnUiThread(activity::recreate);
     }
   }
@@ -108,5 +107,43 @@ public class BaseCompat extends AppCompatActivity
     getWindow().setEnterTransition(enter);
     getWindow().setReenterTransition(reenter);
     super.startActivity(i, op.toBundle());
+  }
+
+  private void applyTransparentNavigationBar() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      getWindow().setNavigationBarColor(Color.TRANSPARENT);
+      getWindow().setStatusBarColor(Color.TRANSPARENT);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        getWindow().setNavigationBarDividerColor(Color.TRANSPARENT);
+      }
+
+      View decorView = getWindow().getDecorView();
+      int flags = decorView.getSystemUiVisibility();
+      flags |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+      boolean isLightMode = !ThemeEngineExtensions.isDarkMode(this);
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        WindowInsetsController controller = getWindow().getInsetsController();
+        if (controller != null) {
+          controller.show(WindowInsets.Type.navigationBars());
+          if (isLightMode) {
+            // در حالت روشن: آیکون‌های نوار تیره (برای پس‌زمینه شفاف و محتوای روشن)
+            controller.setSystemBarsAppearance(
+                WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+          } else {
+            controller.setSystemBarsAppearance(
+                0, WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+          }
+        }
+      } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (isLightMode) {
+          flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        } else {
+          flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        }
+      }
+      decorView.setSystemUiVisibility(flags);
+    }
   }
 }

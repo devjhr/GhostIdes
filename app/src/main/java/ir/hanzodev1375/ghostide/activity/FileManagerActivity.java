@@ -37,6 +37,7 @@ import ir.hanzodev1375.ghostide.databinding.ActivityFilemanagerBinding;
 import ir.hanzodev1375.ghostide.databinding.SelectionPanelBinding;
 import ir.hanzodev1375.ghostide.dialogs.CopyProgressDialog;
 import ir.hanzodev1375.ghostide.dialogs.DeleteProgressDialog;
+import ir.hanzodev1375.ghostide.fragments.BatchRenameSheet;
 import ir.hanzodev1375.ghostide.fragments.FilePropertiesSheet;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
@@ -59,6 +60,7 @@ import ir.hanzodev1375.ghostide.utils.MarginItemDecoration;
 import ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver;
 import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
+import ir.hanzodev1375.ghostide.utils.ShortcutHelper;
 import ir.hanzodev1375.ghostide.utils.ZipUtil;
 import ir.theme.themeeditor.ThemeEditorActivity;
 import java.io.File;
@@ -94,7 +96,7 @@ public class FileManagerActivity extends BaseCompat
   private ProfileView profileview;
   private NetworkChangeReceiver networkChangeReceiver;
   private Set<String> itemname =
-      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py", ".json"));
+      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py", ".json",".xml",".kt",".kts"));
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));
@@ -176,6 +178,10 @@ public class FileManagerActivity extends BaseCompat
             this, loading -> bind.loadingprogass.setVisibility(loading ? View.VISIBLE : View.GONE));
 
     viewModel.savePath(true);
+    String startPath = getIntent().getStringExtra("start_path");
+    if (startPath != null && new File(startPath).exists()) {
+      viewModel.navigateTo(startPath);
+    }
     viewModel
         .getCurrentPath()
         .observe(
@@ -435,7 +441,7 @@ public class FileManagerActivity extends BaseCompat
     zipAdapter.loadZip(zipFilePath, "");
     bind.fab.setVisibility(View.GONE);
     bind.gitActionButton.setVisibility(View.GONE);
-   // bind.navmodel.setVisibility(View.GONE);
+    // bind.navmodel.setVisibility(View.GONE);
   }
 
   private void exitZipMode() {
@@ -445,7 +451,7 @@ public class FileManagerActivity extends BaseCompat
     adapter.setupSelectionTracker(bind.rvfiles);
     viewModel.loadFiles(viewModel.getCurrentPath().getValue());
     bind.fab.setVisibility(View.VISIBLE);
-   // bind.navmodel.setVisibility(View.VISIBLE);
+    // bind.navmodel.setVisibility(View.VISIBLE);
     String currentPath = viewModel.getCurrentPath().getValue();
     if (currentPath != null) {
       bind.gitActionButton.setVisibility(isGitRepository(currentPath) ? View.VISIBLE : View.GONE);
@@ -762,6 +768,7 @@ public class FileManagerActivity extends BaseCompat
           PowerMenu menu = new PowerMenu.Builder(this).setIsMaterial(true).build();
           menu.addItem(new PowerMenuItem(getString(R.string.zip)));
           menu.addItem(new PowerMenuItem(getString(R.string.props_title_multi)));
+          menu.addItem(new PowerMenuItem("Rename Group"));
           menu.setMenuColor(
               MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface, 0));
           menu.setTextColor(
@@ -783,6 +790,15 @@ public class FileManagerActivity extends BaseCompat
                   FilePropertiesSheet.newInstance(selected)
                       .show(getSupportFragmentManager(), FilePropertiesSheet.TAG);
                   btnClose.performClick();
+                } else if (index == 2) {
+                  BatchRenameSheet sheet = BatchRenameSheet.newInstance(selected);
+                  sheet.setOnRenameListener(
+                      (items, pattern, find, replace, useRegex) -> {
+                        btnClose.performClick();
+                        viewModel.loadFiles(viewModel.getCurrentPath().getValue());
+                        refreshFileList();
+                      });
+                  sheet.show(getSupportFragmentManager(), BatchRenameSheet.TAG);
                 }
               });
           ObjectUtil.showFixPos(menu, selectionMore);
@@ -806,6 +822,10 @@ public class FileManagerActivity extends BaseCompat
                     bind.rvfiles.getPaddingTop(),
                     bind.rvfiles.getPaddingRight(),
                     systemBars.bottom + fabSpace + extraBottom);
+                ViewGroup.MarginLayoutParams fabParams =
+                    (ViewGroup.MarginLayoutParams) bind.fab.getLayoutParams();
+                fabParams.bottomMargin = systemBars.bottom;
+                bind.fab.setLayoutParams(fabParams);
               });
           return insets;
         });
@@ -860,6 +880,7 @@ public class FileManagerActivity extends BaseCompat
           menu.addItem(new PowerMenuItem(getString(R.string.rename)));
           menu.addItem(new PowerMenuItem(getString(R.string.props_title_single)));
           menu.addItem(new PowerMenuItem(getString(R.string.bookmark_add)));
+          menu.addItem(new PowerMenuItem(getString(R.string.shortcut_menu_item)));
           menu.setMenuColor(
               MaterialColors.getColor(
                   view.getContext(), com.google.android.material.R.attr.colorSurface, 0));
@@ -891,6 +912,7 @@ public class FileManagerActivity extends BaseCompat
                                               : getString(R.string.bookmark_removed),
                                           Toast.LENGTH_SHORT)
                                       .show()));
+                  case 4 -> ShortcutHelper.showShortcutDialog(this, filemodel);
                 }
               });
           ObjectUtil.showFixPos(menu, view);

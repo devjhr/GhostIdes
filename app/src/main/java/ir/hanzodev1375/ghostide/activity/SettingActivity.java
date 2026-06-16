@@ -4,9 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.graphics.Insets;
 import androidx.core.os.LocaleListCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.blankj.utilcode.util.ThreadUtils;
 import com.bumptech.glide.Glide;
@@ -84,7 +88,19 @@ public class SettingActivity extends BaseCompat {
     editorAdapter = new SettingsAdapter(getEditorItems());
     appAdapter = new SettingsAdapter(getAppItems());
     ser.show();
-
+    View root = findViewById(R.id.settingRoot);
+    ViewCompat.setOnApplyWindowInsetsListener(
+        root,
+        (v, insets) -> {
+          Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+          Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+          findViewById(R.id.appbar).setPadding(0, systemBars.top, 0, 0);
+          int bottomInset = Math.max(systemBars.bottom, ime.bottom);
+          ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) ser.getLayoutParams();
+          lp.bottomMargin = bottomInset + (int) (4 * getResources().getDisplayMetrics().density);
+          ser.setLayoutParams(lp);
+          return insets;
+        });
     rvEditor.setAdapter(editorAdapter);
     rvApp.setAdapter(appAdapter);
     ExpandableLayout expandAi = findViewById(R.id.expandAi);
@@ -893,7 +909,7 @@ public class SettingActivity extends BaseCompat {
       getString(R.string.font_noto_sans),
       getString(R.string.font_noto_sans_italic)
     };
-    String currentFont = prefs.getCurrentEditorFontName(); 
+    String currentFont = prefs.getCurrentEditorFontName();
     int checked = 0;
     for (int i = 0; i < fontKeys.length; i++) {
       if (fontKeys[i].equals(currentFont)) {

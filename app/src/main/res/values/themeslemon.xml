@@ -1,10 +1,7 @@
 <resources>
   <style
     name="AppTheme.Lemon"
-    parent="Theme.Material3Expressive.Light.NoActionBar">
-    <item name="popupMenuBackground">@drawable/menucustom</item>
-    <item name="textAppearanceLargePopupMenu">@style/TextAppearance.App.BodyLarge</item>
-    <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.App.BodyLarge</item>
+    parent="BaseThemeLight">
     <item name="colorPrimary">@color/md_theme_lemon_primary</item>
     <item name="colorOnPrimary">@color/md_theme_lemon_onPrimary</item>
     <item name="colorPrimaryContainer">@color/md_theme_lemon_primaryContainer</item>
@@ -51,7 +48,5 @@
     <item name="colorSurfaceContainer">@color/md_theme_lemon_surfaceContainer</item>
     <item name="colorSurfaceContainerHigh">@color/md_theme_lemon_surfaceContainerHigh</item>
     <item name="colorSurfaceContainerHighest">@color/md_theme_lemon_surfaceContainerHighest</item>
-    <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
-
   </style>
 </resources>
