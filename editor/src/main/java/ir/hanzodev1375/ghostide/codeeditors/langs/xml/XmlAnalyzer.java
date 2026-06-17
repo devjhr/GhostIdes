@@ -155,7 +155,8 @@ public class XmlAnalyzer extends CodeAnalyzer {
           if (pretoken == HTMLLexer.LT
               || pretoken == HTMLLexer.GT
               || pretoken == HTMLLexer.SLASH_CLOSE
-              || pretoken == HTMLLexer.OPEN_SLASH) {
+              || pretoken == HTMLLexer.OPEN_SLASH
+              || pretoken == HTMLLexer.DOT) {
             color = HTML_TAG;
           } else if (pretoken == HTMLLexer.COLON) {
             color = IDENTIFIER_NAME;

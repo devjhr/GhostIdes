@@ -96,7 +96,10 @@ public class FileManagerActivity extends BaseCompat
   private ProfileView profileview;
   private NetworkChangeReceiver networkChangeReceiver;
   private Set<String> itemname =
-      new HashSet<>(Arrays.asList(".html", ".java", ".cpp", ".css", ".js", ".py", ".json",".xml",".kt",".kts"));
+      new HashSet<>(
+          Arrays.asList(
+              ".html", ".java", ".cpp", ".css", ".js", ".py", ".json", ".xml", ".kt", ".kts", ".ts",
+              ".tsx", ".toml", ".gradle"));
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));
@@ -222,7 +225,6 @@ public class FileManagerActivity extends BaseCompat
 
     adapter.setOnItemClickListener(
         (item, pos) -> {
-          // ذخیره در هیستوری
           historyViewModel.addToHistory(item.getPath(), item.getName(), item.isDirectory());
           if (item.isDirectory()) {
             viewModel.navigateTo(item.getPath());
@@ -1015,6 +1017,7 @@ public class FileManagerActivity extends BaseCompat
     menu.addItem(new PowerMenuItem(getString(R.string.openlogcat)));
     menu.addItem(new PowerMenuItem(getString(R.string.history_title)));
     menu.addItem(new PowerMenuItem(getString(R.string.bookmark_title)));
+    menu.addItem(new PowerMenuItem("About App"));
     menu.setAutoDismiss(true);
     menu.setShowBackground(false);
     menu.setAnimation(MenuAnimation.FADE);
@@ -1063,6 +1066,7 @@ public class FileManagerActivity extends BaseCompat
                   });
               bsheet.show(getSupportFragmentManager(), BookmarkBottomSheet.TAG);
             }
+            case 5 -> startActivity(new Intent(FileManagerActivity.this, AboutActivity.class));
           }
         });
     menu.showAsDropDown(bind.btnSettings);

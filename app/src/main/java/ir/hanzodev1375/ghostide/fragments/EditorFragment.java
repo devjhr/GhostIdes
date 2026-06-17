@@ -14,12 +14,15 @@ import androidx.lifecycle.ViewModelProvider;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.css.CssLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.gradle.GradleLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.kotlin.KotlinLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
+import ir.hanzodev1375.ghostide.codeeditors.langs.toml.TomlLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.typescript.TypeScriptLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.xml.XmlLang;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
@@ -95,6 +98,12 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new XmlLang());
     } else if (filePath.endsWith(".kt") || filePath.endsWith(".kts")) {
       editor.setEditorLanguage(new KotlinLanguage());
+    } else if (filePath.endsWith(".ts") || filePath.endsWith(".tsx")) {
+      editor.setEditorLanguage(new TypeScriptLanguage());
+    } else if (filePath.endsWith(".toml")) {
+      editor.setEditorLanguage(new TomlLanguage());
+    } else if (filePath.endsWith(".gradle")) {
+      editor.setEditorLanguage(new GradleLanguage());
     }
   }
 

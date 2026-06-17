@@ -175,7 +175,7 @@
   <string name="props_selected_count">%d items</string>
   <string name="props_close">Close</string>
   <string name="props_calculating">Calculating</string>
-  <!-- new Strings -->
+
   <string name="history_title">History</string>
   <string name="history_empty">No history yet</string>
   <string name="bookmark_title">Bookmarks</string>
@@ -224,4 +224,10 @@
   <string name="shortcut_dialog_message">Do you want to create a shortcut for "%1$s" on the home screen?</string>
   <string name="yes">Yes</string>
   <string name="no">No</string>
+  <!-- new Strings -->
+  <string name="diag_title">System Diagnostics</string>
+  <string name="diag_device_info">Device Info</string>
+  <string name="diag_display">Display &amp; Rendering</string>
+  <string name="diag_memory">Runtime &amp; Memory</string>
+  <string name="diag_storage">Storage</string>
 </resources>
