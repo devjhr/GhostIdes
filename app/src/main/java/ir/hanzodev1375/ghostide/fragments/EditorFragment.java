@@ -21,6 +21,7 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.kotlin.KotlinLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
+import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.toml.TomlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.typescript.TypeScriptLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.xml.XmlLang;
@@ -104,6 +105,8 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new TomlLanguage());
     } else if (filePath.endsWith(".gradle")) {
       editor.setEditorLanguage(new GradleLanguage());
+    } else if (filePath.endsWith(".sass") || filePath.endsWith(".scss")) {
+      editor.setEditorLanguage(new SassLanguage());
     }
   }
 

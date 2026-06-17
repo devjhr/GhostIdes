@@ -175,7 +175,7 @@ public class KotlinLanguage implements Language {
 
   @Override
   public boolean useTab() {
-    return false;
+    return true;
   }
 
   @NonNull

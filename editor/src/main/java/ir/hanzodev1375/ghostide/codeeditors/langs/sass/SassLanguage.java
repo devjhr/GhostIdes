@@ -1,35 +1,13 @@
-/*
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2024  Rosemoe
+/**
+ * Comment by ghost ide
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
- *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
- *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
- *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
+ * @author: Ninjacoder
  */
-package ir.hanzodev1375.ghostide.codeeditors.langs.java;
-
-import static java.lang.Character.isWhitespace;
+package ir.hanzodev1375.ghostide.codeeditors.langs.sass;
 
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import io.github.rosemoe.sora.lang.EmptyLanguage;
 import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.QuickQuoteHandler;
@@ -42,38 +20,65 @@ import io.github.rosemoe.sora.lang.completion.SnippetDescription;
 import io.github.rosemoe.sora.lang.completion.snippet.CodeSnippet;
 import io.github.rosemoe.sora.lang.completion.snippet.parser.CodeSnippetParser;
 import io.github.rosemoe.sora.lang.format.Formatter;
-import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandler;
-import io.github.rosemoe.sora.lang.styling.Styles;
-import io.github.rosemoe.sora.lang.styling.StylesUtils;
 import io.github.rosemoe.sora.text.CharPosition;
 import io.github.rosemoe.sora.text.Content;
-import io.github.rosemoe.sora.text.ContentReference;
+import io.github.rosemoe.sora.lang.styling.Styles;
+import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
+import io.github.rosemoe.sora.lang.styling.StylesUtils;
 import io.github.rosemoe.sora.text.TextUtils;
+import io.github.rosemoe.sora.text.ContentReference;
 import io.github.rosemoe.sora.util.MyCharacter;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
 
-/**
- * Java language. Simple implementation.
- *
- * @author Rosemoe
- */
-public class JavaLanguage implements Language {
+public class SassLanguage implements Language {
+
+  private static final CodeSnippet MIXIN_SNIPPET =
+      CodeSnippetParser.parse("@mixin ${1:name}(${2:args}) {\n\t${3:styles}\n}\n$0");
+
+  private static final CodeSnippet INCLUDE_SNIPPET =
+      CodeSnippetParser.parse("@include ${1:name}(${2:args});$0");
+
+  private static final CodeSnippet IF_SNIPPET =
+      CodeSnippetParser.parse("@if ${1:condition} {\n\t${2:styles}\n}\n$0");
+
+  private static final CodeSnippet EACH_SNIPPET =
+      CodeSnippetParser.parse("@each $${1:item} in $${2:list} {\n\t${3:styles}\n}\n$0");
 
   private static final CodeSnippet FOR_SNIPPET =
-      CodeSnippetParser.parse("for(int ${1:i} = 0;$1 < ${2:count};$1++) {\n    $0\n}");
-  private static final CodeSnippet STATIC_CONST_SNIPPET =
-      CodeSnippetParser.parse(
-          "private final static ${1:type} ${2/(.*)/${1:/upcase}/} = ${3:value};");
-  private static final CodeSnippet CLIPBOARD_SNIPPET = CodeSnippetParser.parse("${1:${CLIPBOARD}}");
+      CodeSnippetParser.parse("@for $${1:i} from ${2:1} through ${3:10} {\n\t${4:styles}\n}\n$0");
+
+  private static final CodeSnippet FUNCTION_SNIPPET =
+      CodeSnippetParser.parse("@function ${1:name}(${2:args}) {\n\t@return ${3:value};\n}\n$0");
 
   private IdentifierAutoComplete autoComplete;
-  private final JavaIncrementalAnalyzeManager manager;
-  private final JavaQuoteHandler javaQuoteHandler = new JavaQuoteHandler();
 
-  public JavaLanguage() {
-    autoComplete = new IdentifierAutoComplete(JavaTextTokenizer.sKeywords);
-    manager = new JavaIncrementalAnalyzeManager();
+  private final SassIncrementalAnalyzeManager manager;
+
+  private final SassQuoteHandler quoteHandler = new SassQuoteHandler();
+
+  private static final String[] KEYWORDS = {
+    "@mixin",
+    "@include",
+    "@if",
+    "@else",
+    "@for",
+    "@each",
+    "@while",
+    "@function",
+    "@return",
+    "@extend",
+    "@import",
+    "@use",
+    "@forward",
+    "true",
+    "false",
+    "null"
+  };
+
+  public SassLanguage() {
+    autoComplete = new IdentifierAutoComplete(KEYWORDS);
+    manager = new SassIncrementalAnalyzeManager();
   }
 
   @NonNull
@@ -85,7 +90,7 @@ public class JavaLanguage implements Language {
   @Nullable
   @Override
   public QuickQuoteHandler getQuickQuoteHandler() {
-    return javaQuoteHandler;
+    return quoteHandler;
   }
 
   @Override
@@ -106,31 +111,39 @@ public class JavaLanguage implements Language {
       @NonNull Bundle extraArguments) {
     var prefix =
         CompletionHelper.computePrefix(content, position, MyCharacter::isJavaIdentifierPart);
-    final var idt = manager.identifiers;
-    if (idt != null) {
-      autoComplete.requireAutoComplete(content, position, prefix, publisher, idt);
-    }
-    if ("fori".startsWith(prefix) && prefix.length() > 0) {
+    if (autoComplete != null) {}
+    if ("mixin".startsWith(prefix) && !prefix.isEmpty())
       publisher.addItem(
           new SimpleSnippetCompletionItem(
-              "fori",
-              "Snippet - For loop on index",
-              new SnippetDescription(prefix.length(), FOR_SNIPPET, true)));
-    }
-    if ("sconst".startsWith(prefix) && prefix.length() > 0) {
+              "mixin",
+              "Snippet - Mixin",
+              new SnippetDescription(prefix.length(), MIXIN_SNIPPET, true)));
+    if ("include".startsWith(prefix) && !prefix.isEmpty())
       publisher.addItem(
           new SimpleSnippetCompletionItem(
-              "sconst",
-              "Snippet - Static Constant",
-              new SnippetDescription(prefix.length(), STATIC_CONST_SNIPPET, true)));
-    }
-    if ("clip".startsWith(prefix) && prefix.length() > 0) {
+              "include",
+              "Snippet - Include",
+              new SnippetDescription(prefix.length(), INCLUDE_SNIPPET, true)));
+    if ("if".startsWith(prefix) && !prefix.isEmpty())
       publisher.addItem(
           new SimpleSnippetCompletionItem(
-              "clip",
-              "Snippet - Clipboard contents",
-              new SnippetDescription(prefix.length(), CLIPBOARD_SNIPPET, true)));
-    }
+              "if", "Snippet - If", new SnippetDescription(prefix.length(), IF_SNIPPET, true)));
+    if ("each".startsWith(prefix) && !prefix.isEmpty())
+      publisher.addItem(
+          new SimpleSnippetCompletionItem(
+              "each",
+              "Snippet - Each",
+              new SnippetDescription(prefix.length(), EACH_SNIPPET, true)));
+    if ("for".startsWith(prefix) && !prefix.isEmpty())
+      publisher.addItem(
+          new SimpleSnippetCompletionItem(
+              "for", "Snippet - For", new SnippetDescription(prefix.length(), FOR_SNIPPET, true)));
+    if ("function".startsWith(prefix) && !prefix.isEmpty())
+      publisher.addItem(
+          new SimpleSnippetCompletionItem(
+              "function",
+              "Snippet - Function",
+              new SnippetDescription(prefix.length(), FUNCTION_SNIPPET, true)));
   }
 
   @Override
@@ -140,11 +153,11 @@ public class JavaLanguage implements Language {
   }
 
   private int getIndentAdvance(String content) {
-    JavaTextTokenizer t = new JavaTextTokenizer(content);
-    Tokens token;
+    var t = new SassTextTokenizer(content);
+    SassTokens token;
     int advance = 0;
-    while ((token = t.nextToken()) != Tokens.EOF) {
-      if (token == Tokens.LBRACE) {
+    while ((token = t.nextToken()) != SassTokens.EOF) {
+      if (token == SassTokens.LBRACE) {
         advance++;
       }
     }
@@ -156,7 +169,7 @@ public class JavaLanguage implements Language {
 
   @Override
   public boolean useTab() {
-    return true;
+    return false;
   }
 
   @NonNull
@@ -176,14 +189,14 @@ public class JavaLanguage implements Language {
   }
 
   private static String getNonEmptyTextBefore(CharSequence text, int index, int length) {
-    while (index > 0 && isWhitespace(text.charAt(index - 1))) {
+    while (index > 0 && Character.isWhitespace(text.charAt(index - 1))) {
       index--;
     }
     return text.subSequence(Math.max(0, index - length), index).toString();
   }
 
   private static String getNonEmptyTextAfter(CharSequence text, int index, int length) {
-    while (index < text.length() && isWhitespace(text.charAt(index))) {
+    while (index < text.length() && Character.isWhitespace(text.charAt(index))) {
       index++;
     }
     return text.subSequence(index, Math.min(index + length, text.length())).toString();

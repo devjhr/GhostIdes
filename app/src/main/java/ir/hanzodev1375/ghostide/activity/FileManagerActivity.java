@@ -99,7 +99,7 @@ public class FileManagerActivity extends BaseCompat
       new HashSet<>(
           Arrays.asList(
               ".html", ".java", ".cpp", ".css", ".js", ".py", ".json", ".xml", ".kt", ".kts", ".ts",
-              ".tsx", ".toml", ".gradle"));
+              ".tsx", ".toml", ".gradle", ".sass", ".scss"));
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));
