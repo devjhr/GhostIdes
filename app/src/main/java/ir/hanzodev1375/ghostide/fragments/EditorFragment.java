@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
+import ir.hanzodev1375.ghostide.codeeditors.langs.c.CLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.css.CssLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.gradle.GradleLanguage;
@@ -20,11 +21,13 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.kotlin.KotlinLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.markdown.MarkdownLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
 import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.toml.TomlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.typescript.TypeScriptLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.xml.XmlLang;
+import ir.hanzodev1375.ghostide.codeeditors.langs.yaml.YamlLanguage;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
 import ir.theme.ThemeManager;
@@ -83,6 +86,8 @@ public class EditorFragment extends Fragment {
     if (filePath != null) viewModel.loadFile(filePath);
     if (filePath.endsWith(".java")) {
       editor.setEditorLanguage(new JavaLanguage());
+    } else if (filePath.endsWith(".c")) {
+      editor.setEditorLanguage(new CLanguage());
     } else if (filePath.endsWith(".cpp")) {
       editor.setEditorLanguage(new CppLanguage());
     } else if (filePath.endsWith(".html")) {
@@ -107,6 +112,10 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new GradleLanguage());
     } else if (filePath.endsWith(".sass") || filePath.endsWith(".scss")) {
       editor.setEditorLanguage(new SassLanguage());
+    } else if (filePath.endsWith(".md") || filePath.endsWith(".markdown")) {
+      editor.setEditorLanguage(new MarkdownLanguage());
+    } else if (filePath.endsWith(".yml") || filePath.endsWith(".yaml")) {
+      editor.setEditorLanguage(new YamlLanguage());
     }
   }
 
