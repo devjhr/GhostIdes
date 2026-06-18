@@ -19,6 +19,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.blankj.utilcode.util.ClipboardUtils;
 import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -101,6 +102,7 @@ public class FileManagerActivity extends BaseCompat
               ".html",
               ".java",
               ".c",
+              ".cs",
               ".cpp",
               ".css",
               ".js",
@@ -112,13 +114,18 @@ public class FileManagerActivity extends BaseCompat
               ".ts",
               ".tsx",
               ".toml",
+              ".groovy",
               ".gradle",
               ".sass",
               ".scss",
               ".md",
               ".markdown",
               ".yml",
-              ".yaml"));
+              ".yaml",
+              ".lua",
+              ".go",
+              ".php",
+              ".dart"));
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));
@@ -902,6 +909,7 @@ public class FileManagerActivity extends BaseCompat
           menu.addItem(new PowerMenuItem(getString(R.string.props_title_single)));
           menu.addItem(new PowerMenuItem(getString(R.string.bookmark_add)));
           menu.addItem(new PowerMenuItem(getString(R.string.shortcut_menu_item)));
+          menu.addItem(new PowerMenuItem(getString(R.string.copyfullpath)));
           menu.setMenuColor(
               MaterialColors.getColor(
                   view.getContext(), com.google.android.material.R.attr.colorSurface, 0));
@@ -934,6 +942,14 @@ public class FileManagerActivity extends BaseCompat
                                           Toast.LENGTH_SHORT)
                                       .show()));
                   case 4 -> ShortcutHelper.showShortcutDialog(this, filemodel);
+                  case 5 -> {
+                    ClipboardUtils.copyText(fileModels.getPath() + fileModels.getName());
+                    Toast.makeText(
+                            FileManagerActivity.this,
+                            fileModels.getPath() + fileModels.getName(),
+                            Toast.LENGTH_SHORT)
+                        .show();
+                  }
                 }
               });
           ObjectUtil.showFixPos(menu, view);

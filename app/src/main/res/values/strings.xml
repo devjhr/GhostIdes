@@ -175,7 +175,6 @@
   <string name="props_selected_count">%d items</string>
   <string name="props_close">Close</string>
   <string name="props_calculating">Calculating</string>
-
   <string name="history_title">History</string>
   <string name="history_empty">No history yet</string>
   <string name="bookmark_title">Bookmarks</string>
@@ -230,4 +229,5 @@
   <string name="diag_display">Display &amp; Rendering</string>
   <string name="diag_memory">Runtime &amp; Memory</string>
   <string name="diag_storage">Storage</string>
+  <string name="copyfullpath">Copy full Path</string>
 </resources>

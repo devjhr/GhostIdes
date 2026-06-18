@@ -14,14 +14,19 @@ import androidx.lifecycle.ViewModelProvider;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.c.CLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.csharp.CSharpLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.css.CssLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.dart.DartLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.go.GoLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.gradle.GradleLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.kotlin.KotlinLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lua.LuaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.markdown.MarkdownLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.php.PhpLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
 import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.toml.TomlLanguage;
@@ -88,6 +93,8 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new JavaLanguage());
     } else if (filePath.endsWith(".c")) {
       editor.setEditorLanguage(new CLanguage());
+    } else if (filePath.endsWith(".cs")) {
+      editor.setEditorLanguage(new CSharpLanguage());
     } else if (filePath.endsWith(".cpp")) {
       editor.setEditorLanguage(new CppLanguage());
     } else if (filePath.endsWith(".html")) {
@@ -108,7 +115,7 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new TypeScriptLanguage());
     } else if (filePath.endsWith(".toml")) {
       editor.setEditorLanguage(new TomlLanguage());
-    } else if (filePath.endsWith(".gradle")) {
+    } else if (filePath.endsWith(".gradle") || filePath.endsWith(".groovy")) {
       editor.setEditorLanguage(new GradleLanguage());
     } else if (filePath.endsWith(".sass") || filePath.endsWith(".scss")) {
       editor.setEditorLanguage(new SassLanguage());
@@ -116,6 +123,14 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new MarkdownLanguage());
     } else if (filePath.endsWith(".yml") || filePath.endsWith(".yaml")) {
       editor.setEditorLanguage(new YamlLanguage());
+    } else if (filePath.endsWith(".lua") || filePath.endsWith(".yaml")) {
+      editor.setEditorLanguage(new LuaLanguage());
+    } else if (filePath.endsWith(".go")) {
+      editor.setEditorLanguage(new GoLanguage());
+    } else if (filePath.endsWith(".php")) {
+      editor.setEditorLanguage(new PhpLanguage());
+    } else if (filePath.endsWith(".dart")) {
+      editor.setEditorLanguage(new DartLanguage());
     }
   }
 

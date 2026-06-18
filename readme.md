@@ -65,6 +65,13 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 - [x] toml
 - [x] gradle
 - [x] yaml
+- [x] lua
+- [x] dart
+- [x] charp
+- [ ] sql
+- [x] go
+- [x] php
+
 
 ---
 
@@ -86,12 +93,12 @@ The editor supports deep UI customization, including:
 ---
 ## 🚀 Why Ghost IDE?
 
-- [ ] Lightweight and fast
+- [x] Lightweight and fast
 - [ ] Built natively for Android
 - [ ] Real compiler integrations
 - [ ] Plugin-ready architecture
 - [x] Material Design interface
-- [ ] Fully open source
+- [x] Fully open source
 - [x] Optimized typing experience
 - [x] Powerful customization system
 
