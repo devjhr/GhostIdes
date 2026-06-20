@@ -2,15 +2,21 @@ package ir.theme;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.skydoves.powermenu.PowerMenu;
@@ -18,6 +24,8 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
 import ir.hanzodev1375.ghostide.customui.LayoutSymbolbar;
+import ir.hanzodev1375.ghostide.utils.BlurTransformation;
+import jp.wasabeef.blurry.Blurry;
 
 public class ThemeUtils {
 
@@ -42,7 +50,10 @@ public class ThemeUtils {
     }
     if (!w.getImagepath().isEmpty()) {
       v.setVisibility(View.VISIBLE);
-      Glide.with(v.getContext()).load(w.getImagepath()).into(v);
+      Glide.with(v.getContext())
+          .load(w.getImagepath())
+          .transform(new BlurTransformation((int)w.getBlursize()))
+          .into(v);
     } else v.setVisibility(View.INVISIBLE);
   }
 
@@ -83,9 +94,8 @@ public class ThemeUtils {
       return;
     }
     var colors = theme.getEditor();
-    
+
     bar.setTextColor(Color.parseColor(colors.getCompletionWndTextPrimary()));
-    
   }
 
   public void applyActivity(AppCompatActivity activity) {
@@ -365,12 +375,10 @@ public class ThemeUtils {
     WidgetTheme widget = theme.getWidget();
 
     if (widget.getBackground() != null) {
-
       layout.setBackgroundColor(parseColor(widget.getBackground()));
     }
 
     if (widget.getAccent() != null) {
-
       layout.setSelectedTabIndicatorColor(parseColor(widget.getAccent()));
     }
 

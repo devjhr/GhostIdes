@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
+import ir.hanzodev1375.ghostide.codeeditors.langs.antlr.AntlrLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.c.CLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.csharp.CSharpLanguage;
@@ -28,10 +29,15 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.lua.LuaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.markdown.MarkdownLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.php.PhpLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
+import ir.hanzodev1375.ghostide.codeeditors.langs.ruby.RubyLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.rust.RustLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.shell.ShellLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.sql.SqlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.toml.TomlLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.tsx.TsxLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.typescript.TypeScriptLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.xml.XmlLang;
+import ir.hanzodev1375.ghostide.codeeditors.langs.xml.XmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.yaml.YamlLanguage;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
@@ -95,7 +101,12 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new CLanguage());
     } else if (filePath.endsWith(".cs")) {
       editor.setEditorLanguage(new CSharpLanguage());
-    } else if (filePath.endsWith(".cpp")) {
+    } else if (filePath.endsWith(".cpp")
+        || filePath.endsWith(".cxx")
+        || filePath.endsWith(".hpp")
+        || filePath.endsWith(".hxx")
+        || filePath.endsWith(".cc")
+        || filePath.endsWith(".h")) {
       editor.setEditorLanguage(new CppLanguage());
     } else if (filePath.endsWith(".html")) {
       editor.setEditorLanguage(new HtmlLanguage(getContext(), filePath));
@@ -108,10 +119,10 @@ public class EditorFragment extends Fragment {
     } else if (filePath.endsWith(".json")) {
       editor.setEditorLanguage(new JsonLanguage(getContext(), filePath));
     } else if (filePath.endsWith(".xml")) {
-      editor.setEditorLanguage(new XmlLang());
+      editor.setEditorLanguage(new XmlLanguage());
     } else if (filePath.endsWith(".kt") || filePath.endsWith(".kts")) {
       editor.setEditorLanguage(new KotlinLanguage());
-    } else if (filePath.endsWith(".ts") || filePath.endsWith(".tsx")) {
+    } else if (filePath.endsWith(".ts")) {
       editor.setEditorLanguage(new TypeScriptLanguage());
     } else if (filePath.endsWith(".toml")) {
       editor.setEditorLanguage(new TomlLanguage());
@@ -123,7 +134,7 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new MarkdownLanguage());
     } else if (filePath.endsWith(".yml") || filePath.endsWith(".yaml")) {
       editor.setEditorLanguage(new YamlLanguage());
-    } else if (filePath.endsWith(".lua") || filePath.endsWith(".yaml")) {
+    } else if (filePath.endsWith(".lua")) {
       editor.setEditorLanguage(new LuaLanguage());
     } else if (filePath.endsWith(".go")) {
       editor.setEditorLanguage(new GoLanguage());
@@ -131,6 +142,24 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new PhpLanguage());
     } else if (filePath.endsWith(".dart")) {
       editor.setEditorLanguage(new DartLanguage());
+    } else if (filePath.endsWith(".tsx") || filePath.endsWith(".jsx")) {
+      editor.setEditorLanguage(new TsxLanguage());
+    } else if (filePath.endsWith(".sql")) {
+      editor.setEditorLanguage(new SqlLanguage());
+    } else if (filePath.endsWith(".sh")
+        || filePath.endsWith(".rc")
+        || filePath.endsWith(".bash")
+        || filePath.endsWith(".bashrc")
+        || filePath.endsWith(".ash")
+        || filePath.endsWith(".zsh")
+        || filePath.endsWith(".zshrc")) {
+      editor.setEditorLanguage(new ShellLanguage());
+    } else if (filePath.endsWith(".rs")) {
+      editor.setEditorLanguage(new RustLanguage());
+    } else if (filePath.endsWith(".rb")) {
+      editor.setEditorLanguage(new RubyLanguage());
+    } else if (filePath.endsWith(".g4")) {
+      editor.setEditorLanguage(new AntlrLanguage());
     }
   }
 

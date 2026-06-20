@@ -104,6 +104,11 @@ public class FileManagerActivity extends BaseCompat
               ".c",
               ".cs",
               ".cpp",
+              ".cxx",
+              ".hpp",
+              ".hxx",
+              ".cc",
+              ".h",
               ".css",
               ".js",
               ".py",
@@ -125,7 +130,20 @@ public class FileManagerActivity extends BaseCompat
               ".lua",
               ".go",
               ".php",
-              ".dart"));
+              ".dart",
+              ".tsx",
+              ".jsx",
+              ".sql",
+              ".sh",
+              ".rc",
+              ".bash",
+              ".bashrc",
+              ".ash",
+              ".zsh",
+              ".zshrc",
+              ".rs",
+              ".rb",
+              ".g4"));
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));

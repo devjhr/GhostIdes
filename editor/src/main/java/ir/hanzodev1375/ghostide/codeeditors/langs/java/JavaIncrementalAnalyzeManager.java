@@ -398,42 +398,51 @@ public class JavaIncrementalAnalyzeManager
           break;
         case IDENTIFIER:
           {
-            int type = GhostColorScheme.IDENTIFIER_NAME;
-            if (classNamePrevious) {
+            int type = GhostColorScheme.TEXT_NORMAL;
+
+            if (previous == Tokens.AT) {
+              type = GhostColorScheme.ANNOTATION;
+            } else if (previous == Tokens.DOT) {
+              type = GhostColorScheme.ATTRIBUTE_NAME;
+            } else if (previous == Tokens.IMPLEMENTS
+                || previous == Tokens.EXTENDS
+                || previous == Tokens.ABSTRACT) {
+              type = GhostColorScheme.IDENTIFIER_NAME;
+            } else if (previous == Tokens.INT
+                || previous == Tokens.DOUBLE
+                || previous == Tokens.SHORT
+                || previous == Tokens.FLOAT
+                || previous == Tokens.LONG) {
               type = GhostColorScheme.IDENTIFIER_VAR;
-              classNamePrevious = false;
+            } else if (previous == Tokens.VAR || previous == Tokens.NATIVE) {
+              type = GhostColorScheme.IDENTIFIER_NAME;
             } else {
-              if (previous == Tokens.AT) {
-                type = GhostColorScheme.ANNOTATION;
-              } else if (previous == Tokens.DOT) {
+              // Peek next token
+              int j = i + 1;
+              var next = Tokens.UNKNOWN;
+              label:
+              while (j < tokens.size()) {
+                next = tokens.get(j).token;
+                switch (next) {
+                  case WHITESPACE:
+                  case NEWLINE:
+                  case LONG_COMMENT_INCOMPLETE:
+                  case LONG_COMMENT_COMPLETE:
+                  case LINE_COMMENT:
+                    break;
+                  default:
+                    break label;
+                }
+                j++;
+              }
+              if (next == Tokens.LPAREN) {
+                type = GhostColorScheme.FUNCTION_NAME;
+              } else if (next == Tokens.DOT) {
                 type = GhostColorScheme.COLORNEXTDOT;
-              } else {
-                // Peek next token
-                int j = i + 1;
-                var next = Tokens.UNKNOWN;
-                label:
-                while (j < tokens.size()) {
-                  next = tokens.get(j).token;
-                  switch (next) {
-                    case WHITESPACE:
-                    case NEWLINE:
-                    case LONG_COMMENT_INCOMPLETE:
-                    case LONG_COMMENT_COMPLETE:
-                    case LINE_COMMENT:
-                      break;
-                    default:
-                      break label;
-                  }
-                  j++;
-                }
-                if (next == Tokens.LPAREN) {
-                  type = GhostColorScheme.FUNCTION_NAME;
-                } else {
-                  classNamePrevious = true;
-                }
-                if (next == Tokens.DOT) {
-                  type = GhostColorScheme.COLORNEXTDOT;
-                }
+              } else if (next == Tokens.LPAREN) {
+                type = GhostColorScheme.ATTRIBUTE_NAME;
+              } else if (next == Tokens.LT || next == Tokens.GT) {
+                type = GhostColorScheme.ATTRIBUTE_VALUE;
               }
             }
             span = SpanFactory.obtain(offset, TextStyle.makeStyle(type));
