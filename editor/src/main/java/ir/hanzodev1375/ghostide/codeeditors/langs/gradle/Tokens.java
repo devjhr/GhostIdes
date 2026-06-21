@@ -37,6 +37,7 @@ public enum Tokens {
   INTEGER_LITERAL,
   FLOATING_POINT_LITERAL,
   STRING_LITERAL,
+  STRING_VARIABLE,
   // Gradle / Groovy keywords
   APPLY,
   PLUGIN,
@@ -67,5 +68,6 @@ public enum Tokens {
   NEW,
   IMPORT,
   // Special
-  AT
+  AT,
+  DOLLAR
 }

@@ -176,7 +176,11 @@ public class GradleIncrementalAnalyzeManager
     Tokens token;
     int state = STATE_NORMAL;
     while ((token = tokenizer.nextToken()) != Tokens.EOF) {
-      tokens.add(new HighlightToken(token, tokenizer.offset));
+      if (token == Tokens.STRING_LITERAL) {
+        addStringLiteralTokens(tokenizer.getTokenText(), tokenizer.offset, tokens);
+      } else {
+        tokens.add(new HighlightToken(token, tokenizer.offset));
+      }
       if (token == Tokens.LBRACE || token == Tokens.RBRACE) st.hasBraces = true;
       if (token == Tokens.IDENTIFIER) st.addIdentifier(tokenizer.getTokenText());
       if (token == Tokens.LONG_COMMENT_INCOMPLETE) {
@@ -185,6 +189,45 @@ public class GradleIncrementalAnalyzeManager
       }
     }
     return state;
+  }
+
+  private void addStringLiteralTokens(CharSequence text, int base, List<HighlightToken> tokens) {
+    int len = text.length();
+    if (len == 0 || (text.charAt(0) != '"' && text.charAt(0) != '\'')) {
+      tokens.add(new HighlightToken(Tokens.STRING_LITERAL, base));
+      return;
+    }
+    int segStart = 0;
+    int i = 0;
+    while (i < len) {
+      char ch = text.charAt(i);
+      if (ch == '\\') {
+        i = Math.min(len, i + 2);
+        continue;
+      }
+      if (ch == '$' && i + 1 < len && isVarStart(text.charAt(i + 1))) {
+        if (i > segStart) tokens.add(new HighlightToken(Tokens.STRING_LITERAL, base + segStart));
+        tokens.add(new HighlightToken(Tokens.DOLLAR, base + i));
+        int j = i + 1;
+        while (j < len && isVarPart(text.charAt(j))) j++;
+        tokens.add(new HighlightToken(Tokens.STRING_VARIABLE, base + i + 1));
+        i = j;
+        segStart = i;
+        continue;
+      }
+      i++;
+    }
+    if (segStart < len) {
+      tokens.add(new HighlightToken(Tokens.STRING_LITERAL, base + segStart));
+    }
+  }
+
+  private static boolean isVarStart(char c) {
+    return Character.isJavaIdentifierStart(c) && c != '$';
+  }
+
+  private static boolean isVarPart(char c) {
+    return Character.isJavaIdentifierPart(c);
   }
 
   @Override
@@ -207,6 +250,11 @@ public class GradleIncrementalAnalyzeManager
         case TRUE:
         case FALSE:
           span = SpanFactory.obtain(offset, TextStyle.makeStyle(GhostColorScheme.LITERAL, true));
+          break;
+        case STRING_VARIABLE:
+          span =
+              SpanFactory.obtain(
+                  offset, TextStyle.makeStyle(GhostColorScheme.IDENTIFIER_VAR, true));
           break;
         case APPLY:
         case PLUGIN:
@@ -247,6 +295,9 @@ public class GradleIncrementalAnalyzeManager
           break;
         case IDENTIFIER:
           span = SpanFactory.obtain(offset, TextStyle.makeStyle(GhostColorScheme.TEXT_NORMAL));
+          break;
+        case DOLLAR:
+          span = SpanFactory.obtain(offset, GhostColorScheme.ATTRIBUTE_NAME);
           break;
         default:
           span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);

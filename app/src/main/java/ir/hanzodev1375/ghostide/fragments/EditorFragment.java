@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import io.github.rosemoe.sora.event.ContentChangeEvent;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr.AntlrLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.c.CLanguage;
@@ -21,6 +22,7 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.dart.DartLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.go.GoLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.gradle.GradleLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.ini.IniLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
@@ -39,6 +41,8 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.tsx.TsxLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.typescript.TypeScriptLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.xml.XmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.yaml.YamlLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.zig.ZigLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
 import ir.theme.ThemeManager;
@@ -50,6 +54,7 @@ public class EditorFragment extends Fragment {
   private IdeEditor editor;
   private String filePath;
   private ThemeUtils theme;
+  private PreferencesUtils setting;
 
   public static EditorFragment newInstance(String path) {
     EditorFragment f = new EditorFragment();
@@ -76,6 +81,12 @@ public class EditorFragment extends Fragment {
     theme = new ThemeUtils(manager);
     theme.applyEditor(editor);
     applyImeInsets(binding.getRoot());
+    setting = new PreferencesUtils(getContext());
+    editor.subscribeEvent(
+          ContentChangeEvent.class,
+          (event, unevent) -> {
+             if (setting.autoSaveFiles()) saveCurrentFile();            
+          });   
     viewModel
         .getLoading()
         .observe(
@@ -160,6 +171,10 @@ public class EditorFragment extends Fragment {
       editor.setEditorLanguage(new RubyLanguage());
     } else if (filePath.endsWith(".g4")) {
       editor.setEditorLanguage(new AntlrLanguage());
+    } else if (filePath.endsWith(".ini")) {
+      editor.setEditorLanguage(new IniLanguage());
+    } else if (filePath.endsWith(".zig")) {
+      editor.setEditorLanguage(new ZigLanguage());
     }
   }
 

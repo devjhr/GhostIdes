@@ -21,13 +21,15 @@ import android.widget.TextView;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.card.MaterialCardView;
+import ir.hanzodev1375.ghostide.customui.MaterialGradientCard;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
 
 public class AboutActivity extends BaseCompat {
-  private MaterialCardView cardDeviceInfo, cardDisplay, cardMemory, cardStorage;
+  private MaterialGradientCard cardDeviceInfo;
+  private MaterialCardView cardDisplay, cardMemory, cardStorage;
   private LinearLayout bodyDeviceInfo, bodyDisplay, bodyMemory, bodyStorage;
   private View arrowDeviceInfo, arrowDisplay, arrowMemory, arrowStorage;
   private boolean expDeviceInfo = true, expDisplay = true, expMemory = true, expStorage = true;

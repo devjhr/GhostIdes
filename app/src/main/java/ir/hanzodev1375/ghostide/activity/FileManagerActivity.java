@@ -143,7 +143,9 @@ public class FileManagerActivity extends BaseCompat
               ".zshrc",
               ".rs",
               ".rb",
-              ".g4"));
+              ".g4",
+              ".ini",
+              ".zig"));
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));
