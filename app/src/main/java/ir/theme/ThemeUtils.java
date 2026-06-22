@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
@@ -67,6 +68,22 @@ public class ThemeUtils {
     }
     ActivityTheme colors = theme.getActivity();
     v.setBackgroundColor(Color.parseColor(colors.getBackground()));
+  }
+
+  public void applyViewPagePanel(ImageView v, ImageView v2, TextView tv,View rootview) {
+    GhostTheme theme = getTheme();
+    if (theme == null) {
+      return;
+    }
+    var wiget = theme.getWidget();
+    if (wiget == null) {
+      return;
+    }
+    GradientDrawable gd = (GradientDrawable) rootview.getBackground().mutate();
+    gd.setColor(Color.parseColor(wiget.getMenubackground()));
+    v.setColorFilter(Color.parseColor(wiget.getMenutextcolor()));
+    v2.setColorFilter(Color.parseColor(wiget.getMenutextcolor()));
+    tv.setTextColor(Color.parseColor(wiget.getMenutextcolor()));
   }
 
   public int getMenuColor() {

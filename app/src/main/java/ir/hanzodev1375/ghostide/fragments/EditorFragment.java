@@ -114,6 +114,7 @@ public class EditorFragment extends Fragment {
 
     binding.ivWrapToggle1.setOnClickListener(v -> goToPreviousPage());
     binding.ivWrapToggle2.setOnClickListener(v -> goToNextPage());
+    theme.applyViewPagePanel(binding.ivWrapToggle1, binding.ivWrapToggle2, binding.tvWrapInfo,binding.llWrapIndicator);
   }
 
   private void openPagedSession(File file) {
@@ -204,7 +205,7 @@ public class EditorFragment extends Fragment {
             pageIndex = current + 1;
             pagedSession.loadPageToEditor(pageIndex, editor, logOnlyCallback());
           }
-          
+
           @Override
           public void onError(IOException e) {
             Log.e("EditorFragment", "خطا در رفتن به صفحه بعد", e);

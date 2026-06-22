@@ -1,0 +1,66 @@
+package ir.hanzodev1375.components.views;
+
+import android.content.Context;
+import android.graphics.PorterDuff;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+import com.google.android.material.color.MaterialColors;
+import ir.hanzodev1375.components.R;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import androidx.appcompat.widget.AppCompatImageView;
+
+public class ImageViewAnimator extends AppCompatImageView implements View.OnTouchListener {
+
+  private static final float SCALE = 0.88f;
+  private static final long DURATION = 120L;
+
+  public ImageViewAnimator(Context context) {
+    super(context);
+    init();
+  }
+
+  public ImageViewAnimator(Context context, AttributeSet attrs) {
+    super(context, attrs);
+
+    init();
+  }
+
+  public ImageViewAnimator(Context context, AttributeSet attrs, int defStyle) {
+    super(context, attrs, defStyle);
+    init();
+  }
+
+  private void init() {
+    setOnTouchListener(this);
+    setClickable(true);
+  }
+
+  @Override
+  public boolean onTouch(View v, MotionEvent event) {
+    switch (event.getAction()) {
+      case MotionEvent.ACTION_DOWN:
+        animateTo(SCALE);
+        setColorFilter(
+            MaterialColors.getColor(this, R.attr.colorPrimary, 0), PorterDuff.Mode.SRC_IN);
+        break;
+      case MotionEvent.ACTION_UP:
+      case MotionEvent.ACTION_CANCEL:
+        clearColorFilter();
+        animateTo(1.0f);
+        performClick();
+        break;
+    }
+    return true;
+  }
+
+  private void animateTo(float target) {
+    clearAnimation();
+    animate()
+        .scaleX(target)
+        .scaleY(target)
+        .setDuration(DURATION)
+        .setInterpolator(new AccelerateDecelerateInterpolator())
+        .start();
+  }
+}
