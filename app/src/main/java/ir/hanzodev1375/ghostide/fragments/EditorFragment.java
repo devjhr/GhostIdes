@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.fragments;
 
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,49 +13,33 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
+import io.github.rosemoe.sora.event.SelectionChangeEvent;
+import io.github.rosemoe.sora.lang.Language;
+import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
-import ir.hanzodev1375.ghostide.codeeditors.langs.antlr.AntlrLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.c.CLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.csharp.CSharpLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.css.CssLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.dart.DartLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.go.GoLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.gradle.GradleLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.ini.IniLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.kotlin.KotlinLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.lua.LuaLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.markdown.MarkdownLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.php.PhpLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
-import ir.hanzodev1375.ghostide.codeeditors.langs.ruby.RubyLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.rust.RustLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.shell.ShellLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.sql.SqlLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.toml.TomlLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.tsx.TsxLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.typescript.TypeScriptLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.xml.XmlLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.yaml.YamlLanguage;
-import ir.hanzodev1375.ghostide.codeeditors.langs.zig.ZigLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
+import ir.hanzodev1375.ghostide.paged.PagedEditSession;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 
 public class EditorFragment extends Fragment {
+  private static final long PAGED_EDIT_THRESHOLD = 2L * 1024 * 1024;
+  private static final int PAGED_EDIT_PAGE_SIZE = 1024 * 1024;
+
   private EditorFragmentBinding binding;
   private EditorViewModel viewModel;
   private IdeEditor editor;
   private String filePath;
   private ThemeUtils theme;
   private PreferencesUtils setting;
+  private PagedEditSession pagedSession;
+  private int pageIndex = -1;
 
   public static EditorFragment newInstance(String path) {
     EditorFragment f = new EditorFragment();
@@ -83,10 +68,10 @@ public class EditorFragment extends Fragment {
     applyImeInsets(binding.getRoot());
     setting = new PreferencesUtils(getContext());
     editor.subscribeEvent(
-          ContentChangeEvent.class,
-          (event, unevent) -> {
-             if (setting.autoSaveFiles()) saveCurrentFile();            
-          });   
+        ContentChangeEvent.class,
+        (event, unevent) -> {
+          if (setting.autoSaveFiles()) saveCurrentFile();
+        });
     viewModel
         .getLoading()
         .observe(
@@ -105,80 +90,153 @@ public class EditorFragment extends Fragment {
               if (content != null) editor.setText(content, b);
             });
 
-    if (filePath != null) viewModel.loadFile(filePath);
-    if (filePath.endsWith(".java")) {
-      editor.setEditorLanguage(new JavaLanguage());
-    } else if (filePath.endsWith(".c")) {
-      editor.setEditorLanguage(new CLanguage());
-    } else if (filePath.endsWith(".cs")) {
-      editor.setEditorLanguage(new CSharpLanguage());
-    } else if (filePath.endsWith(".cpp")
-        || filePath.endsWith(".cxx")
-        || filePath.endsWith(".hpp")
-        || filePath.endsWith(".hxx")
-        || filePath.endsWith(".cc")
-        || filePath.endsWith(".h")) {
-      editor.setEditorLanguage(new CppLanguage());
-    } else if (filePath.endsWith(".html")) {
-      editor.setEditorLanguage(new HtmlLanguage(getContext(), filePath));
-    } else if (filePath.endsWith(".css")) {
-      editor.setEditorLanguage(new CssLanguage(getContext(), filePath));
-    } else if (filePath.endsWith(".js")) {
-      editor.setEditorLanguage(new JsLanguage(getContext(), filePath));
-    } else if (filePath.endsWith(".py")) {
-      editor.setEditorLanguage(new Python3Language());
-    } else if (filePath.endsWith(".json")) {
-      editor.setEditorLanguage(new JsonLanguage(getContext(), filePath));
-    } else if (filePath.endsWith(".xml")) {
-      editor.setEditorLanguage(new XmlLanguage());
-    } else if (filePath.endsWith(".kt") || filePath.endsWith(".kts")) {
-      editor.setEditorLanguage(new KotlinLanguage());
-    } else if (filePath.endsWith(".ts")) {
-      editor.setEditorLanguage(new TypeScriptLanguage());
-    } else if (filePath.endsWith(".toml")) {
-      editor.setEditorLanguage(new TomlLanguage());
-    } else if (filePath.endsWith(".gradle") || filePath.endsWith(".groovy")) {
-      editor.setEditorLanguage(new GradleLanguage());
-    } else if (filePath.endsWith(".sass") || filePath.endsWith(".scss")) {
-      editor.setEditorLanguage(new SassLanguage());
-    } else if (filePath.endsWith(".md") || filePath.endsWith(".markdown")) {
-      editor.setEditorLanguage(new MarkdownLanguage());
-    } else if (filePath.endsWith(".yml") || filePath.endsWith(".yaml")) {
-      editor.setEditorLanguage(new YamlLanguage());
-    } else if (filePath.endsWith(".lua")) {
-      editor.setEditorLanguage(new LuaLanguage());
-    } else if (filePath.endsWith(".go")) {
-      editor.setEditorLanguage(new GoLanguage());
-    } else if (filePath.endsWith(".php")) {
-      editor.setEditorLanguage(new PhpLanguage());
-    } else if (filePath.endsWith(".dart")) {
-      editor.setEditorLanguage(new DartLanguage());
-    } else if (filePath.endsWith(".tsx") || filePath.endsWith(".jsx")) {
-      editor.setEditorLanguage(new TsxLanguage());
-    } else if (filePath.endsWith(".sql")) {
-      editor.setEditorLanguage(new SqlLanguage());
-    } else if (filePath.endsWith(".sh")
-        || filePath.endsWith(".rc")
-        || filePath.endsWith(".bash")
-        || filePath.endsWith(".bashrc")
-        || filePath.endsWith(".ash")
-        || filePath.endsWith(".zsh")
-        || filePath.endsWith(".zshrc")) {
-      editor.setEditorLanguage(new ShellLanguage());
-    } else if (filePath.endsWith(".rs")) {
-      editor.setEditorLanguage(new RustLanguage());
-    } else if (filePath.endsWith(".rb")) {
-      editor.setEditorLanguage(new RubyLanguage());
-    } else if (filePath.endsWith(".g4")) {
-      editor.setEditorLanguage(new AntlrLanguage());
-    } else if (filePath.endsWith(".ini")) {
-      editor.setEditorLanguage(new IniLanguage());
-    } else if (filePath.endsWith(".zig")) {
-      editor.setEditorLanguage(new ZigLanguage());
+    if (filePath != null) {
+      File file = new File(filePath);
+      if (file.exists() && file.length() > PAGED_EDIT_THRESHOLD) {
+        openPagedSession(file);
+      } else {
+        viewModel.loadFile(filePath);
+      }
     }
+    Language lang = LanguageManager.resolve(getContext(), filePath);
+    if (lang != null) editor.setEditorLanguage(lang);
+    GradientDrawable color = (GradientDrawable) binding.tvCursorPosition.getBackground().mutate();
+    color.setColor(theme.getMenuColor());
+    editor.subscribeEvent(
+        SelectionChangeEvent.class,
+        (event, unevent) -> {
+          var cursor = editor.getCursor();
+          binding.tvCursorPosition.setText(
+              "L " + (cursor.getLeftLine() + 1) + ", C " + (cursor.getLeftColumn() + 1));
+        });
+    binding.tvCursorPosition.setVisibility(
+        setting.getShowLineColPanel() ? View.VISIBLE : View.GONE);
+
+    binding.ivWrapToggle1.setOnClickListener(v -> goToPreviousPage());
+    binding.ivWrapToggle2.setOnClickListener(v -> goToNextPage());
+  }
+
+  private void openPagedSession(File file) {
+    var context = requireContext();
+    binding.prograssLoading.setVisibility(View.VISIBLE);
+    new Thread(
+            () -> {
+              try {
+                File tmpDir =
+                    new File(context.getCacheDir(), "paged_edit_" + System.currentTimeMillis());
+                PagedEditSession session;
+                try (Reader reader = new FileReader(file)) {
+                  session = new PagedEditSession(reader, tmpDir, PAGED_EDIT_PAGE_SIZE);
+                }
+                pagedSession = session;
+                pageIndex = 0;
+                if (isAdded()) {
+                  requireActivity()
+                      .runOnUiThread(
+                          () -> {
+                            if (binding == null || pagedSession == null) return;
+                            pagedSession.loadPageToEditor(
+                                0,
+                                editor,
+                                new PagedEditSession.Callback() {
+                                  @Override
+                                  public void onSuccess() {
+                                    if (binding == null) return;
+                                    binding.prograssLoading.setVisibility(View.GONE);
+                                    binding.llWrapIndicator.setVisibility(View.VISIBLE);
+                                    updatePageIndicator();
+                                  }
+
+                                  @Override
+                                  public void onError(IOException e) {
+                                    Log.e("EditorFragment", "خطا در صفحه‌بندی فایل", e);
+                                    if (binding != null) {
+                                      binding.prograssLoading.setVisibility(View.GONE);
+                                    }
+                                  }
+                                });
+                          });
+                }
+              } catch (IOException e) {
+                Log.e("EditorFragment", "خطا در باز کردن فایل بزرگ", e);
+                if (isAdded()) {
+                  requireActivity()
+                      .runOnUiThread(
+                          () -> {
+                            if (binding != null) binding.prograssLoading.setVisibility(View.GONE);
+                          });
+                }
+              }
+            })
+        .start();
+  }
+
+  private void updatePageIndicator() {
+    if (binding == null || pagedSession == null) return;
+    binding.tvWrapInfo.setText("Page " + (pageIndex + 1) + "/" + pagedSession.getPageCount());
+  }
+
+  private PagedEditSession.Callback logOnlyCallback() {
+    return new PagedEditSession.Callback() {
+      @Override
+      public void onSuccess() {
+        updatePageIndicator();
+      }
+
+      @Override
+      public void onError(IOException e) {
+        Log.e("EditorFragment", "خطا در صفحه‌بندی فایل", e);
+      }
+    };
+  }
+
+  private void goToNextPage() {
+    if (pagedSession == null || pageIndex == -1 || pageIndex >= pagedSession.getPageCount() - 1) {
+      return;
+    }
+    int current = pageIndex;
+    pagedSession.unloadPageFromEditor(
+        current,
+        editor,
+        new PagedEditSession.Callback() {
+          @Override
+          public void onSuccess() {
+            pageIndex = current + 1;
+            pagedSession.loadPageToEditor(pageIndex, editor, logOnlyCallback());
+          }
+          
+          @Override
+          public void onError(IOException e) {
+            Log.e("EditorFragment", "خطا در رفتن به صفحه بعد", e);
+          }
+        });
+  }
+
+  private void goToPreviousPage() {
+    if (pagedSession == null || pageIndex <= 0) return;
+    int current = pageIndex;
+    pagedSession.unloadPageFromEditor(
+        current,
+        editor,
+        new PagedEditSession.Callback() {
+          @Override
+          public void onSuccess() {
+            pageIndex = current - 1;
+            pagedSession.loadPageToEditor(pageIndex, editor, logOnlyCallback());
+          }
+
+          @Override
+          public void onError(IOException e) {
+            Log.e("EditorFragment", "خطا در رفتن به صفحه قبل", e);
+          }
+        });
   }
 
   public void saveCurrentFile() {
+    if (pagedSession != null) {
+      saveCurrentPagedFile();
+      return;
+    }
     if (filePath != null && viewModel != null && editor != null) {
       String content = editor.getText().toString();
       if (content != null) {
@@ -189,9 +247,43 @@ public class EditorFragment extends Fragment {
     }
   }
 
+  private void saveCurrentPagedFile() {
+    if (pagedSession == null || pageIndex == -1 || filePath == null) return;
+    pagedSession.unloadPageFromEditor(
+        pageIndex,
+        editor,
+        new PagedEditSession.Callback() {
+          @Override
+          public void onSuccess() {
+            pagedSession.writeTo(
+                new File(filePath),
+                new PagedEditSession.Callback() {
+                  @Override
+                  public void onSuccess() {
+                    Log.d("EditorFragment", "فایل بزرگ ذخیره شد: " + filePath);
+                  }
+
+                  @Override
+                  public void onError(IOException e) {
+                    Log.e("EditorFragment", "خطا در ذخیره فایل بزرگ", e);
+                  }
+                });
+          }
+
+          @Override
+          public void onError(IOException e) {
+            Log.e("EditorFragment", "خطا در ذخیره فایل بزرگ", e);
+          }
+        });
+  }
+
   @Override
   public void onDestroyView() {
     super.onDestroyView();
+    if (pagedSession != null) {
+      pagedSession.close();
+      pagedSession = null;
+    }
     binding = null;
   }
 

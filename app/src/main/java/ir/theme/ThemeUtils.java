@@ -52,7 +52,7 @@ public class ThemeUtils {
       v.setVisibility(View.VISIBLE);
       Glide.with(v.getContext())
           .load(w.getImagepath())
-          .transform(new BlurTransformation((int)w.getBlursize()))
+          .transform(new BlurTransformation((int) w.getBlursize()))
           .into(v);
     } else v.setVisibility(View.INVISIBLE);
   }
@@ -67,6 +67,18 @@ public class ThemeUtils {
     }
     ActivityTheme colors = theme.getActivity();
     v.setBackgroundColor(Color.parseColor(colors.getBackground()));
+  }
+
+  public int getMenuColor() {
+    GhostTheme theme = getTheme();
+    if (theme == null) {
+      return 0;
+    }
+    if (theme.getWidget() == null) {
+      return 0;
+    }
+
+    return Color.parseColor(theme.getWidget().getMenubackground());
   }
 
   public void applySymbolBarLayout(LayoutSymbolbar bar) {

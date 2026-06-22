@@ -409,7 +409,13 @@ public class SettingActivity extends BaseCompat {
             false,
             0,
             null));
-
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_minimap),
+            getString(R.string.pref_minimap_dec),
+            prefs.getShowLineColPanel(),
+            0,
+            prefs::setShowLineColPanel));
     return items;
   }
 

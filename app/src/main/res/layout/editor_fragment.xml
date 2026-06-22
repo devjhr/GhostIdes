@@ -17,4 +17,54 @@
     android:layout_marginStart="10dp"
     android:id="@+id/prograssLoading" />
 
+  <TextView
+    android:id="@+id/tvCursorPosition"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top|end"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/bg_position_indicator"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="6dp"
+    android:text="Ln 1, Col 1"
+    android:textSize="12sp"
+     />
+
+  <LinearLayout
+    android:id="@+id/llWrapIndicator"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top|start"
+    android:layout_marginTop="8dp"
+    android:layout_marginStart="8dp"
+    android:background="@drawable/bg_position_indicator"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="6dp"
+    android:visibility="gone">
+
+    <ImageView
+      android:id="@+id/ivWrapToggle1"
+      android:layout_width="18dp"
+      android:layout_height="18dp"
+      android:src="@android:drawable/ic_menu_sort_by_size" />
+
+    <TextView
+      android:id="@+id/tvWrapInfo"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginHorizontal="8dp"
+      android:text="Page 1/1"
+      android:textSize="12sp" />
+
+    <ImageView
+      android:id="@+id/ivWrapToggle2"
+      android:layout_width="18dp"
+      android:layout_height="18dp"
+      android:src="@android:drawable/ic_menu_view" />
+
+  </LinearLayout>
+
 </FrameLayout>

@@ -592,6 +592,14 @@ public class PreferencesUtils {
         .putString(Constants.SharedPreferenceKeys.KEY_EMAILGIT, data)
         .apply();
   }
+  
+  public boolean getShowLineColPanel(){
+    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_SHOWLC,true);
+  }
+  
+  public void setShowLineColPanel(boolean mod){
+    getDefaultPreferences().edit().putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_SHOWLC,mod).apply();
+  }
 
   public void setRemovedDataCommit() {
     getDefaultPreferences()
