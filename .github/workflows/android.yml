@@ -8,7 +8,6 @@ on:
   release:
     types: [published]
 
-# ✅ دسترسی نوشتن برای کل workflow (حل مشکل Resource not accessible)
 permissions:
   contents: write
 
@@ -52,14 +51,14 @@ jobs:
           tag_name: ${{ github.event.release.tag_name }}
           files: app/build/outputs/apk/release/app-release.apk
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # ✅ از توکن پیش‌فرض استفاده کن (همون GITHUB_TOKEN)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   update-json:
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'release'
     permissions:
-      contents: write   # اینجا هم باز هم اضافه شد برای اطمینان
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -71,7 +70,7 @@ jobs:
           TAG: ${{ github.event.release.tag_name }}
           BODY: ${{ github.event.release.body }}
           REPO: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # ✅ باز هم GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           curl -s \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -81,10 +80,11 @@ jobs:
 
       - name: Commit and push update.json
         run: |
+          git checkout main || git checkout -b main   # ✅ رفع detached HEAD
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add update.json
           git diff --cached --quiet || git commit -m "chore: update update.json for ${{ github.event.release.tag_name }}"
-          git push
+          git push origin main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # ✅ باز هم GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
