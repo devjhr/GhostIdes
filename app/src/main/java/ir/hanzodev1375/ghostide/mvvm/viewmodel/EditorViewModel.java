@@ -70,14 +70,23 @@ public class EditorViewModel extends AndroidViewModel {
       Log.e("EditorViewModel", "مسیر فایل وجود ندارد");
       return;
     }
+    saveFile(path, textContent);
+  }
+
+  public void saveFile(String filePath, String textContent) {
+    if (filePath == null || filePath.isEmpty()) {
+      Log.e("EditorViewModel", "مسیر فایل وجود ندارد");
+      return;
+    }
+    currentPath.setValue(filePath);
     new Thread(
             () -> {
               try {
-                boolean success = FileIOUtils.writeFileFromString(path, textContent, false);
+                boolean success = FileIOUtils.writeFileFromString(filePath, textContent, false);
                 if (success) {
-                  Log.d("EditorViewModel", "فایل ذخیره شد: " + path);
+                  Log.d("EditorViewModel", "فایل ذخیره شد: " + filePath);
                 } else {
-                  Log.e("EditorViewModel", "خطا در ذخیره فایل: " + path);
+                  Log.e("EditorViewModel", "خطا در ذخیره فایل: " + filePath);
                 }
               } catch (Exception e) {
                 e.printStackTrace();

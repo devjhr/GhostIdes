@@ -31,6 +31,8 @@ svg = "1.4"
 zip = "2.11.6"
 
 markwon = "4.6.2"
+sshj = "0.38.0"
+commons-net = "3.10.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -71,3 +73,6 @@ markwon-ext-tables = { group = "io.noties.markwon", name = "ext-tables", version
 markwon-ext-tasklist = { group = "io.noties.markwon", name = "ext-tasklist", version.ref = "markwon" }
 markwon-image = { group = "io.noties.markwon", name = "image", version.ref = "markwon" }
 markwon-syntax-highlight = { group = "io.noties.markwon", name = "syntax-highlight", version.ref = "markwon" }
+#ftp 
+sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
+commons-net = { module = "commons-net:commons-net", version.ref = "commons-net" }

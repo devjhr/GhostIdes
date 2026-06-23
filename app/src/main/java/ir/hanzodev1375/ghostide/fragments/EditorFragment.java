@@ -27,11 +27,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EditorFragment extends Fragment {
   private static final long PAGED_EDIT_THRESHOLD = 2L * 1024 * 1024;
   private static final int PAGED_EDIT_PAGE_SIZE = 1024 * 1024;
-
+  private final ExecutorService pagedExecutor = Executors.newSingleThreadExecutor();
   private EditorFragmentBinding binding;
   private EditorViewModel viewModel;
   private IdeEditor editor;
@@ -114,62 +116,58 @@ public class EditorFragment extends Fragment {
 
     binding.ivWrapToggle1.setOnClickListener(v -> goToPreviousPage());
     binding.ivWrapToggle2.setOnClickListener(v -> goToNextPage());
-    theme.applyViewPagePanel(binding.ivWrapToggle1, binding.ivWrapToggle2, binding.tvWrapInfo,binding.llWrapIndicator);
+    theme.applyViewPagePanel(
+        binding.ivWrapToggle1, binding.ivWrapToggle2, binding.tvWrapInfo, binding.llWrapIndicator);
   }
 
   private void openPagedSession(File file) {
     var context = requireContext();
     binding.prograssLoading.setVisibility(View.VISIBLE);
-    new Thread(
-            () -> {
-              try {
-                File tmpDir =
-                    new File(context.getCacheDir(), "paged_edit_" + System.currentTimeMillis());
-                PagedEditSession session;
-                try (Reader reader = new FileReader(file)) {
-                  session = new PagedEditSession(reader, tmpDir, PAGED_EDIT_PAGE_SIZE);
-                }
-                pagedSession = session;
-                pageIndex = 0;
-                if (isAdded()) {
-                  requireActivity()
-                      .runOnUiThread(
-                          () -> {
-                            if (binding == null || pagedSession == null) return;
-                            pagedSession.loadPageToEditor(
-                                0,
-                                editor,
-                                new PagedEditSession.Callback() {
-                                  @Override
-                                  public void onSuccess() {
-                                    if (binding == null) return;
-                                    binding.prograssLoading.setVisibility(View.GONE);
-                                    binding.llWrapIndicator.setVisibility(View.VISIBLE);
-                                    updatePageIndicator();
-                                  }
+    pagedExecutor.execute(
+        () -> {
+          try {
+            File tmpDir =
+                new File(context.getCacheDir(), "paged_edit_" + System.currentTimeMillis());
+            PagedEditSession session;
+            try (Reader reader = new FileReader(file)) {
+              session = new PagedEditSession(reader, tmpDir, PAGED_EDIT_PAGE_SIZE);
+            }
+            pagedSession = session;
+            pageIndex = 0;
+            if (!isAdded() || binding == null) return;
+            requireActivity()
+                .runOnUiThread(
+                    () -> {
+                      if (binding == null || pagedSession == null) return;
+                      pagedSession.loadPageToEditor(
+                          0,
+                          editor,
+                          new PagedEditSession.Callback() {
+                            @Override
+                            public void onSuccess() {
+                              if (binding == null) return;
+                              binding.prograssLoading.setVisibility(View.GONE);
+                              binding.llWrapIndicator.setVisibility(View.VISIBLE);
+                              updatePageIndicator();
+                            }
 
-                                  @Override
-                                  public void onError(IOException e) {
-                                    Log.e("EditorFragment", "خطا در صفحه‌بندی فایل", e);
-                                    if (binding != null) {
-                                      binding.prograssLoading.setVisibility(View.GONE);
-                                    }
-                                  }
-                                });
+                            @Override
+                            public void onError(IOException e) {
+                              Log.e("EditorFragment", "خطا در صفحه‌بندی فایل", e);
+                              if (binding != null) binding.prograssLoading.setVisibility(View.GONE);
+                            }
                           });
-                }
-              } catch (IOException e) {
-                Log.e("EditorFragment", "خطا در باز کردن فایل بزرگ", e);
-                if (isAdded()) {
-                  requireActivity()
-                      .runOnUiThread(
-                          () -> {
-                            if (binding != null) binding.prograssLoading.setVisibility(View.GONE);
-                          });
-                }
-              }
-            })
-        .start();
+                    });
+          } catch (IOException e) {
+            Log.e("EditorFragment", "خطا در باز کردن فایل بزرگ", e);
+            if (!isAdded()) return;
+            requireActivity()
+                .runOnUiThread(
+                    () -> {
+                      if (binding != null) binding.prograssLoading.setVisibility(View.GONE);
+                    });
+          }
+        });
   }
 
   private void updatePageIndicator() {
@@ -281,6 +279,7 @@ public class EditorFragment extends Fragment {
   @Override
   public void onDestroyView() {
     super.onDestroyView();
+    pagedExecutor.shutdownNow();
     if (pagedSession != null) {
       pagedSession.close();
       pagedSession = null;

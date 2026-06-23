@@ -16,12 +16,16 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
-        aidl= true
-        viewBinding= true
+        aidl = true
+        viewBinding = true
     }
 }
 
 dependencies {
     implementation(libs.material)
     implementation(libs.glide)
+    //ftp beta
+    implementation(libs.sshj)
+    implementation(libs.powermenu)
+    implementation(libs.commons.net)
 }

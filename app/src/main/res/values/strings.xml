@@ -230,4 +230,24 @@
   <string name="diag_memory">Runtime &amp; Memory</string>
   <string name="diag_storage">Storage</string>
   <string name="copyfullpath">Copy full Path</string>
+  <string name="zip_extract_here">Extract Here</string>
+  <string name="zip_extract_to">Extract To Folder</string>
+  <string name="zip_info">ZIP Info</string>
+  <string name="zip_info_files">Files: %d</string>
+  <string name="zip_info_dirs">Folders: %d</string>
+  <string name="zip_info_original">Original size: %s</string>
+  <string name="zip_info_compressed">Compressed size: %s</string>
+  <string name="zip_info_ratio">Compression ratio: %d%%</string>
+  <string name="zip_info_encrypted">Encrypted: %s</string>
+  <string name="zip_info_yes">Yes</string>
+  <string name="zip_info_no">No</string>
+  <string name="zip_extract_dest">Extract to:\n%s</string>
+  <string name="zip_extracted_ok">Extracted successfully</string>
+  <string name="zip_deleted_ok">Deleted</string>
+  <string name="zip_renamed_ok">Renamed</string>
+  <string name="zip_error_prefix">Error: %s</string>
+  <string name="ftp_connect">FTP/SFTP</string>
+  <string name="ftp_download_success">Downloaded to current folder</string>
+  <string name="ftp_download_error">Download failed</string>
+  <string name="ftp_connection_error">Connection failed</string>
 </resources>

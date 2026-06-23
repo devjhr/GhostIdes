@@ -25,16 +25,16 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 ## ✨ Features
 
 ### 🖊️ Editor
-- Blazing-fast code editor engine
-- Syntax highlighting
-- Auto-save functionality
-- Multi-tab support
-- Code formatting
-- Snippets support
-- Physical keyboard shortcuts
-- Large file handling
-- Custom themes
-- Background customization
+- [x] Blazing-fast code editor engine
+- [x] Syntax highlighting
+- [x] Auto-save functionality
+- [x] Multi-tab support
+- [x] Code formatting(10%) -> Json
+- [x] Snippets support
+- [ ] Physical keyboard shortcuts
+- [x] Large file handling(Page)
+- [x] Custom themes
+- [x] Background customization
 
 ### 🛠️ Development Tools
 - Python execution soon
@@ -46,6 +46,7 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 - JavaFX compiler soon
 - Git integration
 - HTML preview support 
+- Ftp 
 
 ### 🌐 Supported Languages
 

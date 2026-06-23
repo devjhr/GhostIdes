@@ -55,6 +55,7 @@ import ir.hanzodev1375.ghostide.models.ToolbarModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
+import android.view.ViewTreeObserver;
 
 public class EditorActivity extends BaseCompat {
 
@@ -70,10 +71,12 @@ public class EditorActivity extends BaseCompat {
   private ToolbarListAdapter listAdapter;
   private boolean isShowSys = false;
   private List<ToolbarModel> toolbarModel = new ArrayList<>();
-  private final ExecutorService gitStatusExecutor = Executors.newSingleThreadExecutor();
+  private final ExecutorService gitStatusExecutor = Executors .newSingleThreadExecutor();
   private String gitStatusRepoPath;
   private Set<String> gitChangedPaths = new HashSet<>();
-  
+  private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener;
+  private long lastGitRefreshTime = 0;
+  private static final long GIT_REFRESH_DEBOUNCE_MS = 1500;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -220,6 +223,13 @@ public class EditorActivity extends BaseCompat {
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    if (keyboardLayoutListener != null) {
+      getWindow()
+          .getDecorView()
+          .getViewTreeObserver()
+          .removeOnGlobalLayoutListener(keyboardLayoutListener);
+      keyboardLayoutListener = null;
+    }
     gitStatusExecutor.shutdownNow();
   }
 
@@ -339,39 +349,26 @@ public class EditorActivity extends BaseCompat {
 
   private void setupKeyboardListener() {
     View rootView = getWindow().getDecorView();
-    rootView
-        .getViewTreeObserver()
-        .addOnGlobalLayoutListener(
-            () -> {
-              Rect r = new Rect();
-              rootView.getWindowVisibleDisplayFrame(r);
-              int screenHeight = rootView.getRootView().getHeight();
-              int keypadHeight = screenHeight - r.bottom;
-              if (binding.editorSearch.isShowing) {
-                binding.symbolBarContainer.hide();
-                return;
-              }
-              if (keypadHeight > screenHeight * 0.15) {
-                binding
-                    .backgroundicon
-                    .animate()
-                    .scaleX(1.5f)
-                    .scaleY(1.5f)
-                    .setDuration(1000)
-                    .start();
-                binding.symbolBarContainer.show();
-              } else {
-                binding
-                    .backgroundicon
-                    .animate()
-                    .scaleX(1.0f)
-                    .scaleY(1.0f)
-                    .setDuration(1000)
-                    .start();
-                isShowSys = false;
-                binding.symbolBarContainer.hide();
-              }
-            });
+    keyboardLayoutListener =
+        () -> {
+          Rect r = new Rect();
+          rootView.getWindowVisibleDisplayFrame(r);
+          int screenHeight = rootView.getRootView().getHeight();
+          int keypadHeight = screenHeight - r.bottom;
+          if (binding.editorSearch.isShowing) {
+            binding.symbolBarContainer.hide();
+            return;
+          }
+          if (keypadHeight > screenHeight * 0.15) {
+            binding.backgroundicon.animate().scaleX(1.5f).scaleY(1.5f).setDuration(1000).start();
+            binding.symbolBarContainer.show();
+          } else {
+            binding.backgroundicon.animate().scaleX(1.0f).scaleY(1.0f).setDuration(1000).start();
+            isShowSys = false;
+            binding.symbolBarContainer.hide();
+          }
+        };
+    rootView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
   }
 
   void stepToolbar() {
@@ -447,12 +444,15 @@ public class EditorActivity extends BaseCompat {
   }
 
   /**
-   * Refreshes the git status of the project that the currently opened tab belongs to and
-   * updates the colored "modified" indicator on every open tab accordingly. Call this after
-   * any action that may change the working tree state: opening/saving files, switching tabs,
-   * resuming the activity (e.g. returning from the Git bottom sheet after commit/push).
+   * Refreshes the git status of the project that the currently opened tab belongs to and updates
+   * the colored "modified" indicator on every open tab accordingly. Call this after any action that
+   * may change the working tree state: opening/saving files, switching tabs, resuming the activity
+   * (e.g. returning from the Git bottom sheet after commit/push).
    */
   private void refreshGitStatus() {
+    long now = System.currentTimeMillis();
+    if (now - lastGitRefreshTime < GIT_REFRESH_DEBOUNCE_MS) return;
+    lastGitRefreshTime = now;
     String repoPath = findGitRepositoryPath();
     if (repoPath == null) {
       gitStatusRepoPath = null;
@@ -570,7 +570,6 @@ public class EditorActivity extends BaseCompat {
             if (tab != null && !tab.isSelected()) tab.select();
             binding.symbolBarContainer.bindEditor(getEditor());
             saveCurrentPosition(position);
-            
           }
         });
   }
@@ -741,10 +740,23 @@ public class EditorActivity extends BaseCompat {
       return;
     }
     int savedCount = 0;
-    List<Fragment> fragments = getSupportFragmentManager().getFragments();
-    for (Fragment fragment : fragments) {
+    for (Fragment fragment : getSupportFragmentManager().getFragments()) {
       if (fragment instanceof EditorFragment) {
         ((EditorFragment) fragment).saveCurrentFile();
+        savedCount++;
+      }
+    }
+    List<String> activeFragPaths = new ArrayList<>();
+    for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+      if (fragment instanceof EditorFragment && fragment.getArguments() != null) {
+        String p = fragment.getArguments().getString("file_path");
+        if (p != null) activeFragPaths.add(p);
+      }
+    }
+    for (TabModel tab : tabsList) {
+      if (!activeFragPaths.contains(tab.getFilePath())) {
+        // فایل offscreen — محتوایش در SharedPreferences یا disk هست، نیاز به save ندارد
+        // فقط count رو بالا ببر تا user گیج نشه
         savedCount++;
       }
     }

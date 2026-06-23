@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -29,6 +30,9 @@ import com.skydoves.powermenu.PowerMenuItem;
 import ir.ghostide.logcat.BottomSheetLogView;
 import ir.hanzodev1375.components.RenameDialogFragment;
 import ir.hanzodev1375.components.TextInputDialogFragment;
+import ir.hanzodev1375.components.ftp.interfaces.RemoteClient;
+import ir.hanzodev1375.components.ftp.views.FtpConnectSheet;
+import ir.hanzodev1375.components.ftp.views.FtpBrowserSheet;
 import ir.hanzodev1375.components.ui.ProfileView;
 import ir.hanzodev1375.ghostide.adapters.FileManagerAdapter;
 import ir.hanzodev1375.ghostide.adapters.ToolbarAdapter;
@@ -51,6 +55,7 @@ import ir.hanzodev1375.ghostide.models.ZipEntryModel;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkBottomSheet;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkEntity;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkViewModel;
+import ir.hanzodev1375.ghostide.models.ZipInfo;
 import ir.hanzodev1375.ghostide.project.NewProjectDialog;
 import ir.hanzodev1375.ghostide.history.HistoryBottomSheet;
 import ir.hanzodev1375.ghostide.history.HistoryEntity;
@@ -63,8 +68,10 @@ import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
 import ir.hanzodev1375.ghostide.utils.ShortcutHelper;
 import ir.hanzodev1375.ghostide.utils.ZipUtil;
+import ir.hanzodev1375.ghostide.utils.zip.ZipOperationManager;
 import ir.theme.themeeditor.ThemeEditorActivity;
 import java.io.File;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -160,6 +167,8 @@ public class FileManagerActivity extends BaseCompat
   private GitViewModel gitViewModel;
   private final AtomicBoolean gitStatusRunning = new AtomicBoolean(false);
   private final AtomicBoolean gitStatusPending = new AtomicBoolean(false);
+  private final ExecutorService ftpExecutor = Executors.newSingleThreadExecutor();
+  private String currentDir;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -210,7 +219,6 @@ public class FileManagerActivity extends BaseCompat
             files -> {
               if (files != null && !files.isEmpty()) fileModels = files.get(0);
               adapter.submitList(new ArrayList<>(files));
-              bind.rvfiles.post(() -> adapter.notifyDataSetChanged());
               if (files == null || files.isEmpty()) {
                 bind.emptystates.setVisibility(View.VISIBLE);
                 bind.rvfiles.setVisibility(View.GONE);
@@ -417,31 +425,183 @@ public class FileManagerActivity extends BaseCompat
           PowerMenu menu = new PowerMenu.Builder(anchor.getContext()).setIsMaterial(true).build();
           menu.addItem(new PowerMenuItem(getString(R.string.removed)));
           menu.addItem(new PowerMenuItem(getString(R.string.rename)));
-          menu.setMenuColor(
-              MaterialColors.getColor(
-                  anchor.getContext(), com.google.android.material.R.attr.colorSurface, 0));
-          menu.setTextColor(
-              MaterialColors.getColor(
-                  anchor.getContext(), com.google.android.material.R.attr.colorOnSurface, 0));
+          menu.addItem(new PowerMenuItem(getString(R.string.zip_extract_here)));
+          menu.addItem(new PowerMenuItem(getString(R.string.zip_extract_to)));
+          menu.addItem(new PowerMenuItem(getString(R.string.zip_info)));
+          menu.setMenuColor(MaterialColors.getColor(anchor.getContext(), R.attr.colorSurface, 0));
+          menu.setTextColor(MaterialColors.getColor(anchor.getContext(), R.attr.colorOnSurface, 0));
           menu.setShowBackground(false);
           menu.setAutoDismiss(true);
           menu.setMenuRadius(30f);
           menu.setAnimation(MenuAnimation.FADE);
           menu.setOnMenuItemClickListener(
               (index, menuItem) -> {
-                if (index == 0) {
-                  new MaterialAlertDialogBuilder(FileManagerActivity.this)
+                ZipOperationManager zipOp = new ZipOperationManager();
+                String destDefault = new File(currentZipFilePath).getParent();
+                switch (index) {
+                  case 0 -> new MaterialAlertDialogBuilder(FileManagerActivity.this)
                       .setTitle(getString(R.string.removed))
-                      .setMessage(getString(R.string.removedmassges, item.getName() + "?"))
-                      .setPositiveButton(getString(R.string.ok), (d, w) -> {})
+                      .setMessage(getString(R.string.removedmassges, item.getName()))
+                      .setPositiveButton(
+                          getString(R.string.ok),
+                          (d, w) ->
+                              zipOp.deleteEntries(
+                                  currentZipFilePath,
+                                  item.getEntryPath(),
+                                  new ZipOperationManager.Callback() {
+                                    @Override
+                                    public void onSuccess(String msg) {
+                                      Toast.makeText(
+                                              FileManagerActivity.this,
+                                              getString(R.string.zip_deleted_ok),
+                                              Toast.LENGTH_SHORT)
+                                          .show();
+                                      zipAdapter.loadZip(
+                                          currentZipFilePath, zipAdapter.getCurrentInternalPath());
+                                    }
+
+                                    @Override
+                                    public void onError(String err) {
+                                      Toast.makeText(
+                                              FileManagerActivity.this,
+                                              getString(R.string.zip_error_prefix, err),
+                                              Toast.LENGTH_SHORT)
+                                          .show();
+                                    }
+                                  }))
                       .setNegativeButton(getString(R.string.cancel), null)
                       .show();
-                } else if (index == 1) {
-                  Toast.makeText(
-                          FileManagerActivity.this,
-                          "Rename in ZIP not supported",
-                          Toast.LENGTH_SHORT)
+                  case 1 -> {
+                    RenameDialogFragment dialog =
+                        RenameDialogFragment.getInstance(
+                            item.getName(),
+                            (prefix, extension) -> {
+                              String newName =
+                                  (extension != null && !extension.isEmpty())
+                                      ? prefix + "." + extension
+                                      : prefix;
+                              zipOp.renameEntry(
+                                  currentZipFilePath,
+                                  item.getEntryPath(),
+                                  newName,
+                                  new ZipOperationManager.Callback() {
+                                    @Override
+                                    public void onSuccess(String msg) {
+                                      Toast.makeText(
+                                              FileManagerActivity.this,
+                                              getString(R.string.zip_renamed_ok),
+                                              Toast.LENGTH_SHORT)
+                                          .show();
+                                      zipAdapter.loadZip(
+                                          currentZipFilePath, zipAdapter.getCurrentInternalPath());
+                                    }
+
+                                    @Override
+                                    public void onError(String err) {
+                                      Toast.makeText(
+                                              FileManagerActivity.this,
+                                              getString(R.string.zip_error_prefix, err),
+                                              Toast.LENGTH_SHORT)
+                                          .show();
+                                    }
+                                  });
+                            });
+                    dialog.show(getSupportFragmentManager(), RenameDialogFragment.TAG);
+                  }
+                  case 2 -> zipOp.extractSingle(
+                      currentZipFilePath,
+                      item.getEntryPath(),
+                      destDefault,
+                      new ZipOperationManager.Callback() {
+                        @Override
+                        public void onSuccess(String msg) {
+                          Toast.makeText(
+                                  FileManagerActivity.this,
+                                  getString(R.string.zip_extracted_ok),
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+
+                        @Override
+                        public void onError(String err) {
+                          Toast.makeText(
+                                  FileManagerActivity.this,
+                                  getString(R.string.zip_error_prefix, err),
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+                      });
+                  case 3 -> new MaterialAlertDialogBuilder(FileManagerActivity.this)
+                      .setTitle(getString(R.string.zip_extract_to))
+                      .setMessage(getString(R.string.zip_extract_dest, destDefault))
+                      .setPositiveButton(
+                          getString(R.string.ok),
+                          (d, w) ->
+                              zipOp.extractSingle(
+                                  currentZipFilePath,
+                                  item.getEntryPath(),
+                                  destDefault,
+                                  new ZipOperationManager.Callback() {
+                                    @Override
+                                    public void onSuccess(String msg) {
+                                      Toast.makeText(
+                                              FileManagerActivity.this,
+                                              getString(R.string.zip_extracted_ok),
+                                              Toast.LENGTH_SHORT)
+                                          .show();
+                                    }
+
+                                    @Override
+                                    public void onError(String err) {
+                                      Toast.makeText(
+                                              FileManagerActivity.this,
+                                              getString(R.string.zip_error_prefix, err),
+                                              Toast.LENGTH_SHORT)
+                                          .show();
+                                    }
+                                  }))
+                      .setNegativeButton(getString(R.string.cancel), null)
                       .show();
+                  case 4 -> zipOp.getZipInfo(
+                      currentZipFilePath,
+                      new ZipOperationManager.ZipInfoCallback() {
+                        @Override
+                        public void onInfo(ZipInfo info) {
+                          new MaterialAlertDialogBuilder(FileManagerActivity.this)
+                              .setTitle(getString(R.string.zip_info))
+                              .setMessage(
+                                  getString(R.string.zip_info_files, info.fileCount)
+                                      + "\n"
+                                      + getString(R.string.zip_info_dirs, info.dirCount)
+                                      + "\n"
+                                      + getString(
+                                          R.string.zip_info_original,
+                                          formatSize(info.totalUncompressed))
+                                      + "\n"
+                                      + getString(
+                                          R.string.zip_info_compressed,
+                                          formatSize(info.totalCompressed))
+                                      + "\n"
+                                      + getString(R.string.zip_info_ratio, info.compressionRatio)
+                                      + "\n"
+                                      + getString(
+                                          R.string.zip_info_encrypted,
+                                          info.isEncrypted
+                                              ? getString(R.string.zip_info_yes)
+                                              : getString(R.string.zip_info_no)))
+                              .setPositiveButton(getString(R.string.ok), null)
+                              .show();
+                        }
+
+                        @Override
+                        public void onError(String err) {
+                          Toast.makeText(
+                                  FileManagerActivity.this,
+                                  getString(R.string.zip_error_prefix, err),
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+                      });
                 }
               });
           int[] location = new int[2];
@@ -817,10 +977,8 @@ public class FileManagerActivity extends BaseCompat
           menu.addItem(new PowerMenuItem(getString(R.string.zip)));
           menu.addItem(new PowerMenuItem(getString(R.string.props_title_multi)));
           menu.addItem(new PowerMenuItem("Rename Group"));
-          menu.setMenuColor(
-              MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface, 0));
-          menu.setTextColor(
-              MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, 0));
+          menu.setMenuColor(MaterialColors.getColor(this, R.attr.colorSurface, 0));
+          menu.setTextColor(MaterialColors.getColor(this, R.attr.colorOnSurface, 0));
           menu.setShowBackground(false);
           menu.setAutoDismiss(true);
           menu.setMenuRadius(30f);
@@ -885,6 +1043,7 @@ public class FileManagerActivity extends BaseCompat
     bind = null;
     this.unregisterReceiver(networkChangeReceiver);
     gitStatusExecutor.shutdownNow();
+    ftpExecutor.shutdownNow();
   }
 
   private void setOnBackPress() {
@@ -930,12 +1089,8 @@ public class FileManagerActivity extends BaseCompat
           menu.addItem(new PowerMenuItem(getString(R.string.bookmark_add)));
           menu.addItem(new PowerMenuItem(getString(R.string.shortcut_menu_item)));
           menu.addItem(new PowerMenuItem(getString(R.string.copyfullpath)));
-          menu.setMenuColor(
-              MaterialColors.getColor(
-                  view.getContext(), com.google.android.material.R.attr.colorSurface, 0));
-          menu.setTextColor(
-              MaterialColors.getColor(
-                  view.getContext(), com.google.android.material.R.attr.colorOnSurface, 0));
+          menu.setMenuColor(MaterialColors.getColor(view.getContext(), R.attr.colorSurface, 0));
+          menu.setTextColor(MaterialColors.getColor(view.getContext(), R.attr.colorOnSurface, 0));
           menu.setShowBackground(false);
           menu.setAutoDismiss(true);
           menu.setMenuRadius(30f);
@@ -963,11 +1118,9 @@ public class FileManagerActivity extends BaseCompat
                                       .show()));
                   case 4 -> ShortcutHelper.showShortcutDialog(this, filemodel);
                   case 5 -> {
-                    ClipboardUtils.copyText(fileModels.getPath() + fileModels.getName());
+                    ClipboardUtils.copyText(filemodel.getPath());
                     Toast.makeText(
-                            FileManagerActivity.this,
-                            fileModels.getPath() + fileModels.getName(),
-                            Toast.LENGTH_SHORT)
+                            FileManagerActivity.this, filemodel.getPath(), Toast.LENGTH_SHORT)
                         .show();
                   }
                 }
@@ -1072,14 +1225,13 @@ public class FileManagerActivity extends BaseCompat
     menu.addItem(new PowerMenuItem(getString(R.string.openlogcat)));
     menu.addItem(new PowerMenuItem(getString(R.string.history_title)));
     menu.addItem(new PowerMenuItem(getString(R.string.bookmark_title)));
+    menu.addItem(new PowerMenuItem(getString(R.string.ftp_connect)));
     menu.addItem(new PowerMenuItem("About App"));
     menu.setAutoDismiss(true);
     menu.setShowBackground(false);
     menu.setAnimation(MenuAnimation.FADE);
-    menu.setTextColor(
-        MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, 0));
-    menu.setMenuColor(
-        MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface, 0));
+    menu.setTextColor(MaterialColors.getColor(this, R.attr.colorOnSurface, 0));
+    menu.setMenuColor(MaterialColors.getColor(this, R.attr.colorSurface, 0));
     menu.setOnMenuItemClickListener(
         (c, f) -> {
           switch (c) {
@@ -1121,7 +1273,10 @@ public class FileManagerActivity extends BaseCompat
                   });
               bsheet.show(getSupportFragmentManager(), BookmarkBottomSheet.TAG);
             }
-            case 5 -> startActivity(new Intent(FileManagerActivity.this, AboutActivity.class));
+            case 5 -> {
+              showFtpConnectSheet();
+            }
+            case 6 -> startActivity(new Intent(FileManagerActivity.this, AboutActivity.class));
           }
         });
     menu.showAsDropDown(bind.btnSettings);
@@ -1156,5 +1311,60 @@ public class FileManagerActivity extends BaseCompat
             zipAdapter.loadZip(currentZipFilePath, zipAdapter.getCurrentInternalPath());
           }
         });
+  }
+
+  private String formatSize(long bytes) {
+    if (bytes >= 1024 * 1024)
+      return String.format(Locale.getDefault(), "%.2f MB", bytes / (1024.0 * 1024.0));
+    else if (bytes >= 1024) return String.format(Locale.getDefault(), "%.1f KB", bytes / 1024.0);
+    else return bytes + " B";
+  }
+
+  private void showFtpConnectSheet() {
+    FtpConnectSheet sheet = FtpConnectSheet.newInstance();
+    sheet.setOnConnectedListener(this::openFtpBrowser);
+    sheet.show(getSupportFragmentManager(), FtpConnectSheet.TAG);
+  }
+
+  private void openFtpBrowser(RemoteClient client, String host, boolean isSftp) {
+    FtpBrowserSheet sheet = FtpBrowserSheet.newInstance(client, host, isSftp);
+    sheet.setOnDownloadListener(
+        new FtpBrowserSheet.OnDownloadListener() {
+          @Override
+          public void onDownload(String remotePath, String fileName) {
+            currentDir = viewModel.getCurrentPath().getValue();
+            if (currentDir == null || !new File(currentDir).exists()) {
+              currentDir =
+                  Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                      .getAbsolutePath();
+            }
+            File localFile = new File(currentDir, fileName);
+            ftpExecutor.execute(
+                () -> {
+                  try {
+                    client.download(remotePath, localFile.getAbsolutePath());
+                    runOnUiThread(
+                        () -> {
+                          Toast.makeText(
+                                  FileManagerActivity.this,
+                                  R.string.ftp_download_success,
+                                  Toast.LENGTH_LONG)
+                              .show();
+                          viewModel.loadFiles(currentDir);
+                        });
+                  } catch (Exception e) {
+                    runOnUiThread(
+                        () -> {
+                          Toast.makeText(
+                                  FileManagerActivity.this,
+                                  R.string.ftp_download_error + ": " + e.getMessage(),
+                                  Toast.LENGTH_LONG)
+                              .show();
+                        });
+                  }
+                });
+          }
+        });
+    sheet.show(getSupportFragmentManager(), FtpBrowserSheet.TAG);
   }
 }
