@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import ir.hanzodev1375.ghostide.adapters.NavAdapter;
 import ir.hanzodev1375.ghostide.models.NavModel;
+import ir.hanzodev1375.ghostide.R;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,6 +53,9 @@ public class NavModelPanel extends RecyclerView {
     if (visible && file != null) {
       breadCrumbs.clear();
 
+      java.util.List<ir.hanzodev1375.ghostide.utils.StorageUtils.StorageEntry> volumes =
+          ir.hanzodev1375.ghostide.utils.StorageUtils.getStorageVolumes(getContext());
+
       while (file != null) {
         if (file.getPath().equals(STORAGE_EMULATED)) {
           break;
@@ -60,10 +64,17 @@ public class NavModelPanel extends RecyclerView {
         var breadCrumb = NavModel.fileTonav(file);
 
         if (breadCrumb != null) {
+          String volumeLabel = labelForVolume(volumes, breadCrumb.getFilePath());
           if (breadCrumb.getFilePath().equals(STORAGE_EMULATED_0)) {
             breadCrumb.setName(getDeviceStorageName());
+          } else if (volumeLabel != null) {
+            breadCrumb.setName(volumeLabel);
           }
           breadCrumbs.add(breadCrumb);
+          if (volumeLabel != null) {
+            // Reached a storage volume root (internal or SD card); stop climbing further.
+            break;
+          }
           file = file.getParentFile();
         }
       }
@@ -73,6 +84,17 @@ public class NavModelPanel extends RecyclerView {
       adapter.submitList(breadCrumbs);
       scrollToPosition(adapter.getItemCount() - 1);
     }
+  }
+
+  private String labelForVolume(
+      java.util.List<ir.hanzodev1375.ghostide.utils.StorageUtils.StorageEntry> volumes,
+      String path) {
+    for (ir.hanzodev1375.ghostide.utils.StorageUtils.StorageEntry entry : volumes) {
+      if (entry.path.equals(path)) {
+        return entry.removable ? getContext().getString(R.string.sd_card_label) : null;
+      }
+    }
+    return null;
   }
 
   public void setVisible(boolean enabled) {

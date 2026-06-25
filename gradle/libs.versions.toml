@@ -12,7 +12,7 @@ soraEditorVersion = "0.24.5"
 gsonversion = "2.14.0"
 swiperefreshlayout = "1.1.0"
 recyclerviewSelection = "1.1.0"
-
+shizuku = "13.1.5"
 #glide
 glide = "5.0.7"
 #okhttps
@@ -76,3 +76,5 @@ markwon-syntax-highlight = { group = "io.noties.markwon", name = "syntax-highlig
 #ftp 
 sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commons-net" }
+shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku" }
+shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku" }

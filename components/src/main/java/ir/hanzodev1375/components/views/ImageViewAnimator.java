@@ -9,6 +9,7 @@ import com.google.android.material.color.MaterialColors;
 import ir.hanzodev1375.components.R;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import androidx.appcompat.widget.AppCompatImageView;
+import ir.hanzodev1375.components.animators.AnimationManager;
 
 public class ImageViewAnimator extends AppCompatImageView implements View.OnTouchListener {
 
@@ -56,11 +57,16 @@ public class ImageViewAnimator extends AppCompatImageView implements View.OnTouc
 
   private void animateTo(float target) {
     clearAnimation();
-    animate()
-        .scaleX(target)
-        .scaleY(target)
-        .setDuration(DURATION)
-        .setInterpolator(new AccelerateDecelerateInterpolator())
-        .start();
+    if (AnimationManager.getInstance(getContext()).areAnimationsEnabled()) {
+      animate()
+          .scaleX(target)
+          .scaleY(target)
+          .setDuration(DURATION)
+          .setInterpolator(new AccelerateDecelerateInterpolator())
+          .start();
+    } else {
+      setScaleX(target);
+      setScaleY(target);
+    }
   }
 }

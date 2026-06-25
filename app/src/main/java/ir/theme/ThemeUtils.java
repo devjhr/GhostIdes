@@ -2,22 +2,15 @@ package ir.theme;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.skydoves.powermenu.PowerMenu;
@@ -26,7 +19,6 @@ import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
 import ir.hanzodev1375.ghostide.customui.LayoutSymbolbar;
 import ir.hanzodev1375.ghostide.utils.BlurTransformation;
-import jp.wasabeef.blurry.Blurry;
 
 public class ThemeUtils {
 
@@ -70,7 +62,7 @@ public class ThemeUtils {
     v.setBackgroundColor(Color.parseColor(colors.getBackground()));
   }
 
-  public void applyViewPagePanel(ImageView v, ImageView v2, TextView tv,View rootview) {
+  public void applyViewPagePanel(ImageView v, ImageView v2, TextView tv, View rootview) {
     GhostTheme theme = getTheme();
     if (theme == null) {
       return;
@@ -84,6 +76,26 @@ public class ThemeUtils {
     v.setColorFilter(Color.parseColor(wiget.getMenutextcolor()));
     v2.setColorFilter(Color.parseColor(wiget.getMenutextcolor()));
     tv.setTextColor(Color.parseColor(wiget.getMenutextcolor()));
+  }
+
+  public void setFileManagerBack(View headTop, View headBottom, ImageView ic) {
+    headBottom.setBackgroundColor(Color.TRANSPARENT);
+    headTop.setBackgroundColor(Color.TRANSPARENT);
+    GhostTheme theme = getTheme();
+    if (theme == null) {
+      return;
+    }
+    var w = theme.getWidget();
+    if (w == null) {
+      return;
+    }
+     if (!w.getImagepath().isEmpty()) {
+      ic.setVisibility(View.VISIBLE);
+      Glide.with(ic.getContext())
+          .load(w.getImagepath())
+          .transform(new BlurTransformation((int) w.getBlursize()))
+          .into(ic);
+    } else ic.setVisibility(View.INVISIBLE);
   }
 
   public int getMenuColor() {

@@ -19,7 +19,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
@@ -38,6 +40,7 @@ import ir.hanzodev1375.ghostide.adapters.FileManagerAdapter;
 import ir.hanzodev1375.ghostide.adapters.ToolbarAdapter;
 import ir.hanzodev1375.ghostide.adapters.ZipBrowserAdapter;
 import ir.hanzodev1375.ghostide.ai.chat.AiChatActivity;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.ActivityFilemanagerBinding;
 import ir.hanzodev1375.ghostide.databinding.SelectionPanelBinding;
 import ir.hanzodev1375.ghostide.dialogs.CopyProgressDialog;
@@ -62,13 +65,34 @@ import ir.hanzodev1375.ghostide.history.HistoryEntity;
 import ir.hanzodev1375.ghostide.history.HistoryViewModel;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
+import androidx.core.content.FileProvider;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
+import androidx.core.content.FileProvider;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
+import androidx.core.content.FileProvider;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
+import androidx.core.content.FileProvider;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
+import androidx.core.content.FileProvider;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
+import androidx.core.content.FileProvider;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
+import androidx.core.content.FileProvider;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
+import androidx.core.content.FileProvider;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
+import androidx.core.content.FileProvider;
 import ir.hanzodev1375.ghostide.utils.MarginItemDecoration;
 import ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver;
 import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
 import ir.hanzodev1375.ghostide.utils.ShortcutHelper;
+import ir.hanzodev1375.ghostide.utils.StorageUtils;
 import ir.hanzodev1375.ghostide.utils.ZipUtil;
 import ir.hanzodev1375.ghostide.utils.zip.ZipOperationManager;
+import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
 import ir.theme.themeeditor.ThemeEditorActivity;
 import java.io.File;
 import java.util.Locale;
@@ -85,6 +109,7 @@ import java.util.Set;
 import ninja.coder.appuploader.main.appupdate.UpadteAppView;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import ir.hanzodev1375.components.store.activitys.StoreActivity;
 
 public class FileManagerActivity extends BaseCompat
     implements NetworkChangeReceiver.CallBackNetWork {
@@ -101,7 +126,9 @@ public class FileManagerActivity extends BaseCompat
   private SelectionPanelBinding selectionPanelBinding;
   private FileManagerModel fileModels;
   private UpadteAppView app;
+  private PreferencesUtils appsetting;
   private ProfileView profileview;
+  private ThemeUtils themeutil;
   private NetworkChangeReceiver networkChangeReceiver;
   private Set<String> itemname =
       new HashSet<>(
@@ -177,7 +204,16 @@ public class FileManagerActivity extends BaseCompat
     setContentView(bind.getRoot());
     setupInsets();
     setupSearchLayoutInsets();
-
+    appsetting = new PreferencesUtils(this);
+    var themeManager = new ThemeManager(this);
+    themeutil = new ThemeUtils(themeManager);
+    if (appsetting.isShowBackground()) {
+      themeutil.setFileManagerBack(bind.headline, bind.headtop, bind.backgroundiconfilemanager);
+    } else {
+      bind.headtop.setBackgroundColor(
+          MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
+      bind.headline.setBackground(ShapeUtil.shape(40f, this));
+    }
     networkChangeReceiver = new NetworkChangeReceiver(this);
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
     this.registerReceiver(networkChangeReceiver, filter);
@@ -192,7 +228,6 @@ public class FileManagerActivity extends BaseCompat
             },
             100);
 
-    bind.headline.setBackground(ShapeUtil.shape(40f, this));
     viewModel = new ViewModelProvider(this).get(FileViewModel.class);
     historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
     bookmarkViewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
@@ -205,7 +240,8 @@ public class FileManagerActivity extends BaseCompat
           applyChangedFiles(repoRoot, changes);
         });
     adapter = new FileManagerAdapter(this);
-    bind.rvfiles.setLayoutManager(new LinearLayoutManager(this));
+    bind.rvfiles.setLayoutManager(
+        appsetting.getGridMod() ? new GridLayoutManager(this, 2) : new LinearLayoutManager(this));
     bind.rvfiles.setAdapter(adapter);
     bind.rvfiles.addItemDecoration(new MarginItemDecoration(this));
     app = new UpadteAppView(this, bind.downloader, () -> {});
@@ -765,6 +801,8 @@ public class FileManagerActivity extends BaseCompat
       } else {
         Toast.makeText(this, "No image found", Toast.LENGTH_SHORT).show();
       }
+    } else if (extension.equals(".apk")) {
+      installApk(path);
     } else {
       Toast.makeText(this, getString(R.string.error_file_format_not_supported), Toast.LENGTH_SHORT)
           .show();
@@ -1058,8 +1096,10 @@ public class FileManagerActivity extends BaseCompat
                     exitZipMode();
                   }
                 } else {
-                  if (viewModel.getCurrentPath().getValue() != null
-                      && !viewModel.getCurrentPath().getValue().equals("/storage/emulated/0")) {
+                  String path = viewModel.getCurrentPath().getValue();
+                  if (path != null
+                      && !path.equals("/storage/emulated/0")
+                      && !StorageUtils.isStorageRoot(FileManagerActivity.this, path)) {
                     viewModel.navigateUp();
                     String currentPath = viewModel.getCurrentPath().getValue();
                     if (currentPath != null) {
@@ -1209,6 +1249,77 @@ public class FileManagerActivity extends BaseCompat
   protected void onResume() {
     super.onResume();
     setupHeader();
+    if (appsetting.isShowBackground()) {
+      themeutil.setFileManagerBack(bind.headline, bind.headtop, bind.backgroundiconfilemanager);
+    } else {
+      bind.headtop.setBackgroundColor(
+          MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
+      bind.headline.setBackground(ShapeUtil.shape(40f, this));
+    }
+
+    boolean currentGrid = appsetting.getGridMod();
+    if (adapter.isGridMode() != currentGrid) {
+      adapter = new FileManagerAdapter(this);
+      bind.rvfiles.setLayoutManager(
+          currentGrid ? new GridLayoutManager(this, 2) : new LinearLayoutManager(this));
+      bind.rvfiles.setRecycledViewPool(new RecyclerView.RecycledViewPool());
+      bind.rvfiles.setAdapter(adapter);
+      adapter.setupSelectionTracker(bind.rvfiles);
+
+      adapter.setOnItemClickListener(
+          (item, pos) -> {
+            historyViewModel.addToHistory(item.getPath(), item.getName(), item.isDirectory());
+            if (item.isDirectory()) {
+              viewModel.navigateTo(item.getPath());
+            } else if (item.getPath().toLowerCase().endsWith(".zip")) {
+              enterZipMode(item.getPath());
+            } else {
+              setupClick(item.getPath(), item.getName());
+            }
+            String currentPath = viewModel.getCurrentPath().getValue();
+            if (currentPath != null) {
+              bind.gitActionButton.setVisibility(
+                  isGitRepository(currentPath) ? View.VISIBLE : View.GONE);
+            }
+            if (bind.ser.isShow()) {
+              bind.ser.hide();
+              bind.fab.setVisibility(View.VISIBLE);
+              bind.ser.setQuery("");
+            }
+          });
+
+      adapter.setSelectionStateListener(
+          new FileManagerAdapter.SelectionStateListener() {
+            @Override
+            public void onSelectionChanged(int count) {
+              if (count == 0 && pendingClipboard.isEmpty()) {
+                if (selectionPanel != null) selectionPanel.setVisibility(View.GONE);
+              } else if (count > 0) {
+                selectionPanel.setVisibility(View.VISIBLE);
+                selectionCount.setText(getString(R.string.selected_items_count, count));
+              } else if (count == 0 && !pendingClipboard.isEmpty()) {
+                selectionCount.setText("0");
+                selectionPanel.setVisibility(View.VISIBLE);
+              }
+            }
+
+            @Override
+            public void onSelectionModeStarted() {}
+
+            @Override
+            public void onSelectionModeEnded() {
+              if (pendingClipboard.isEmpty() && selectionPanel != null) {
+                selectionPanel.setVisibility(View.GONE);
+              }
+            }
+          });
+
+      stepMoreAdapter();
+
+      String currentPath = viewModel.getCurrentPath().getValue();
+      if (currentPath != null) viewModel.loadFiles(currentPath);
+    }
+
     if (!isZipMode) {
       String currentPath = viewModel.getCurrentPath().getValue();
       if (currentPath != null) {
@@ -1226,6 +1337,8 @@ public class FileManagerActivity extends BaseCompat
     menu.addItem(new PowerMenuItem(getString(R.string.history_title)));
     menu.addItem(new PowerMenuItem(getString(R.string.bookmark_title)));
     menu.addItem(new PowerMenuItem(getString(R.string.ftp_connect)));
+    menu.addItem(new PowerMenuItem(getString(R.string.sd_card_menu_item)));
+    menu.addItem(new PowerMenuItem("Store"));
     menu.addItem(new PowerMenuItem("About App"));
     menu.setAutoDismiss(true);
     menu.setShowBackground(false);
@@ -1276,7 +1389,9 @@ public class FileManagerActivity extends BaseCompat
             case 5 -> {
               showFtpConnectSheet();
             }
-            case 6 -> startActivity(new Intent(FileManagerActivity.this, AboutActivity.class));
+            case 6 -> openSdCard();
+            case 7 -> startActivity(new Intent(FileManagerActivity.this, StoreActivity.class));
+            case 8 -> startActivity(new Intent(FileManagerActivity.this, AboutActivity.class));
           }
         });
     menu.showAsDropDown(bind.btnSettings);
@@ -1326,6 +1441,24 @@ public class FileManagerActivity extends BaseCompat
     sheet.show(getSupportFragmentManager(), FtpConnectSheet.TAG);
   }
 
+  private void openSdCard() {
+    StorageUtils.StorageEntry sdCard = StorageUtils.getSdCardVolume(this);
+    if (sdCard != null) {
+      viewModel.navigateTo(sdCard.path);
+      bind.gitActionButton.setVisibility(isGitRepository(sdCard.path) ? View.VISIBLE : View.GONE);
+      Toast.makeText(
+              this,
+              getString(
+                  R.string.sd_card_space_info,
+                  sdCard.getFreeFormatted(),
+                  sdCard.getTotalFormatted()),
+              Toast.LENGTH_SHORT)
+          .show();
+    } else {
+      Toast.makeText(this, R.string.sd_card_not_found, Toast.LENGTH_SHORT).show();
+    }
+  }
+
   private void openFtpBrowser(RemoteClient client, String host, boolean isSftp) {
     FtpBrowserSheet sheet = FtpBrowserSheet.newInstance(client, host, isSftp);
     sheet.setOnDownloadListener(
@@ -1366,5 +1499,40 @@ public class FileManagerActivity extends BaseCompat
           }
         });
     sheet.show(getSupportFragmentManager(), FtpBrowserSheet.TAG);
+  }
+
+  private void installApk(String path) {
+    if (ShizukuManager.isAvailable() && ShizukuManager.hasPermission()) {
+      ShizukuManager.exec(
+          new String[] {"pm", "install", "-r", "-i", getPackageName(), path},
+          new ShizukuManager.ExecCallback() {
+            @Override
+            public void onResult(String output) {
+              boolean ok = output.toLowerCase().contains("success");
+              Toast.makeText(
+                      FileManagerActivity.this, ok ? "installsuccess" : output, Toast.LENGTH_LONG)
+                  .show();
+            }
+
+            @Override
+            public void onUnavailable() {
+              installApkNormal(path);
+            }
+          });
+    } else if (ShizukuManager.isAvailable()) {
+      ShizukuManager.requestPermission();
+      Toast.makeText(this, "Error", Toast.LENGTH_LONG).show();
+    } else {
+      installApkNormal(path);
+    }
+  }
+
+  private void installApkNormal(String path) {
+    var apkFile = new File(path);
+    var uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", apkFile);
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    intent.setDataAndType(uri, "application/vnd.android.package-archive");
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    startActivity(intent);
   }
 }

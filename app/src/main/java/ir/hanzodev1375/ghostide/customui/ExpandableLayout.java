@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+import ir.hanzodev1375.components.animators.AnimationManager;
 import ir.hanzodev1375.ghostide.R;
 
 public class ExpandableLayout extends LinearLayout {
@@ -60,27 +61,29 @@ public class ExpandableLayout extends LinearLayout {
   }
 
   public void expand() {
-    if (isExpanded) return;
-    isExpanded = true;
+    if (AnimationManager.getInstance(getContext()).areAnimationsEnabled()) {
+      if (isExpanded) return;
+      isExpanded = true;
 
-    AutoTransition transition = new AutoTransition();
-    transition.setDuration(250);
-    TransitionManager.beginDelayedTransition(this, transition);
+      AutoTransition transition = new AutoTransition();
+      transition.setDuration(250);
+      TransitionManager.beginDelayedTransition(this, transition);
 
-    recyclerView.setVisibility(VISIBLE);
-    arrowIcon.animate().rotation(90).setDuration(200).start();
+      recyclerView.setVisibility(VISIBLE);
+      arrowIcon.animate().rotation(90).setDuration(200).start();
+    } else recyclerView.setVisibility(VISIBLE);
   }
 
   public void collapse() {
-    if (!isExpanded) return;
-    isExpanded = false;
-
-    AutoTransition transition = new AutoTransition();
-    transition.setDuration(250);
-    TransitionManager.beginDelayedTransition(this, transition);
-
-    recyclerView.setVisibility(GONE);
-    arrowIcon.animate().rotation(0).setDuration(200).start();
+    if (AnimationManager.getInstance(getContext()).areAnimationsEnabled()) {
+      if (!isExpanded) return;
+      isExpanded = false;
+      AutoTransition transition = new AutoTransition();
+      transition.setDuration(250);
+      TransitionManager.beginDelayedTransition(this, transition);
+      recyclerView.setVisibility(GONE);
+      arrowIcon.animate().rotation(0).setDuration(200).start();
+    } else recyclerView.setVisibility(GONE);
   }
 
   public boolean isExpanded() {

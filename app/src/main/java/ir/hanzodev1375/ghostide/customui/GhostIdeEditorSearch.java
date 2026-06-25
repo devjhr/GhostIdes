@@ -22,6 +22,7 @@ import io.github.rosemoe.sora.widget.EditorSearcher;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.Cursor;
+import ir.hanzodev1375.components.animators.AnimationManager;
 import ir.hanzodev1375.components.databinding.DialogRenameBinding;
 import ir.hanzodev1375.ghostide.databinding.LayoutSearcherBinding;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
@@ -255,10 +256,12 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
       hide();
       if (viewChange != null) viewChange.onViewHide();
     } else {
-      Transition sharedAxis = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
-      TransitionManager.beginDelayedTransition(this, sharedAxis);
-      setVisibility(View.VISIBLE);
-      isShowing = true;
+      if (AnimationManager.getInstance(getContext()).areAnimationsEnabled()) {
+        Transition sharedAxis = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
+        TransitionManager.beginDelayedTransition(this, sharedAxis);
+        setVisibility(View.VISIBLE);
+        isShowing = true;
+      } else setVisibility(View.VISIBLE);
       if (viewChange != null) viewChange.onViewShow();
       binding.searchText.requestFocus();
     }
@@ -269,10 +272,12 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
   }
 
   public void hide() {
-    Transition sharedAxis = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
-    TransitionManager.beginDelayedTransition(this, sharedAxis);
-    setVisibility(View.GONE);
-    isShowing = false;
+    if (AnimationManager.getInstance(getContext()).areAnimationsEnabled()) {
+      Transition sharedAxis = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
+      TransitionManager.beginDelayedTransition(this, sharedAxis);
+      setVisibility(View.GONE);
+      isShowing = false;
+    } else setVisibility(View.GONE);
   }
 
   private void gotoNext() {

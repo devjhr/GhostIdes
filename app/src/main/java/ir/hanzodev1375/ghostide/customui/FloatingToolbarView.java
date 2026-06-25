@@ -6,16 +6,20 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.ViewOutlineProvider;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
 
 public class FloatingToolbarView extends FrameLayout {
@@ -26,6 +30,7 @@ public class FloatingToolbarView extends FrameLayout {
   private LinearLayout root;
   private Orientation orientation = Orientation.Left;
   private boolean expanded = false;
+  private PreferencesUtils setting;
 
   public enum Orientation {
     Left,
@@ -45,6 +50,46 @@ public class FloatingToolbarView extends FrameLayout {
   public FloatingToolbarView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     init(context);
+  }
+
+  private void init(Context context) {
+    setting = new PreferencesUtils(getContext());
+    root = new LinearLayout(context);
+    root.setOrientation(LinearLayout.HORIZONTAL);
+    root.setGravity(Gravity.CENTER_VERTICAL);
+
+    LayoutParams rootParams =
+        new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    addView(root, rootParams);
+
+    fab = new FloatingActionButton(context);
+    fab.setImageResource(R.drawable.add);
+    fab.setCompatElevation(dp(8));
+    fab.setOutlineProvider(null);
+    fab.setUseCompatPadding(true);
+
+    cardView = new FrameLayout(context);
+    updateShapeForOrientation();
+    cardView.setScaleX(0f);
+    cardView.setVisibility(GONE);
+
+    recyclerView = new RecyclerView(context);
+    recyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
+    cardView.addView(
+        recyclerView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+
+    fab.setOnClickListener(v -> toggleToolbar());
+    fab.setCustomSize(dp(70));
+    int defcolor = MaterialColors.getColor(fab,R.attr.colorPrimaryContainer);
+    int defIcon = MaterialColors.getColor(fab,R.attr.colorOnPrimaryContainer);
+    fab.setBackgroundTintList(
+        ColorStateList.valueOf(
+            setting.isShowBackground() ? ColorUtils.setAlphaComponent(defcolor, 128) : defcolor));
+    fab.setImageTintList(
+        ColorStateList.valueOf(
+            setting.isShowBackground() ? ColorUtils.setAlphaComponent(defIcon, 128) : defIcon));
+    applyOrientation();
+    
   }
 
   private void updateShapeForOrientation() {
@@ -71,39 +116,20 @@ public class FloatingToolbarView extends FrameLayout {
     }
 
     MaterialShapeDrawable drawable = new MaterialShapeDrawable(model);
-    drawable.setFillColor(ColorStateList.valueOf(ShapeUtil.getcolorSurfaceContainer(cardView)));
-    drawable.setStroke(3.3f, ColorStateList.valueOf(ShapeUtil.getcolorPrimaryContainer(cardView)));
+
+    drawable.setFillColor(
+        ColorStateList.valueOf(
+            setting.isShowBackground()
+                ? ColorUtils.setAlphaComponent(ShapeUtil.getcolorSurfaceContainer(cardView), 128)
+                : ShapeUtil.getcolorSurfaceContainer(cardView)));
+    drawable.setStroke(
+        3.3f,
+        ColorStateList.valueOf(
+            setting.isShowBackground()
+                ? ColorUtils.setAlphaComponent(ShapeUtil.getcolorPrimaryContainer(cardView), 128)
+                : ShapeUtil.getcolorPrimaryContainer(cardView)));
     drawable.setElevation(dp(8));
     cardView.setBackground(drawable);
-  }
-
-  private void init(Context context) {
-    root = new LinearLayout(context);
-    root.setOrientation(LinearLayout.HORIZONTAL);
-    root.setGravity(Gravity.CENTER_VERTICAL);
-
-    LayoutParams rootParams =
-        new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-    addView(root, rootParams);
-
-    fab = new FloatingActionButton(context);
-    fab.setImageResource(R.drawable.add);
-    fab.setCompatElevation(dp(8));
-    fab.setUseCompatPadding(true);
-
-    cardView = new FrameLayout(context);
-    updateShapeForOrientation();
-    cardView.setScaleX(0f);
-    cardView.setVisibility(GONE);
-
-    recyclerView = new RecyclerView(context);
-    recyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-    cardView.addView(
-        recyclerView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-
-    fab.setOnClickListener(v -> toggleToolbar());
-    fab.setCustomSize(dp(70));
-    applyOrientation();
   }
 
   private void applyOrientation() {

@@ -36,7 +36,7 @@ public class Constants {
     public static final String KEY_CODE_EDITOR_NP_PAINT_FLAGS = "pref_code_editor_npc";
     public static final String KEY_CODE_EDITORMINIMAP = "pref_code_editor_minimaprender";
     public static final String KEY_CODE_EDITOR_FONT = "pref_code_editor_fontselect";
-    public static final String KEY_CODE_SHOWLC="pref_code_editorshowlc";
+    public static final String KEY_CODE_SHOWLC = "pref_code_editorshowlc";
     // General Configuration Preferences
     public static final String KEY_BUFFER_SIZE = "pref_general_config_buffer_size";
     public static final String KEY_APP_THEME = "pref_app_theme";
@@ -52,6 +52,11 @@ public class Constants {
     public static final String KEY_GIT_LOCAL_USER_EMAIL = "git_local_user_email";
     public static final String KEY_DEVNAMEGIT = "git_pref_name";
     public static final String KEY_EMAILGIT = "git_pref_gitname";
+    public static final String KEY_GRIDMOD = "filemanager_grid_mod";
+    // بعدا پیاده سازی میکنمش
+    public static final String KEY_GRIDCOUNT = "filemanager_grid_count";
+    public static final String KEY_FILRMB = "filemanager_showbackgroundtheme";
+    public static final String KEY_ANIMATION_BATTERY_THRESHOLD = "pref_animation_battery_threshold";
 
     private SharedPreferenceKeys() {
       throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

@@ -26,6 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import ir.hanzodev1375.components.sheet.SliderSheet;
 import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.MainActivity;
 import ir.hanzodev1375.ghostide.R;
@@ -145,6 +146,7 @@ public class SettingActivity extends BaseCompat {
           else if (position == 2) showLoadThemeDialog();
           else if (position == 3) showGitHubAccountDialog();
           else if (position == 4) showLanguageDialog();
+          else if (position == 8) showAnimationThresholdDialog();
         });
 
     aiAdapter.setOnItemClickListener(
@@ -468,8 +470,32 @@ public class SettingActivity extends BaseCompat {
             getString(R.string.pref_show_tab_icon_title),
             getString(R.string.pref_show_tab_icon_summary),
             prefs.getShowIconTab(),
-            R.drawable.add,
+            0,
             prefs::setShowIconTab));
+    items.add(
+        new SettingItem(
+            getString(R.string.grid_title),
+            getString(R.string.grid_subtitle),
+            prefs.getGridMod(),
+            0,
+            prefs::setGridMod));
+    items.add(
+        new SettingItem(
+            "show back",
+            "show backgroundImage in theme",
+            prefs.isShowBackground(),
+            0,
+            prefs::setShowBackground));
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_animation_battery_threshold),
+            getString(R.string.pref_animation_battery_threshold_desc)
+                + "\n"
+                + String.format(
+                    getString(R.string.current_value), prefs.getAnimationBatteryThreshold() + "%"),
+            false,
+            0,
+            null));
     return items;
   }
 
@@ -956,5 +982,42 @@ public class SettingActivity extends BaseCompat {
       default:
         return getString(R.string.font_jetbrains_mono);
     }
+  }
+
+  private void showAnimationThresholdDialog() {
+    var slidersheet = new SliderSheet(this);
+
+    int current = prefs.getAnimationBatteryThreshold();
+    var slider = slidersheet.getSlider();
+    slider.setValueFrom(0f);
+    slider.setValueTo(100f);
+    slider.setStepSize(5f);
+    slider.setValue(current);
+    slidersheet.setLable(current + "%");
+    slider.addOnChangeListener((s, value, fromUser) -> slidersheet.setLable((int) value + "%"));
+    slidersheet.setButtonOk(
+        v -> {
+          prefs.setAnimationBatteryThreshold((int) slider.getValue());
+          appAdapter.updateItem(
+              8,
+              new SettingItem(
+                  getString(R.string.pref_animation_battery_threshold),
+                  getString(R.string.pref_animation_battery_threshold_desc)
+                      + "\n"
+                      + String.format(
+                          getString(R.string.current_value),
+                          prefs.getAnimationBatteryThreshold() + "%"),
+                  false,
+                  0,
+                  null));
+          slidersheet.dismiss();
+        },
+        R.string.ok);
+    slidersheet.setButtonNo(
+        v -> {
+          slidersheet.dismiss();
+        },
+        R.string.no);
+    slidersheet.show();
   }
 }

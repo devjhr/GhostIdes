@@ -19,7 +19,9 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import ir.hanzodev1375.components.ftp.impl.FtpClientImpl;
 import ir.hanzodev1375.components.ftp.impl.SftpClientImpl;
+import ir.hanzodev1375.components.ftp.impl.SmbClientImpl;
 import ir.hanzodev1375.components.ftp.interfaces.RemoteClient;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,11 +31,11 @@ public class FtpConnectSheet extends BottomSheetDialogFragment {
 
   public static final String TAG = "FtpConnectSheet";
 
-  private TextInputEditText etHost, etPort, etUsername, etPassword;
-  private TextInputLayout tilHost, tilPort, tilUsername, tilPassword;
+  private TextInputEditText etHost, etPort, etUsername, etPassword, etShare;
+  private TextInputLayout tilHost, tilPort, tilUsername, tilPassword, tilShare;
   private MaterialButtonToggleGroup toggleProtocol;
   private MaterialButton btnConnect;
-  private MaterialButton btnFtp, btnSftp;
+  private MaterialButton btnFtp, btnSftp, btnSmb;
 
   private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -68,22 +70,32 @@ public class FtpConnectSheet extends BottomSheetDialogFragment {
     etPort = view.findViewById(R.id.etPort);
     etUsername = view.findViewById(R.id.etUsername);
     etPassword = view.findViewById(R.id.etPassword);
+    etShare = view.findViewById(R.id.etShare);
     tilHost = view.findViewById(R.id.tilHost);
     tilPort = view.findViewById(R.id.tilPort);
     tilUsername = view.findViewById(R.id.tilUsername);
     tilPassword = view.findViewById(R.id.tilPassword);
+    tilShare = view.findViewById(R.id.tilShare);
     toggleProtocol = view.findViewById(R.id.toggleProtocol);
     btnConnect = view.findViewById(R.id.btnConnect);
     btnFtp = view.findViewById(R.id.btnFtp);
     btnSftp = view.findViewById(R.id.btnSftp);
+    btnSmb = view.findViewById(R.id.btnSmb);
+
     toggleProtocol.check(R.id.btnFtp);
+
     toggleProtocol.addOnButtonCheckedListener(
         (group, checkedId, isChecked) -> {
           if (!isChecked) return;
           if (checkedId == R.id.btnSftp) {
             etPort.setText("22");
-          } else {
+            tilShare.setVisibility(View.GONE);
+          } else if (checkedId == R.id.btnFtp) {
             etPort.setText("21");
+            tilShare.setVisibility(View.GONE);
+          } else if (checkedId == R.id.btnSmb) {
+            etPort.setText("445");
+            tilShare.setVisibility(View.VISIBLE);
           }
         });
 
@@ -95,8 +107,8 @@ public class FtpConnectSheet extends BottomSheetDialogFragment {
     String portStr = getText(etPort);
     String user = getText(etUsername);
     String password = getText(etPassword);
+    String share = getText(etShare);
 
-    // validation
     if (TextUtils.isEmpty(host)) {
       tilHost.setError(getString(R.string.ftp_error_host));
       return;
@@ -113,27 +125,45 @@ public class FtpConnectSheet extends BottomSheetDialogFragment {
     tilPort.setError(null);
 
     boolean isSftp = toggleProtocol.getCheckedButtonId() == R.id.btnSftp;
+    boolean isSmb = toggleProtocol.getCheckedButtonId() == R.id.btnSmb;
+
+    String finalHost = host;
+    if (isSmb) {
+      if (TextUtils.isEmpty(share)) {
+        tilShare.setError("Share is required");
+        return;
+      }
+      tilShare.setError(null);
+      finalHost = host + "/" + share;
+    }
 
     btnConnect.setEnabled(false);
     btnConnect.setText(R.string.ftp_connecting);
 
-    final String finalHost = host;
+    final String finalHost1 = finalHost;
     final int finalPort = port;
     final String finalUser = user;
     final String finalPassword = password;
 
     executor.execute(
         () -> {
-          RemoteClient client = isSftp ? new SftpClientImpl() : new FtpClientImpl();
+          RemoteClient client;
+          if (isSmb) {
+            client = new SmbClientImpl();
+          } else if (isSftp) {
+            client = new SftpClientImpl();
+          } else {
+            client = new FtpClientImpl();
+          }
           try {
-            client.connect(finalHost, finalPort, finalUser, finalPassword);
+            client.connect(finalHost1, finalPort, finalUser, finalPassword);
             if (getActivity() == null) return;
             getActivity()
                 .runOnUiThread(
                     () -> {
                       if (!isAdded()) return;
                       dismiss();
-                      if (listener != null) listener.onConnected(client, finalHost, isSftp);
+                      if (listener != null) listener.onConnected(client, finalHost1, isSftp);
                     });
           } catch (Exception e) {
             if (getActivity() == null) return;

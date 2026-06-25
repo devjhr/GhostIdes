@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
 import ir.hanzodev1375.ghostide.activity.ErrorManagerActivity;
+import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import java.util.Calendar;
 
@@ -33,7 +34,7 @@ public class GhostIdeAppLoader extends Application {
     super.onCreate();
     loader = this;
     mApplicationContext = getApplicationContext();
-
+    ShizukuManager.registerListeners();
     ThemeEngine.applyToActivities(this);
 
     Thread.setDefaultUncaughtExceptionHandler(

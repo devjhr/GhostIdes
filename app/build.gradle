@@ -73,5 +73,7 @@ dependencies {
     implementation(libs.androidx.recyclerview.selection)
     implementation(libs.androidx.swiperefreshlayout)
     kapt libs.glide.compiler
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
     implementation("androidx.palette:palette:1.0.0")
 }

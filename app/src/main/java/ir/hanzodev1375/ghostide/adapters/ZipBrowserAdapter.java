@@ -2,6 +2,8 @@ package ir.hanzodev1375.ghostide.adapters;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import androidx.core.graphics.ColorUtils;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,6 +30,7 @@ import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.models.ZipEntryModel;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
 import net.lingala.zip4j.ZipFile;
@@ -54,6 +57,8 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
   private OnMoreClickListener moreClickListener;
   private SelectionStateListener selectionStateListener;
   private ZipLoadListener zipLoadListener;
+  private PreferencesUtils setting;
+  private boolean isGrid = false;
   private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
 
   public interface OnItemClickListener {
@@ -85,6 +90,8 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
   public ZipBrowserAdapter(@NonNull Context context) {
     this.context = context;
     setHasStableIds(true);
+    setting = new PreferencesUtils(context);
+    isGrid = setting.getGridMod();
   }
 
   public void setOnItemClickListener(OnItemClickListener l) {
@@ -277,22 +284,41 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
   @NonNull
   @Override
   public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    View v =
-        LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file_manager, parent, false);
-    return new ViewHolder(v);
+    View view =
+        LayoutInflater.from(parent.getContext())
+            .inflate(
+                isGrid ? R.layout.item_filemanager_grid : R.layout.item_file_manager,
+                parent,
+                false);
+    return new ViewHolder(view);
   }
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     ZipEntryModel item = items.get(position);
     holder.bind(item);
-    holder.bind(position, getItemCount());
+    if (!isGrid) holder.bind(position, getItemCount());
     boolean selected = selectionTracker != null && selectionTracker.isSelected(getItemId(position));
+    int backgroundColor;
+
+    if (selected) {
+      backgroundColor = ShapeUtil.getcolorPrimaryContainer(holder.card);
+    } else {
+      Integer surfaceColor = ShapeUtil.getcolorSurfaceContainer(holder.card);
+      if (surfaceColor != null) {
+        backgroundColor = surfaceColor;
+      } else if (isGrid) {
+        backgroundColor = Color.TRANSPARENT;
+      } else {
+        backgroundColor = ShapeUtil.getcolorPrimaryContainer(holder.card);
+      }
+    }
+
     holder.card.setCardBackgroundColor(
         ColorStateList.valueOf(
-            selected
-                ? ShapeUtil.getcolorPrimaryContainer(holder.card)
-                : ShapeUtil.getcolorSurfaceContainer(holder.card)));
+            setting.isShowBackground()
+                ? ColorUtils.setAlphaComponent(backgroundColor, 128)
+                : backgroundColor));
   }
 
   class ViewHolder extends ListItemViewHolder {

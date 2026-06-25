@@ -248,26 +248,27 @@ public class PreferencesUtils {
   public void setCurrentEditorFont(String fontName) {
     getDefaultPreferences()
         .edit()
-        .putString(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT, fontName).apply();
+        .putString(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT, fontName)
+        .apply();
   }
 
   private int getEditorFont(@NonNull String selectedFont) {
     switch (selectedFont) {
-        case "inconsolata_regular":
-            return R.font.inconsolata_regular;
-        case "sourcecodepro_regular":
-            return R.font.sourcecodepro_regular;
-        case "firacode_regular":
-            return R.font.firacode_regular;
-        case "notosans_regular":
-            return R.font.notosans_regular;
-        case "notosans_italic":
-            return R.font.notosans_italic;
-        case "jetbrains_mono_regular":
-        default:
-            return R.font.jetbrains_mono_regular;
+      case "inconsolata_regular":
+        return R.font.inconsolata_regular;
+      case "sourcecodepro_regular":
+        return R.font.sourcecodepro_regular;
+      case "firacode_regular":
+        return R.font.firacode_regular;
+      case "notosans_regular":
+        return R.font.notosans_regular;
+      case "notosans_italic":
+        return R.font.notosans_italic;
+      case "jetbrains_mono_regular":
+      default:
+        return R.font.jetbrains_mono_regular;
     }
-}
+  }
 
   public int getCursorBlinkPeriod(int defaultBlinkPeriod) {
     return getDefaultPreferences()
@@ -592,13 +593,16 @@ public class PreferencesUtils {
         .putString(Constants.SharedPreferenceKeys.KEY_EMAILGIT, data)
         .apply();
   }
-  
-  public boolean getShowLineColPanel(){
-    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_SHOWLC,true);
+
+  public boolean getShowLineColPanel() {
+    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_SHOWLC, true);
   }
-  
-  public void setShowLineColPanel(boolean mod){
-    getDefaultPreferences().edit().putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_SHOWLC,mod).apply();
+
+  public void setShowLineColPanel(boolean mod) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_SHOWLC, mod)
+        .apply();
   }
 
   public void setRemovedDataCommit() {
@@ -616,6 +620,40 @@ public class PreferencesUtils {
         .remove(Constants.SharedPreferenceKeys.KEY_GITHUB_USERNAME)
         .remove(Constants.SharedPreferenceKeys.KEY_GITHUB_NAME)
         .remove(Constants.SharedPreferenceKeys.KEY_GITHUB_AVATAR_URL)
+        .apply();
+  }
+
+  public boolean getGridMod() {
+    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KEY_GRIDMOD, false);
+  }
+
+  public void setGridMod(boolean mod) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_GRIDMOD, mod)
+        .apply();
+  }
+
+  public boolean isShowBackground() {
+    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KEY_FILRMB, false);
+  }
+
+  public void setShowBackground(boolean mod) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_FILRMB, mod)
+        .apply();
+  }
+
+  public int getAnimationBatteryThreshold() {
+    return getDefaultPreferences()
+        .getInt(Constants.SharedPreferenceKeys.KEY_ANIMATION_BATTERY_THRESHOLD, 20); //باطری اگر 20 درصد بود خاموشش کنن عه
+  }
+
+  public void setAnimationBatteryThreshold(int percent) {
+    getDefaultPreferences()
+        .edit()
+        .putInt(Constants.SharedPreferenceKeys.KEY_ANIMATION_BATTERY_THRESHOLD, percent)
         .apply();
   }
 }

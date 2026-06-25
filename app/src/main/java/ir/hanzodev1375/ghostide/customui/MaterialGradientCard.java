@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.color.MaterialColors;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 
 public class MaterialGradientCard extends FrameLayout {
 
@@ -23,6 +24,7 @@ public class MaterialGradientCard extends FrameLayout {
   private final Paint lightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
   private final Paint radialPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
   private final Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+  private PreferencesUtils setting;
 
   private final RectF rect = new RectF();
 
@@ -58,6 +60,7 @@ public class MaterialGradientCard extends FrameLayout {
     bgPaint.setDither(true);
     lightPaint.setDither(true);
     radialPaint.setDither(true);
+    setting = new PreferencesUtils(getContext());
   }
 
   @Override
@@ -85,9 +88,15 @@ public class MaterialGradientCard extends FrameLayout {
             getWidth(),
             getHeight(),
             new int[] {
-              get(R.attr.colorPrimaryContainer, 0.12f),
-              get(R.attr.colorOnPrimary, 0.8f),
-              get(R.attr.colorOnPrimaryFixed)
+              setting.isShowBackground()
+                  ? get(R.attr.colorPrimaryContainer, 0.30f)
+                  : get(R.attr.colorPrimaryContainer, 0.12f),
+              setting.isShowBackground()
+                  ? get(R.attr.colorOnPrimary, 0.12f)
+                  : get(R.attr.colorOnPrimary, 0.8f),
+              setting.isShowBackground()
+                  ? get(R.attr.colorOnPrimaryFixed, 0.18f)
+                  : get(R.attr.colorOnPrimaryFixed)
             },
             new float[] {.25f, .65f, 1f},
             Shader.TileMode.CLAMP));

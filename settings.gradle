@@ -1,7 +1,7 @@
 pluginManagement {
     repositories {
         google()
-       // maven { url 'https://maven.myket.ir' }
+        //maven { url 'https://maven.myket.ir' }
         mavenCentral()
         gradlePluginPortal()
     }

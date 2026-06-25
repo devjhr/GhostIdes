@@ -3,7 +3,7 @@
 
 # Ignore ACS editor directory
 .acside
-
+.androidide
 # Ignore Kotlin directory
 .kotlin
 
