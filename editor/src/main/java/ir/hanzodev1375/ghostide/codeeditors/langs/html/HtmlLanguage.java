@@ -24,6 +24,8 @@ import io.github.rosemoe.sora.widget.SymbolPairMatch;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.SnippetCompletionItem;
 import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.Css3Server;
+import ir.hanzodev1375.ghostide.codeeditors.util.CustomFormatter;
+import ir.hanzodev1375.ghostide.codeeditors.util.formatter.HtmlFormatter;
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
@@ -36,6 +38,7 @@ import io.github.rosemoe.sora.lang.styling.Styles;
 public class HtmlLanguage implements Language {
 
   private final HTMLAnalyzer analyzer;
+  private CustomFormatter format;
   private final IdentifierAutoComplete autoComplete;
   private static final CodeSnippet HTML5_SNIPPET =
       CodeSnippetParser.parse(
@@ -58,11 +61,15 @@ public class HtmlLanguage implements Language {
           "<input type=\"${1:text}\" name=\"${2:name}\" id=\"${3:id}\" placeholder=\"${4:Enter...}\">$0");
   private Context context;
   private String path;
-  public HtmlLanguage(Context context,String path) {
+
+  public HtmlLanguage(Context context, String path) {
     String[] htmlKeywords = {"!", "DOCTYPE"};
     autoComplete = new IdentifierAutoComplete(htmlKeywords);
     analyzer = new HTMLAnalyzer();
-    analyzer.init(context,path);
+    analyzer.init(context, path);
+    HtmlFormatter htmlformat = new HtmlFormatter();
+    format = new CustomFormatter();
+    format.setFormatAction(htmlformat::format);
   }
 
   @NonNull
@@ -336,7 +343,7 @@ public class HtmlLanguage implements Language {
   @NonNull
   @Override
   public Formatter getFormatter() {
-    return EmptyLanguage.EmptyFormatter.INSTANCE;
+    return format;
   }
 
   @Override
