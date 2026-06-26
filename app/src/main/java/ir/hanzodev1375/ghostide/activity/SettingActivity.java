@@ -147,6 +147,7 @@ public class SettingActivity extends BaseCompat {
           else if (position == 3) showGitHubAccountDialog();
           else if (position == 4) showLanguageDialog();
           else if (position == 8) showAnimationThresholdDialog();
+          else if (position == 9) showGridConunt();
         });
 
     aiAdapter.setOnItemClickListener(
@@ -496,6 +497,13 @@ public class SettingActivity extends BaseCompat {
             false,
             0,
             null));
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_grid_title),
+            getString(R.string.pref_grid_subtitle),
+            false,
+            0,
+            null));
     return items;
   }
 
@@ -538,6 +546,37 @@ public class SettingActivity extends BaseCompat {
             checked,
             (d, which) -> {
               prefs.setCodeEditorTabSize(sizes[which]);
+              d.dismiss();
+            })
+        .setNegativeButton(R.string.cancel, null)
+        .show();
+  }
+
+  private void showGridConunt() {
+    int id = prefs.getGridSpanCount();
+    int[] values = {2, 4, 6, 8};
+    String[] label = {
+      getString(R.string.pref_grid, "2"),
+      getString(R.string.pref_grid, "4"),
+      getString(R.string.pref_grid, "6"),
+      getString(R.string.pref_grid, "8")
+    };
+
+    int checked = 0;
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] == id) {
+        checked = i;
+        break;
+      }
+    }
+
+    new MaterialAlertDialogBuilder(this)
+        .setTitle(R.string.pref_grid_title)
+        .setSingleChoiceItems(
+            label,
+            checked,
+            (d, which) -> {
+              prefs.setGridSpanCount(values[which]);
               d.dismiss();
             })
         .setNegativeButton(R.string.cancel, null)

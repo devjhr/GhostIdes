@@ -53,7 +53,6 @@ public class Constants {
     public static final String KEY_DEVNAMEGIT = "git_pref_name";
     public static final String KEY_EMAILGIT = "git_pref_gitname";
     public static final String KEY_GRIDMOD = "filemanager_grid_mod";
-    // بعدا پیاده سازی میکنمش
     public static final String KEY_GRIDCOUNT = "filemanager_grid_count";
     public static final String KEY_FILRMB = "filemanager_showbackgroundtheme";
     public static final String KEY_ANIMATION_BATTERY_THRESHOLD = "pref_animation_battery_threshold";

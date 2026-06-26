@@ -9,6 +9,7 @@
      android:background="@drawable/bg_shape"
      android:orientation="horizontal"
      android:paddingBottom="4dp"
+     android:id="@+id/rootView"
      android:paddingStart="12dp"
      android:paddingTop="4dp">
 

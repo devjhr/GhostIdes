@@ -3,6 +3,7 @@ package ir.hanzodev1375.components;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.TransitionManager;
@@ -20,7 +21,10 @@ import android.widget.ImageView;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 
 @MainThread
 public class SearchLayout extends FrameLayout {
@@ -30,6 +34,7 @@ public class SearchLayout extends FrameLayout {
   private ImageView searchIcon;
   private OnSearchListener onSearchListener;
   private OnTextChangedListener onTextChangedListener;
+  PreferencesUtils setting;
 
   public SearchLayout(@NonNull Context context) {
     super(context);
@@ -47,6 +52,7 @@ public class SearchLayout extends FrameLayout {
   }
 
   private void init(Context context, AttributeSet attrs, int defStyleAttr) {
+    setting = new PreferencesUtils(getContext());
     LayoutInflater.from(context).inflate(R.layout.search_layout, this, true);
 
     editText = findViewById(R.id.etSearch);
@@ -56,6 +62,21 @@ public class SearchLayout extends FrameLayout {
     clearButton.setAlpha(0f);
     setVisibility(GONE);
     setupListeners();
+    View v = findViewById(R.id.rootView);
+    //  if(setting.isShowBackground())
+
+    GradientDrawable gd = (GradientDrawable) v.getBackground().mutate();
+    gd.setColor(
+        setting.isShowBackground()
+            ? ColorUtils.setAlphaComponent(
+                MaterialColors.getColor(v, R.attr.colorSurfaceContainerHigh), 128)
+            : MaterialColors.getColor(v, R.attr.colorSurfaceContainerHigh));
+    gd.setStroke(
+        2,
+        setting.isShowBackground()
+            ? ColorUtils.setAlphaComponent(
+                MaterialColors.getColor(v, R.attr.colorOutlineVariant), 128)
+            : MaterialColors.getColor(v, R.attr.colorOutlineVariant));
   }
 
   private void setupListeners() {
@@ -183,17 +204,20 @@ public class SearchLayout extends FrameLayout {
       throw new IllegalArgumentException("icon res not found call setIconSearch(#int.class)");
     } else searchIcon.setImageResource(icon);
   }
-  public boolean isShow(){
+
+  public boolean isShow() {
     return getVisibility() == VISIBLE;
   }
-  public void show(){
-    var material = new MaterialSharedAxis(MaterialSharedAxis.Z,true);
-    TransitionManager.beginDelayedTransition(this,material);
+
+  public void show() {
+    var material = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
+    TransitionManager.beginDelayedTransition(this, material);
     setVisibility(VISIBLE);
   }
-  public void hide(){
-    var material = new MaterialSharedAxis(MaterialSharedAxis.Z,false);
-    TransitionManager.beginDelayedTransition(this,material);
+
+  public void hide() {
+    var material = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
+    TransitionManager.beginDelayedTransition(this, material);
     setVisibility(GONE);
   }
 }

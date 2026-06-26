@@ -1260,8 +1260,9 @@ public class FileManagerActivity extends BaseCompat
     boolean currentGrid = appsetting.getGridMod();
     if (adapter.isGridMode() != currentGrid) {
       adapter = new FileManagerAdapter(this);
-      bind.rvfiles.setLayoutManager(
-          currentGrid ? new GridLayoutManager(this, 2) : new LinearLayoutManager(this));
+      var gr = new GridLayoutManager(this, 2);
+      gr.setSpanCount(appsetting.getGridSpanCount());
+      bind.rvfiles.setLayoutManager(currentGrid ? gr : new LinearLayoutManager(this));
       bind.rvfiles.setRecycledViewPool(new RecyclerView.RecycledViewPool());
       bind.rvfiles.setAdapter(adapter);
       adapter.setupSelectionTracker(bind.rvfiles);

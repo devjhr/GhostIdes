@@ -647,13 +647,26 @@ public class PreferencesUtils {
 
   public int getAnimationBatteryThreshold() {
     return getDefaultPreferences()
-        .getInt(Constants.SharedPreferenceKeys.KEY_ANIMATION_BATTERY_THRESHOLD, 20); //باطری اگر 20 درصد بود خاموشش کنن عه
+        .getInt(
+            Constants.SharedPreferenceKeys.KEY_ANIMATION_BATTERY_THRESHOLD,
+            20); // باطری اگر 20 درصد بود خاموشش کنن عه
   }
 
   public void setAnimationBatteryThreshold(int percent) {
     getDefaultPreferences()
         .edit()
         .putInt(Constants.SharedPreferenceKeys.KEY_ANIMATION_BATTERY_THRESHOLD, percent)
+        .apply();
+  }
+
+  public int getGridSpanCount() {
+    return getDefaultPreferences().getInt(Constants.SharedPreferenceKeys.KEY_GRIDCOUNT, 2);
+  }
+
+  public void setGridSpanCount(int count) {
+    getDefaultPreferences()
+        .edit()
+        .putInt(Constants.SharedPreferenceKeys.KEY_GRIDCOUNT, count)
         .apply();
   }
 }
