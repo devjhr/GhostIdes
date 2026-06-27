@@ -76,7 +76,7 @@ public final class CustomEditorCompletionAdapter extends EditorCompletionAdapter
       if (parsed != null) {
         iv.setImageDrawable(SimpleCompletionIconDrawer.INSTANCE.drawColorSpan(parsed));
       } else {
-        iv.setImageDrawable(new CustomCircleDrawable(CompletionItemKind.Color,true));
+        iv.setImageDrawable(new CustomCircleDrawable(CompletionItemKind.Color, true));
       }
     } else if (item.kind == CompletionItemKind.File || item.kind == CompletionItemKind.Folder) {
       boolean isFolder = item.kind == CompletionItemKind.Folder;
@@ -85,10 +85,11 @@ public final class CustomEditorCompletionAdapter extends EditorCompletionAdapter
       if (fileIcon != null) {
         iv.setImageDrawable(fileIcon);
       } else {
-        iv.setImageDrawable(new CustomCircleDrawable(item.kind,true));
+        iv.setImageDrawable(new CustomCircleDrawable(item.kind, true));
       }
     } else {
-      iv.setImageDrawable(new CustomCircleDrawable(item.kind, true));
+      CompletionItemKind kind = item.kind != null ? item.kind : CompletionItemKind.Identifier;
+      iv.setImageDrawable(new CustomCircleDrawable(kind, true));
     }
     return view;
   }

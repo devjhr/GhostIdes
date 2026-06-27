@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -354,7 +355,7 @@ public class ProjectCreator {
       String assetPath, File dest, String projectName, String packageName, String pkgPath)
       throws IOException {
     InputStream is = context.getAssets().open(assetPath);
-    byte[] bytes = is.readAllBytes();
+    byte[] bytes = readAllBytesCompat(is);
     is.close();
 
     String content = new String(bytes, StandardCharsets.UTF_8);
@@ -378,4 +379,15 @@ public class ProjectCreator {
       fos.write(content.getBytes(StandardCharsets.UTF_8));
     }
   }
+  
+  /* for old api Android 8,9,10,11,12 ect*/
+  private static byte[] readAllBytesCompat(InputStream is) throws IOException {
+    var buffer = new ByteArrayOutputStream();
+    byte[] chunk = new byte[4096];
+    int bytesRead;
+    while ((bytesRead = is.read(chunk)) != -1) {
+        buffer.write(chunk, 0, bytesRead);
+    }
+    return buffer.toByteArray();
+}
 }

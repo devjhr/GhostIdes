@@ -113,14 +113,6 @@ public class HtmlLanguage implements Language {
       @NonNull Bundle es) {
     String prefix = CompletionHelper.computePrefix(content, position, CharParser::parserHtml);
     if (isInsideStyleTag(content, position)) {
-      if (!prefix.isEmpty()) {
-        String cssExpanded = EmmetParser.expandCss(prefix);
-        if (cssExpanded != null) {
-          publisher.addItem(
-              new CustomCompletionItem(prefix, "Emmet CSS", cssExpanded, -1, prefix)
-                  .kind(CompletionItemKind.Enum));
-        }
-      }
       for (CssCompletionItem item : CssHelper.getPropertyItemsByPrefix(prefix)) {
         publisher.addItem(item);
       }

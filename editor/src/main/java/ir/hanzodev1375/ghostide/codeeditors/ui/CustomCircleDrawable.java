@@ -77,6 +77,9 @@ public class CustomCircleDrawable extends Drawable {
   }
 
   private static int getFallbackColor(CompletionItemKind kind) {
+    if (kind == null) {
+        return Color.parseColor("#fff777");
+    }
     switch (kind) {
       case Identifier:
         return Color.parseColor("#ffb0b0b0"); // خاکستری نقره‌ای
