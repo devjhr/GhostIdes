@@ -5,6 +5,7 @@
  */
 package ir.hanzodev1375.ghostide.codeeditors.langs.sass;
 
+import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,7 +58,7 @@ public class SassLanguage implements Language {
   private IdentifierAutoComplete autoComplete;
 
   private final SassIncrementalAnalyzeManager manager;
-
+  private Context context;
   private final SassQuoteHandler quoteHandler = new SassQuoteHandler();
 
   private static final String[] KEYWORDS = {
@@ -79,7 +80,8 @@ public class SassLanguage implements Language {
     "null"
   };
 
-  public SassLanguage() {
+  public SassLanguage(Context context) {
+    this.context = context;
     autoComplete = new IdentifierAutoComplete(KEYWORDS);
     manager = new SassIncrementalAnalyzeManager();
   }
@@ -147,7 +149,7 @@ public class SassLanguage implements Language {
               "function",
               "Snippet - Function",
               new SnippetDescription(prefix.length(), FUNCTION_SNIPPET, true)));
-    Css3Server cssServer = new Css3Server();
+    Css3Server cssServer = new Css3Server(context);
     List<CustomCompletionItem> cssItems = cssServer.getCompletions(prefix);
     for (var item : cssItems) {
       publisher.addItem(item);

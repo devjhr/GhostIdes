@@ -55,11 +55,11 @@ public final class LanguageManager {
     register((c, p) -> new Python3Language(), "py");
     register((c, p) -> new JsonLanguage(c, p), "json");
     register((c, p) -> new XmlLanguage(), "xml");
-    register((c, p) -> new KotlinLanguage(), "kt", "kts");
+    register((c, p) -> new KotlinLanguage(), "kt", "kts"); 
     register((c, p) -> new TypeScriptLanguage(), "ts");
     register((c, p) -> new TomlLanguage(), "toml");
     register((c, p) -> new GradleLanguage(), "gradle", "groovy");
-    register((c, p) -> new SassLanguage(), "sass", "scss");
+    register((c, p) -> new SassLanguage(c), "sass", "scss");
     register((c, p) -> new MarkdownLanguage(), "md", "markdown");
     register((c, p) -> new YamlLanguage(), "yml", "yaml");
     register((c, p) -> new LuaLanguage(), "lua");

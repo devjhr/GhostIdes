@@ -9,6 +9,7 @@ import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.QuickQuoteHandler;
 import io.github.rosemoe.sora.lang.analysis.AnalyzeManager;
 import io.github.rosemoe.sora.lang.completion.CompletionHelper;
+import io.github.rosemoe.sora.lang.completion.CompletionItemKind;
 import io.github.rosemoe.sora.lang.completion.CompletionPublisher;
 import io.github.rosemoe.sora.lang.completion.IdentifierAutoComplete;
 import io.github.rosemoe.sora.lang.completion.snippet.CodeSnippet;
@@ -24,8 +25,12 @@ import io.github.rosemoe.sora.widget.SymbolPairMatch;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.SnippetCompletionItem;
 import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.Css3Server;
+import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.EmmetParser;
+import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.PathCompleter;
+import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.VFSManager;
 import ir.hanzodev1375.ghostide.codeeditors.util.CustomFormatter;
 import ir.hanzodev1375.ghostide.codeeditors.util.formatter.HtmlFormatter;
+import java.io.File;
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
@@ -67,6 +72,14 @@ public class HtmlLanguage implements Language {
     autoComplete = new IdentifierAutoComplete(htmlKeywords);
     analyzer = new HTMLAnalyzer();
     analyzer.init(context, path);
+    this.context = context;
+    this.path = path;
+    if (path != null) {
+      File parentDir = new File(path).getParentFile();
+      if (parentDir != null) {
+        VFSManager.getInstance().buildCache(parentDir.getAbsolutePath());
+      }
+    }
     HtmlFormatter htmlformat = new HtmlFormatter();
     format = new CustomFormatter();
     format.setFormatAction(htmlformat::format);
@@ -100,10 +113,18 @@ public class HtmlLanguage implements Language {
       @NonNull Bundle es) {
     String prefix = CompletionHelper.computePrefix(content, position, CharParser::parserHtml);
     if (isInsideStyleTag(content, position)) {
+      if (!prefix.isEmpty()) {
+        String cssExpanded = EmmetParser.expandCss(prefix);
+        if (cssExpanded != null) {
+          publisher.addItem(
+              new CustomCompletionItem(prefix, "Emmet CSS", cssExpanded, -1, prefix)
+                  .kind(CompletionItemKind.Enum));
+        }
+      }
       for (CssCompletionItem item : CssHelper.getPropertyItemsByPrefix(prefix)) {
         publisher.addItem(item);
       }
-      Css3Server cssServer = new Css3Server();
+      Css3Server cssServer = new Css3Server(context);
       List<CustomCompletionItem> cssItems = cssServer.getCompletions(prefix);
       for (CustomCompletionItem item : cssItems) {
         publisher.addItem(item);
@@ -121,6 +142,16 @@ public class HtmlLanguage implements Language {
 
     autoComplete.requireAutoComplete(
         content, position, prefix, publisher, analyzer.getSyncIdentifiers());
+
+    if (!prefix.isEmpty() && !isInsideTag(content, position)) {
+      String htmlExpanded = EmmetParser.expandHtml(prefix);
+      if (htmlExpanded != null) {
+        publisher.addItem(
+            new CustomCompletionItem(prefix, "Emmet HTML", htmlExpanded, -1, prefix)
+                .kind(CompletionItemKind.Enum));
+      }
+    }
+
     if ("html5".startsWith(prefix) && prefix.length() > 0) {
       publisher.addItem(
           new SnippetCompletionItem(
@@ -184,6 +215,14 @@ public class HtmlLanguage implements Language {
           publisher.addItem(item);
         }
       }
+    }
+    String pathPrefix = prefix;
+    if (pathPrefix != null) {
+      List<CustomCompletionItem> pathItems = PathCompleter.getPathCompletions(path, pathPrefix);
+      for (CustomCompletionItem item : pathItems) {
+        publisher.addItem(item);
+      }
+      return;
     }
   }
 

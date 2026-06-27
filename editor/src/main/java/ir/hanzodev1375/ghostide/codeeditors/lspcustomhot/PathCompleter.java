@@ -27,10 +27,13 @@ public class PathCompleter {
       if (targetDir == null || !targetDir.exists() || !targetDir.isDirectory()) return completions;
 
       cache.remove(targetDir.getAbsolutePath());
-      File[] allFiles =
-          cache.computeIfAbsent(
-              targetDir.getAbsolutePath(),
-              k -> Optional.ofNullable(targetDir.listFiles()).orElse(new File[0]));
+      File[] allFiles;
+      List<File> cached = VFSManager.getInstance().listFiles(targetDir);
+      if (cached != null) {
+        allFiles = cached.toArray(new File[0]);
+      } else {
+        allFiles = Optional.ofNullable(targetDir.listFiles()).orElse(new File[0]);
+      }
 
       String finalPrefix = extractFinalPrefix(userPrefix);
       String basePath = buildBasePath(userPrefix);

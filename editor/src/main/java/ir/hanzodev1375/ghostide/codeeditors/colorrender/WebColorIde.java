@@ -36,7 +36,7 @@ public class WebColorIde {
 
   private Pattern buildFullColorPattern() {
     String namePattern = colorNameRepo.getNamePattern().pattern();
-    // ترکیب الگوی پایه با الگوی نام‌ها (با \b برای کلمات کامل)
+   
     String combined = BASIC_PATTERN + "|\\b(" + namePattern + ")\\b";
     return Pattern.compile(combined, Pattern.CASE_INSENSITIVE);
   }

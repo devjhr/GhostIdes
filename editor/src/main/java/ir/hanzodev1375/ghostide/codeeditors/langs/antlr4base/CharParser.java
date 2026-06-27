@@ -14,6 +14,8 @@ public class CharParser {
         || c == '.'
         || c == '<'
         || c == ':'
-        || c == '=';
+        || c == '='
+        || c == '*'
+        || c == '/'; // file path /user/
   }
 }

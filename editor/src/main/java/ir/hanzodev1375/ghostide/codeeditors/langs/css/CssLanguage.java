@@ -88,7 +88,7 @@ public class CssLanguage implements Language {
       publisher.addItem(item);
     }
 
-    Css3Server cssServer = new Css3Server();
+    Css3Server cssServer = new Css3Server(context);
     List<CustomCompletionItem> cssItems = cssServer.getCompletions(prefix);
     for (CustomCompletionItem item : cssItems) {
       publisher.addItem(item);

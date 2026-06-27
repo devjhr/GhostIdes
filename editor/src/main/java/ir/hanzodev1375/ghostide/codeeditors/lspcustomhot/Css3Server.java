@@ -1,5 +1,8 @@
 package ir.hanzodev1375.ghostide.codeeditors.lspcustomhot;
 
+import android.content.Context;
+import io.github.rosemoe.sora.lang.completion.CompletionItemKind;
+import ir.hanzodev1375.ghostide.codeeditors.colorrender.model.colorrepo.ColorNameRepository;
 import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.model.CssSelect;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +14,7 @@ public class Css3Server {
 
   private Random RANDOM = new Random();
   private int COLORS_TO_GENERATE = 20;
+  private final ColorNameRepository colorRepo;
 
   private String[] colorsCss = {
     "aliceblue",
@@ -184,7 +188,14 @@ public class Css3Server {
 
   private KeyWordConst keyWordConst = new KeyWordConst();
 
-  public Css3Server() {}
+  public Css3Server(Context context) {
+    this.colorRepo = ColorNameRepository.getInstance(context);
+  }
+
+  /** برای backward compat — بدون context، color repo نداریم */
+  public Css3Server() {
+    this.colorRepo = null;
+  }
 
   public List<CustomCompletionItem> getCompletions(String prefix) {
     if (prefix == null) prefix = "";
@@ -247,7 +258,13 @@ public class Css3Server {
       for (String color : colorsCss) {
         if (color.startsWith(colorPrefix)) {
           String insertText = color + ";";
-          list.add(new CustomCompletionItem(color, "CSS Color", insertText, -1, colorPrefix));
+          // hex رو از repo بگیر برای desc
+          String hexDesc = colorRepo != null ? colorRepo.getHexForName(color) : "CSS Color";
+          if (hexDesc == null) hexDesc = "CSS Color";
+          CustomCompletionItem item =
+              new CustomCompletionItem(color, hexDesc, insertText, -1, colorPrefix);
+          item.kind(CompletionItemKind.Color);
+          list.add(item);
         }
       }
     }
@@ -332,7 +349,8 @@ public class Css3Server {
                 String insertText = number + unit + ";";
                 list.add(
                     new CustomCompletionItem(
-                        number + unit, propName + " value", insertText, -1, valuePart));
+                            number + unit, propName + " value", insertText, -1, valuePart)
+                        .kind(CompletionItemKind.Unit));
               }
             }
           }
@@ -341,7 +359,8 @@ public class Css3Server {
             String insertText = "0" + unit + ";";
             list.add(new CustomCompletionItem(insertText, propName + " zero"));
           }
-          list.add(new CustomCompletionItem("auto;", propName + " auto"));
+          list.add(
+              new CustomCompletionItem("auto;", propName + " auto").kind(CompletionItemKind.Unit));
         }
         break;
       }
@@ -371,8 +390,12 @@ public class Css3Server {
           for (String color : colorsCss) {
             if (color.startsWith(valuePart)) {
               String insertText = color + ";";
-              list.add(
-                  new CustomCompletionItem(insertText, "Border color", insertText, -1, valuePart));
+              String hexDesc = colorRepo != null ? colorRepo.getHexForName(color) : "Border color";
+              if (hexDesc == null) hexDesc = "Border color";
+              CustomCompletionItem item =
+                  new CustomCompletionItem(color, hexDesc, insertText, -1, valuePart);
+              item.kind(CompletionItemKind.Color);
+              list.add(item);
             }
           }
         } else if (prop.endsWith("style:")) {
@@ -396,7 +419,8 @@ public class Css3Server {
                   String insertText = number + unit + ";";
                   list.add(
                       new CustomCompletionItem(
-                          insertText, "Border width", insertText, -1, valuePart));
+                              insertText, "Border width", insertText, -1, valuePart)
+                          .kind(CompletionItemKind.Method));
                 }
               }
             }
@@ -439,7 +463,9 @@ public class Css3Server {
       for (String d : displays) {
         if (d.startsWith(valPrefix)) {
           String insertText = d + ";";
-          list.add(new CustomCompletionItem(insertText, "Display", insertText, -1, valPrefix));
+          list.add(
+              new CustomCompletionItem(insertText, "Display", insertText, -1, valPrefix)
+                  .kind(CompletionItemKind.Variable));
         }
       }
     } else if (prefix.startsWith("position:")) {
@@ -448,7 +474,9 @@ public class Css3Server {
       for (String p : positions) {
         if (p.startsWith(valPrefix)) {
           String insertText = p + ";";
-          list.add(new CustomCompletionItem(insertText, "Position", insertText, -1, valPrefix));
+          list.add(
+              new CustomCompletionItem(insertText, "Position", insertText, -1, valPrefix)
+                  .kind(CompletionItemKind.Reference));
         }
       }
     } else if (prefix.startsWith("flex-direction:")) {
@@ -458,7 +486,8 @@ public class Css3Server {
         if (d.startsWith(valPrefix)) {
           String insertText = d + ";";
           list.add(
-              new CustomCompletionItem(insertText, "Flex direction", insertText, -1, valPrefix));
+              new CustomCompletionItem(insertText, "Flex direction", insertText, -1, valPrefix)
+                  .kind(CompletionItemKind.Struct));
         }
       }
     } else if (prefix.startsWith("justify-content:")) {
@@ -470,7 +499,8 @@ public class Css3Server {
         if (v.startsWith(valPrefix)) {
           String insertText = v + ";";
           list.add(
-              new CustomCompletionItem(insertText, "Justify content", insertText, -1, valPrefix));
+              new CustomCompletionItem(insertText, "Justify content", insertText, -1, valPrefix)
+                  .kind(CompletionItemKind.Constant));
         }
       }
     } else if (prefix.startsWith("align-items:")) {
@@ -479,7 +509,9 @@ public class Css3Server {
       for (String v : vals) {
         if (v.startsWith(valPrefix)) {
           String insertText = v + ";";
-          list.add(new CustomCompletionItem(insertText, "Align items", insertText, -1, valPrefix));
+          list.add(
+              new CustomCompletionItem(insertText, "Align items", insertText, -1, valPrefix)
+                  .kind(CompletionItemKind.Variable));
         }
       }
     } else if (prefix.startsWith("grid-template-columns:")) {
@@ -515,7 +547,10 @@ public class Css3Server {
     if (prefix.endsWith("#f")) {
       List<String> fake = generateRandomColors(COLORS_TO_GENERATE);
       for (String color : fake) {
-        list.add(new CustomCompletionItem(color + ";", "Random color"));
+        CustomCompletionItem item =
+            new CustomCompletionItem(color, color.toUpperCase(), color + ";", -1, "#f");
+        item.kind(CompletionItemKind.Color);
+        list.add(item);
       }
     }
     return list;
