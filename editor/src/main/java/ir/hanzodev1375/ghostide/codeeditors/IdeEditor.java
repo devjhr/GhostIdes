@@ -15,6 +15,7 @@ import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.component.Magnifier;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorrender.WebColorIde;
+import ir.hanzodev1375.ghostide.codeeditors.preview.ImagePreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.setting.Constants;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
@@ -26,6 +27,7 @@ public class IdeEditor extends CodeEditor
 
   private PreferencesUtils setting;
   private WebColorIde webColorIde;
+  private ImagePreviewIde imagePreviewIde;
 
   public IdeEditor(Context context) {
     super(context);
@@ -41,6 +43,8 @@ public class IdeEditor extends CodeEditor
     setting = new PreferencesUtils(getContext());
     // test
     setWebIdeColor(true);
+    imagePreviewIde = new ImagePreviewIde(this);
+    imagePreviewIde.attach();
     var editorAutoCompletion = new CustomEditorAutoCompletion(this);
     editorAutoCompletion.setAdapter(new CustomEditorCompletionAdapter());
     replaceComponent(EditorAutoCompletion.class, editorAutoCompletion);
@@ -83,6 +87,12 @@ public class IdeEditor extends CodeEditor
     // duplicateLine()
     // selectCurrentWord()
 
+  }
+
+  public void setCurrentFilePath(String htmlFilePath) {
+    if (imagePreviewIde != null) {
+      imagePreviewIde.setCurrentFilePath(htmlFilePath);
+    }
   }
 
   private void updateEditorPinLineNumber() {

@@ -121,6 +121,9 @@ public class EditorFragment extends Fragment {
     binding.ivWrapToggle2.setOnClickListener(v -> goToNextPage());
     theme.applyViewPagePanel(
         binding.ivWrapToggle1, binding.ivWrapToggle2, binding.tvWrapInfo, binding.llWrapIndicator);
+    if (filePath.endsWith(".html")) {
+      binding.editor.setCurrentFilePath(filePath);
+    }
   }
 
   private void openPagedSession(File file) {
