@@ -27,15 +27,19 @@
   <string name="branch_rebase">Rebase</string>
   <string name="branch_delete">לִמְחוֹק</string>
   <string name="branch_delete_confirm_title">מחק סניף</string>
-  <string name="branch_delete_confirm_msg">למחוק את הסניף \\'%s\\'?</string>
+  <!-- اصلاح شده: تبدیل \\' به &apos; -->
+  <string name="branch_delete_confirm_msg">למחוק את הסניף &apos;%s&apos;?</string>
   <string name="branch_merge_confirm_title">מיזוג סניף</string>
-  <string name="branch_merge_confirm_msg">למזג את \\'%1$s\\' לתוך \\'%2$s\\'?</string>
+  <!-- اصلاح شده: تبدیل \\' به &apos; -->
+  <string name="branch_merge_confirm_msg">למזג את &apos;%1$s&apos; לתוך &apos;%2$s&apos;?</string>
   <string name="branch_rebase_confirm_title">Rebase</string>
-  <string name="branch_rebase_confirm_msg">בסיס מחדש של \\'%1$s\\' אל \\'%2$s\\'?\n\nזה משכתב את היסטוריית ההתחייבויות.</string>
+  <!-- اصلاح شده: تبدیل \\' به &apos; -->
+  <string name="branch_rebase_confirm_msg">בסיס מחדש של &apos;%1$s&apos; אל &apos;%2$s&apos;?\n\nזה משכתב את היסטוריית ההתחייבויות.</string>
   <string name="remote_add">הוסף שלט</string>
   <string name="remote_remove">לְהַסִיר</string>
   <string name="remote_remove_confirm_title">הסר את השלט הרחוק</string>
-  <string name="remote_remove_confirm_msg">להסיר את \\'%s\\'?</string>
+  <!-- اصلاح شده: تبدیل \\' به &apos; -->
+  <string name="remote_remove_confirm_msg">להסיר את &apos;%s&apos;?</string>
   <string name="remote_push">לִדחוֹף</string>
   <string name="remote_pull">מְשׁוֹך</string>
   <string name="remote_fetch">לְהָבִיא</string>
@@ -84,7 +88,7 @@
   <string name="tag_create">צור תג</string>
   <string name="tag_delete">לִמְחוֹק</string>
   <string name="tag_delete_confirm_title">מחק תג</string>
-  <string name="tag_delete_confirm_msg">למחוק את התג \\'%s\\'?</string>
+  <string name="tag_delete_confirm_msg">למחוק את התג &apos;%s&apos;?</string>
   <string name="tag_no_tags">עדיין אין תגים</string>
   <string name="gitignore_title">עורך .gitignore</string>
   <string name="gitignore_hint">הזן דפוסים, אחד בכל שורה...</string>

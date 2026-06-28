@@ -56,6 +56,6 @@ public class StringsXmlParser {
         .replace("<", "&lt;")
         .replace(">", "&gt;")
         .replace("\"", "&quot;")
-        .replace("'", "\\'");
+        .replace("'", "&apos;");;
   }
 }
