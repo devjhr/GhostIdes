@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">Ghostide</string>
   <string name="close">بستن</string>
@@ -47,14 +48,12 @@
   <string name="tab_size_4">۴ فاصله</string>
   <string name="tab_size_6">۶ فاصله</string>
   <string name="tab_size_8">۸ فاصله</string>
-
   <string name="pref_line_height">ارتفاع خط</string>
   <string name="pref_line_height_desc">فاصله بین خطوط</string>
   <string name="line_height_1">۱ (فشرده)</string>
   <string name="line_height_2">۲ (عادی)</string>
   <string name="line_height_3">۳ (راحت)</string>
   <string name="line_height_4">۴ (بزرگ)</string>
-
   <string name="pref_cursor_blink_period">دوره چشمک زدن مکان نما</string>
   <string name="pref_cursor_blink_period_desc">فاصله چشمک زدن بر حسب میلی ثانیه</string>
   <string name="pref_minimap">مینی مپ</string>
@@ -112,8 +111,6 @@
   <string name="editorac_notopenfile">هیچ فایلی باز نیست</string>
   <string name="editorac_wassaved">فایل فعلی ذخیره شد.</string>
   <string name="editorac_errorfargment">بخش خطا پیدا نشد</string>
-
-  <!-- new String -->
   <string name="pref_language">زبان برنامه</string>
   <string name="pref_language_desc">زبان نمایش برنامه را انتخاب کنید</string>
   <string name="pref_show_tab_icon_title">نمایش آیکون تب</string>
@@ -224,4 +221,63 @@
   <string name="shortcut_dialog_message">آیا می‌خواهید برای «%1$s» میانبری در صفحه اصلی ایجاد شود؟</string>
   <string name="yes">بله</string>
   <string name="no">خیر</string>
+  <string name="diag_title">تشخیص سیستم</string>
+  <string name="diag_device_info">اطلاعات دستگاه</string>
+  <string name="diag_display">نمایش و رندر</string>
+  <string name="diag_memory">زمان اجرا و حافظه</string>
+  <string name="diag_storage">ذخیره سازی</string>
+  <string name="copyfullpath">مسیر کامل را کپی کنید</string>
+  <string name="zip_extract_here">در اینجا استخراج کنید</string>
+  <string name="zip_extract_to">استخراج به پوشه</string>
+  <string name="zip_info">اطلاعات ZIP</string>
+  <string name="zip_info_files">فایل ها: %d</string>
+  <string name="zip_info_dirs">پوشه ها: %d</string>
+  <string name="zip_info_original">اندازه اصلی: %s</string>
+  <string name="zip_info_compressed">اندازه فشرده: %s</string>
+  <string name="zip_info_ratio">نسبت تراکم: %d%%</string>
+  <string name="zip_info_encrypted">رمزگذاری شده: %s</string>
+  <string name="zip_info_yes">بله</string>
+  <string name="zip_info_no">خیر</string>
+  <string name="zip_extract_dest">استخراج به:\n%s</string>
+  <string name="zip_extracted_ok">با موفقیت استخراج شد</string>
+  <string name="zip_deleted_ok">حذف شد</string>
+  <string name="zip_renamed_ok">تغییر نام داد</string>
+  <string name="zip_error_prefix">خطا: %s</string>
+  <string name="ftp_connect">FTP/SFTP</string>
+  <string name="ftp_download_success">در پوشه فعلی دانلود شد</string>
+  <string name="ftp_download_error">دانلود انجام نشد</string>
+  <string name="ftp_connection_error">اتصال ناموفق بود</string>
+  <string name="grid_title">Grid Mod</string>
+  <string name="grid_subtitle">Enabel Grid Mod به File Manager</string>
+  <string name="sd_card_menu_item">کارت SD</string>
+  <string name="sd_card_label">کارت SD</string>
+  <string name="internal_storage_label">ذخیره سازی داخلی</string>
+  <string name="sd_card_not_found">کارت SD شناسایی نشد</string>
+  <string name="sd_card_space_info">کارت SD: %1$s رایگان از %2$s</string>
+  <string name="pref_animation_battery_threshold_desc">آستانه باتری انیمیشن</string>
+  <string name="pref_animation_battery_threshold">باتری انیمیشن</string>
+  <string name="pref_grid">تعداد شبکه %s</string>
+  <string name="pref_grid_title">Grid Count را انتخاب کنید</string>
+  <string name="pref_grid_subtitle">Grid Connt For را در مدیریت فایل تنظیم کنید</string>
+  <string name="pref_show_hidden_files">نمایش فایل های مخفی</string>
+  <string name="pref_show_hidden_files_desc">نمایش فایل ها و پوشه ها که با نقطه شروع می شوند (.)</string>
+  <string name="pref_show_background">نمایش پس زمینه</string>
+  <string name="pref_show_background_desc">نمایش تصویر پس زمینه در تم</string>
+  <string name="pref_openrouter_api_key">کلید API OpenRouter</string>
+  <string name="module_hint_libraries">کتابخانه ها (اختیاری)</string>
+  <string name="module_helper_libraries">group:artifact:version - یکی در هر خط یا با کاما از هم جدا شده است</string>
+  <string name="module_error_lib_format">قالب نامعتبر: \&quot;%s\&quot; — از group:artifact:version استفاده کنید</string>
+  <string name="translator_title">ترجمه strings.xml</string>
+  <string name="translator_select_all">همه</string>
+  <string name="translator_deselect_all">هیچ کدام</string>
+  <string name="translator_start">شروع ترجمه</string>
+  <string name="translator_cancel">لغو کنید</string>
+  <string name="translator_done">ترجمه تکمیل شد</string>
+  <string name="translator_cancelled">ترجمه لغو شد</string>
+  <string name="translator_error_file_not_found">فایل Strings.xml یافت نشد</string>
+  <string name="setting_lineinfopaneltitle">نمایش پانل خط مورد</string>
+  <string name="setting_lineinfopanelsubtitle">با این گزینه می توانید پنل انتخاب خط و ستون را انتخاب کنید.</string>
+  <string name="serachdata">Serach File یا Dir</string>
+  <string name="store">فروشگاه</string>
+  <string name="aboutapp">درباره برنامه</string>
 </resources>

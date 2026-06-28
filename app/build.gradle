@@ -59,7 +59,7 @@ dependencies {
   //  implementation project(":proot") //not work android ide
     implementation project(":aimodel")
     implementation project(":prddownloader")
-
+    implementation(libs.okhttp)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

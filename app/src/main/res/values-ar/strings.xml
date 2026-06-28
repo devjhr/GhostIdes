@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">Ghostide</string>
   <string name="close">إغلاق</string>
@@ -47,14 +48,12 @@
   <string name="tab_size_4">٤ مسافات</string>
   <string name="tab_size_6">٦ مسافات</string>
   <string name="tab_size_8">٨ مسافات</string>
-
   <string name="pref_line_height">ارتفاع السطر</string>
   <string name="pref_line_height_desc">تباعد الأسطر</string>
   <string name="line_height_1">١ (مضغوط)</string>
   <string name="line_height_2">٢ (عادي)</string>
   <string name="line_height_3">٣ (مريح)</string>
   <string name="line_height_4">٤ (كبير)</string>
-
   <string name="pref_cursor_blink_period">مدة وميض المؤشر</string>
   <string name="pref_cursor_blink_period_desc">فترة الوميض بالمللي ثانية</string>
   <string name="pref_minimap">الخريطة المصغرة</string>
@@ -112,8 +111,6 @@
   <string name="editorac_notopenfile">لا توجد ملفات مفتوحة</string>
   <string name="editorac_wassaved">تم حفظ الملف الحالي.</string>
   <string name="editorac_errorfargment">لم يتم العثور على جزء الخطأ</string>
-
-  <!-- new String -->
   <string name="pref_language">لغة التطبيق</string>
   <string name="pref_language_desc">اختر لغة عرض التطبيق</string>
   <string name="pref_show_tab_icon_title">إظهار أيقونة التبويب</string>
@@ -224,4 +221,63 @@
   <string name="shortcut_dialog_message">هل تريد إنشاء اختصار لـ «%1$s» على الشاشة الرئيسية؟</string>
   <string name="yes">نعم</string>
   <string name="no">لا</string>
+  <string name="diag_title">تشخيص النظام</string>
+  <string name="diag_device_info">معلومات الجهاز</string>
+  <string name="diag_display">العرض والتقديم</string>
+  <string name="diag_memory">وقت التشغيل والذاكرة</string>
+  <string name="diag_storage">تخزين</string>
+  <string name="copyfullpath">نسخ المسار الكامل</string>
+  <string name="zip_extract_here">استخراج هنا</string>
+  <string name="zip_extract_to">استخراج إلى المجلد</string>
+  <string name="zip_info">معلومات الرمز البريدي</string>
+  <string name="zip_info_files">الملفات: %d</string>
+  <string name="zip_info_dirs">المجلدات: %d</string>
+  <string name="zip_info_original">الحجم الأصلي: %s</string>
+  <string name="zip_info_compressed">الحجم المضغوط: %s</string>
+  <string name="zip_info_ratio">نسبة الضغط: %d%%</string>
+  <string name="zip_info_encrypted">مشفرة: %s</string>
+  <string name="zip_info_yes">نعم</string>
+  <string name="zip_info_no">لا</string>
+  <string name="zip_extract_dest">استخراج إلى:\n%s</string>
+  <string name="zip_extracted_ok">تم الاستخراج بنجاح</string>
+  <string name="zip_deleted_ok">تم الحذف</string>
+  <string name="zip_renamed_ok">تمت إعادة تسميته</string>
+  <string name="zip_error_prefix">خطأ: %s</string>
+  <string name="ftp_connect">بروتوكول نقل الملفات/سفتب</string>
+  <string name="ftp_download_success">تم التنزيل إلى المجلد الحالي</string>
+  <string name="ftp_download_error">فشل التنزيل</string>
+  <string name="ftp_connection_error">فشل الاتصال</string>
+  <string name="grid_title">وزارة الدفاع الشبكة</string>
+  <string name="grid_subtitle">تمكين الشبكة وزارة الدفاع إلى مدير الملفات</string>
+  <string name="sd_card_menu_item">بطاقة SD</string>
+  <string name="sd_card_label">بطاقة SD</string>
+  <string name="internal_storage_label">التخزين الداخلي</string>
+  <string name="sd_card_not_found">لم يتم اكتشاف بطاقة SD</string>
+  <string name="sd_card_space_info">بطاقة SD: %1$s خالية من %2$s</string>
+  <string name="pref_animation_battery_threshold_desc">عتبة بطارية الرسوم المتحركة</string>
+  <string name="pref_animation_battery_threshold">بطارية الرسوم المتحركة</string>
+  <string name="pref_grid">عدد الشبكة %s</string>
+  <string name="pref_grid_title">حدد عدد الشبكة</string>
+  <string name="pref_grid_subtitle">قم بتعيين Grid Connt For في مدير الملفات</string>
+  <string name="pref_show_hidden_files">إظهار الملفات المخفية</string>
+  <string name="pref_show_hidden_files_desc">عرض الملفات والمجلدات التي تبدأ بالنقطة (.)</string>
+  <string name="pref_show_background">إظهار الخلفية</string>
+  <string name="pref_show_background_desc">إظهار صورة الخلفية في الموضوع</string>
+  <string name="pref_openrouter_api_key">مفتاح واجهة برمجة تطبيقات OpenRouter</string>
+  <string name="module_hint_libraries">المكتبات (اختياري)</string>
+  <string name="module_helper_libraries">المجموعة: قطعة أثرية: الإصدار - واحد في كل سطر أو مفصولة بفاصلة</string>
+  <string name="module_error_lib_format">تنسيق غير صالح: \&quot;%s\&quot; — استخدم المجموعة:artifact:version</string>
+  <string name="translator_title">سلاسل الترجمة.xml</string>
+  <string name="translator_select_all">الجميع</string>
+  <string name="translator_deselect_all">لا أحد</string>
+  <string name="translator_start">ابدأ الترجمة</string>
+  <string name="translator_cancel">يلغي</string>
+  <string name="translator_done">اكتملت الترجمة</string>
+  <string name="translator_cancelled">تم إلغاء الترجمة</string>
+  <string name="translator_error_file_not_found">لم يتم العثور على ملف Strings.xml</string>
+  <string name="setting_lineinfopaneltitle">إظهار لوحة سطر العنصر</string>
+  <string name="setting_lineinfopanelsubtitle">باستخدام هذا الخيار، يمكنك تحديد لوحة تحديد الخط والعمود.</string>
+  <string name="serachdata">Serach File أو Dir</string>
+  <string name="store">محل</string>
+  <string name="aboutapp">حول التطبيق</string>
 </resources>

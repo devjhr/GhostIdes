@@ -68,8 +68,21 @@ public class TranslatorViewModel extends AndroidViewModel {
                   }
 
                   @Override
-                  public void onLanguageDone(String folder) {
-                    lastCompletedFolder.postValue(folder);
+                  public void onLanguageDone(
+                      String folder, int translatedCount, int skippedCount, int failedCount) {
+                    StringBuilder msg = new StringBuilder(folder);
+                    if (skippedCount > 0 || translatedCount > 0 || failedCount > 0) {
+                      msg.append(" (").append(translatedCount).append(" translated");
+                      if (skippedCount > 0)
+                        msg.append(", ").append(skippedCount).append(" skipped");
+                      if (failedCount > 0) {
+                        msg.append(", ")
+                            .append(failedCount)
+                            .append(" failed — will retry next run");
+                      }
+                      msg.append(")");
+                    }
+                    lastCompletedFolder.postValue(msg.toString());
                   }
 
                   @Override

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">Ghostide</string>
   <string name="close">बंद करें</string>
@@ -47,14 +48,12 @@
   <string name="tab_size_4">४ रिक्त स्थान</string>
   <string name="tab_size_6">६ रिक्त स्थान</string>
   <string name="tab_size_8">८ रिक्त स्थान</string>
-
   <string name="pref_line_height">लाइन ऊँचाई</string>
   <string name="pref_line_height_desc">लाइन रिक्ति</string>
   <string name="line_height_1">१ (कॉम्पैक्ट)</string>
   <string name="line_height_2">२ (सामान्य)</string>
   <string name="line_height_3">३ (आरामदायक)</string>
   <string name="line_height_4">४ (बड़ा)</string>
-
   <string name="pref_cursor_blink_period">कर्सर झपकना अवधि</string>
   <string name="pref_cursor_blink_period_desc">मिलीसेकंड में झपकना अंतराल</string>
   <string name="pref_minimap">लघु मानचित्र</string>
@@ -112,8 +111,6 @@
   <string name="editorac_notopenfile">कोई फ़ाइल खुली नहीं है</string>
   <string name="editorac_wassaved">वर्तमान फ़ाइल सहेजी गई थी।</string>
   <string name="editorac_errorfargment">त्रुटि अंश (Fragment) नहीं मिला</string>
-
-  <!-- new String -->
   <string name="pref_language">ऐप भाषा</string>
   <string name="pref_language_desc">ऐप की प्रदर्शन भाषा चुनें</string>
   <string name="pref_show_tab_icon_title">टैब आइकन दिखाएं</string>
@@ -224,4 +221,63 @@
   <string name="shortcut_dialog_message">क्या आप होम स्क्रीन पर «%1$s» का शॉर्टकट बनाना चाहते हैं?</string>
   <string name="yes">हाँ</string>
   <string name="no">नहीं</string>
+  <string name="diag_title">सिस्टम डायग्नोस्टिक्स</string>
+  <string name="diag_device_info">डिवाइस जानकारी</string>
+  <string name="diag_display">प्रदर्शन एवं प्रतिपादन</string>
+  <string name="diag_memory">रनटाइम और मेमोरी</string>
+  <string name="diag_storage">भंडारण</string>
+  <string name="copyfullpath">पूरा पथ कॉपी करें</string>
+  <string name="zip_extract_here">यहाँ निकालें</string>
+  <string name="zip_extract_to">फ़ोल्डर में निकालें</string>
+  <string name="zip_info">ज़िप जानकारी</string>
+  <string name="zip_info_files">फ़ाइलें: %d</string>
+  <string name="zip_info_dirs">फ़ोल्डर: %d</string>
+  <string name="zip_info_original">मूल आकार: %s</string>
+  <string name="zip_info_compressed">संपीड़ित आकार: %s</string>
+  <string name="zip_info_ratio">संपीड़न अनुपात: %d%%</string>
+  <string name="zip_info_encrypted">एन्क्रिप्टेड: %s</string>
+  <string name="zip_info_yes">हाँ</string>
+  <string name="zip_info_no">नहीं</string>
+  <string name="zip_extract_dest">इसमें निकालें:\n%s</string>
+  <string name="zip_extracted_ok">सफलतापूर्वक निकाला गया</string>
+  <string name="zip_deleted_ok">हटाए गए</string>
+  <string name="zip_renamed_ok">नाम बदलकर</string>
+  <string name="zip_error_prefix">त्रुटि: %s</string>
+  <string name="ftp_connect">एफ़टीपी/एसएफटीपी</string>
+  <string name="ftp_download_success">वर्तमान फ़ोल्डर में डाउनलोड किया गया</string>
+  <string name="ftp_download_error">डाउनलोड विफल रहा</string>
+  <string name="ftp_connection_error">कनेक्शन विफल</string>
+  <string name="grid_title">ग्रिड मॉड</string>
+  <string name="grid_subtitle">ग्रिड मॉड को फाइल मैनेजर में इनेबल करें</string>
+  <string name="sd_card_menu_item">एसडी कार्ड</string>
+  <string name="sd_card_label">एसडी कार्ड</string>
+  <string name="internal_storage_label">आंतरिक स्टोरेज</string>
+  <string name="sd_card_not_found">कोई एसडी कार्ड नहीं मिला</string>
+  <string name="sd_card_space_info">एसडी कार्ड: %1$s %2$s से निःशुल्क</string>
+  <string name="pref_animation_battery_threshold_desc">एनिमेशन बैटरी थ्रेशोल्ड</string>
+  <string name="pref_animation_battery_threshold">एनीमेशन बैटरी</string>
+  <string name="pref_grid">ग्रिड गिनती %s</string>
+  <string name="pref_grid_title">ग्रिड गणना चुनें</string>
+  <string name="pref_grid_subtitle">फ़ाइल मैनेजर में ग्रिड कॉन्टेंट सेट करें</string>
+  <string name="pref_show_hidden_files">छुपी हुई फ़ाइलें दिखाएँ</string>
+  <string name="pref_show_hidden_files_desc">बिंदु (.) से शुरू होने वाली फ़ाइलें और फ़ोल्डर प्रदर्शित करें</string>
+  <string name="pref_show_background">पृष्ठभूमि दिखाएँ</string>
+  <string name="pref_show_background_desc">थीम में पृष्ठभूमि छवि दिखाएँ</string>
+  <string name="pref_openrouter_api_key">ओपनराउटर एपीआई कुंजी</string>
+  <string name="module_hint_libraries">पुस्तकालय (वैकल्पिक)</string>
+  <string name="module_helper_libraries">समूह: विरूपण साक्ष्य: संस्करण - प्रति पंक्ति एक या अल्पविराम से अलग किया गया</string>
+  <string name="module_error_lib_format">अमान्य प्रारूप: \&quot;%s\&quot; - समूह: विरूपण साक्ष्य: संस्करण का उपयोग करें</string>
+  <string name="translator_title">अनुवाद strings.xml</string>
+  <string name="translator_select_all">सभी</string>
+  <string name="translator_deselect_all">कोई नहीं</string>
+  <string name="translator_start">अनुवाद प्रारंभ करें</string>
+  <string name="translator_cancel">रद्द करना</string>
+  <string name="translator_done">अनुवाद पूरा हुआ</string>
+  <string name="translator_cancelled">अनुवाद रद्द कर दिया गया</string>
+  <string name="translator_error_file_not_found">स्ट्रिंग्स.xml फ़ाइल नहीं मिली</string>
+  <string name="setting_lineinfopaneltitle">आइटम पंक्ति पैनल दिखाएँ</string>
+  <string name="setting_lineinfopanelsubtitle">इस विकल्प से आप लाइन और कॉलम चयन पैनल का चयन कर सकते हैं।</string>
+  <string name="serachdata">सेराच फ़ाइल या डिर</string>
+  <string name="store">इकट्ठा करना</string>
+  <string name="aboutapp">ऐप के बारे में</string>
 </resources>

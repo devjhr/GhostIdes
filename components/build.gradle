@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.gson)
     implementation project(":editor")
+    implementation project(":materialfileicon")
 
     implementation('com.hierynomus:sshj:0.34.0') {
         exclude group: 'org.bouncycastle'

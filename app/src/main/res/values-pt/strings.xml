@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">Ghostide</string>
   <string name="close">fechar</string>
@@ -47,14 +48,12 @@
   <string name="tab_size_4">4 espaços</string>
   <string name="tab_size_6">6 espaços</string>
   <string name="tab_size_8">8 espaços</string>
-
   <string name="pref_line_height">Altura da linha</string>
   <string name="pref_line_height_desc">Espaçamento entre linhas</string>
   <string name="line_height_1">1 (Compacto)</string>
   <string name="line_height_2">2 (Normal)</string>
   <string name="line_height_3">3 (Confortável)</string>
   <string name="line_height_4">4 (Grande)</string>
-
   <string name="pref_cursor_blink_period">Período de piscagem do cursor</string>
   <string name="pref_cursor_blink_period_desc">Intervalo de piscagem em milissegundos</string>
   <string name="pref_minimap">Minimapa</string>
@@ -112,8 +111,6 @@
   <string name="editorac_notopenfile">Nenhum arquivo está aberto</string>
   <string name="editorac_wassaved">O arquivo atual foi salvo.</string>
   <string name="editorac_errorfargment">Fragmento de erro não encontrado</string>
-
-  <!-- new String -->
   <string name="pref_language">Idioma do aplicativo</string>
   <string name="pref_language_desc">Escolha o idioma de exibição do aplicativo</string>
   <string name="pref_show_tab_icon_title">Mostrar ícone da aba</string>
@@ -224,4 +221,63 @@
   <string name="shortcut_dialog_message">Deseja criar um atalho para «%1$s» na tela inicial?</string>
   <string name="yes">Sim</string>
   <string name="no">Não</string>
+  <string name="diag_title">Diagnóstico do sistema</string>
+  <string name="diag_device_info">Informações do dispositivo</string>
+  <string name="diag_display">Exibição e renderização</string>
+  <string name="diag_memory">Tempo de execução e memória</string>
+  <string name="diag_storage">Armazenar</string>
+  <string name="copyfullpath">Copiar caminho completo</string>
+  <string name="zip_extract_here">Extraia aqui</string>
+  <string name="zip_extract_to">Extrair para pasta</string>
+  <string name="zip_info">Informações do CEP</string>
+  <string name="zip_info_files">Arquivos: %d</string>
+  <string name="zip_info_dirs">Pastas: %d</string>
+  <string name="zip_info_original">Tamanho original: %s</string>
+  <string name="zip_info_compressed">Tamanho compactado: %s</string>
+  <string name="zip_info_ratio">Taxa de compressão: %d%%</string>
+  <string name="zip_info_encrypted">Criptografado: %s</string>
+  <string name="zip_info_yes">Sim</string>
+  <string name="zip_info_no">Não</string>
+  <string name="zip_extract_dest">Extrair para:\n%s</string>
+  <string name="zip_extracted_ok">Extraído com sucesso</string>
+  <string name="zip_deleted_ok">Excluído</string>
+  <string name="zip_renamed_ok">Renomeado</string>
+  <string name="zip_error_prefix">Erro: %s</string>
+  <string name="ftp_connect">FTP/SFTP</string>
+  <string name="ftp_download_success">Baixado para a pasta atual</string>
+  <string name="ftp_download_error">Falha no download</string>
+  <string name="ftp_connection_error">Falha na conexão</string>
+  <string name="grid_title">Mod de grade</string>
+  <string name="grid_subtitle">Habilita Grid Mod para Gerenciador de Arquivos</string>
+  <string name="sd_card_menu_item">Cartão SD</string>
+  <string name="sd_card_label">Cartão SD</string>
+  <string name="internal_storage_label">Armazenamento Interno</string>
+  <string name="sd_card_not_found">Nenhum cartão SD detectado</string>
+  <string name="sd_card_space_info">Cartão SD: %1$s grátis de %2$s</string>
+  <string name="pref_animation_battery_threshold_desc">Limite de bateria de animação</string>
+  <string name="pref_animation_battery_threshold">Bateria de animação</string>
+  <string name="pref_grid">Contagem de grade %s</string>
+  <string name="pref_grid_title">Selecione Contagem de Grade</string>
+  <string name="pref_grid_subtitle">Definir Grid Connt For no gerenciador de arquivos</string>
+  <string name="pref_show_hidden_files">Mostrar arquivos ocultos</string>
+  <string name="pref_show_hidden_files_desc">Exibir arquivos e pastas começando com um ponto (.)</string>
+  <string name="pref_show_background">Mostrar plano de fundo</string>
+  <string name="pref_show_background_desc">Mostrar imagem de fundo no tema</string>
+  <string name="pref_openrouter_api_key">Chave de API OpenRouter</string>
+  <string name="module_hint_libraries">Bibliotecas (opcional)</string>
+  <string name="module_helper_libraries">group:artifact:version — um por linha ou separado por vírgula</string>
+  <string name="module_error_lib_format">Formato inválido: \&quot;%s\&quot; — use group:artifact:version</string>
+  <string name="translator_title">Strings de tradução.xml</string>
+  <string name="translator_select_all">Todos</string>
+  <string name="translator_deselect_all">Nenhum</string>
+  <string name="translator_start">Iniciar tradução</string>
+  <string name="translator_cancel">Cancelar</string>
+  <string name="translator_done">Tradução concluída</string>
+  <string name="translator_cancelled">Tradução cancelada</string>
+  <string name="translator_error_file_not_found">Arquivo Strings.xml não encontrado</string>
+  <string name="setting_lineinfopaneltitle">Mostrar painel de linha de item</string>
+  <string name="setting_lineinfopanelsubtitle">Com esta opção, você pode selecionar o painel de seleção de linhas e colunas.</string>
+  <string name="serachdata">Serach arquivo ou diretório</string>
+  <string name="store">Loja</string>
+  <string name="aboutapp">Sobre o aplicativo</string>
 </resources>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="empty">רֵיק</string>
+  <string name="dialog_rename">לשנות שם?</string>
+  <string name="dialog_rename_massges">שנה את שם הפריט %s</string>
+  <string name="ftp_connect_title">התחבר לשרת</string>
+  <string name="ftp_protocol_ftp">FTP</string>
+  <string name="ftp_protocol_sftp">SFTP</string>
+  <string name="ftp_hint_host">מארח / IP</string>
+  <string name="ftp_hint_port">נָמָל</string>
+  <string name="ftp_hint_username">שם משתמש</string>
+  <string name="ftp_hint_password">סִיסמָה</string>
+  <string name="ftp_host_hint">מְאָרֵחַ</string>
+  <string name="ftp_port_hint">נָמָל</string>
+  <string name="ftp_username_hint">שם משתמש</string>
+  <string name="ftp_password_hint">סִיסמָה</string>
+  <string name="ftp_share_hint">שם שתף</string>
+  <string name="ftp_btn_connect">לְחַבֵּר</string>
+  <string name="ftp_connecting">מְקַשֵׁר…</string>
+  <string name="ftp_browser_title">קבצים מרוחקים</string>
+  <string name="ftp_empty_folder">תיקיה ריקה</string>
+  <string name="ftp_btn_download">הורד</string>
+  <string name="ftp_menu_download">הורד</string>
+  <string name="ftp_menu_delete">לִמְחוֹק</string>
+  <string name="ftp_menu_rename">שנה שם</string>
+  <string name="ftp_delete_confirm">למחוק את %s?</string>
+  <string name="ftp_error_host">הזן כתובת מארח</string>
+  <string name="ftp_error_port">יציאה לא חוקית</string>
+  <string name="ftp_error_connect">החיבור נכשל: %s</string>
+  <string name="ftp_error_list">שגיאה בטעינת קבצים: %s</string>
+  <string name="ftp_error_delete">המחיקה נכשלה: %s</string>
+  <string name="ftp_error_rename">שינוי השם נכשל: %s</string>
+  <string name="search_title">לְחַפֵּשׂ</string>
+  <string name="search_hint">חפש קבצים...</string>
+  <string name="search_mode_normal">נוֹרמָלִי</string>
+  <string name="search_mode_regex">Regex</string>
+  <string name="search_mode_case">אא</string>
+  <string name="search_type_filename">שם הקובץ</string>
+  <string name="search_type_content">תוֹכֶן</string>
+  <string name="search_no_results">לא נמצאו תוצאות</string>
+  <string name="search_result_count">%d תוצאות</string>
+  <string name="search_found">נמצאו %d קבצים</string>
+  <string name="search_error_invalid_regex">דפוס Regex לא חוקי</string>
+</resources>

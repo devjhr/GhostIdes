@@ -27,7 +27,7 @@
   <string name="branch_rebase">变基</string>
   <string name="branch_delete">删除</string>
   <string name="branch_delete_confirm_title">删除分支</string>
-  <string name="branch_delete_confirm_msg">删除分支\\'%s\\'吗？</string>
+  <string name="branch_delete_confirm_msg">删除分支\'%s\'吗？</string>
   <string name="branch_merge_confirm_title">合并分支</string>
   <string name="branch_merge_confirm_msg">将“%1$s”合并到“%2$s”中吗？</string>
   <string name="branch_rebase_confirm_title">变基</string>
@@ -35,7 +35,7 @@
   <string name="remote_add">添加遥控器</string>
   <string name="remote_remove">消除</string>
   <string name="remote_remove_confirm_title">删除遥控器</string>
-  <string name="remote_remove_confirm_msg">删除\\'%s\\'？</string>
+  <string name="remote_remove_confirm_msg">删除\'%s\'？</string>
   <string name="remote_push">推</string>
   <string name="remote_pull">拉</string>
   <string name="remote_fetch">拿来</string>
@@ -84,7 +84,7 @@
   <string name="tag_create">创建标签</string>
   <string name="tag_delete">删除</string>
   <string name="tag_delete_confirm_title">删除标签</string>
-  <string name="tag_delete_confirm_msg">删除标签\\'%s\\'吗？</string>
+  <string name="tag_delete_confirm_msg">删除标签\'%s\'吗？</string>
   <string name="tag_no_tags">还没有标签</string>
   <string name="gitignore_title">.gitignore 编辑器</string>
   <string name="gitignore_hint">输入模式，每行一个……</string>

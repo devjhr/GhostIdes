@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">Ghostide</string>
   <string name="close">关闭</string>
@@ -47,14 +48,12 @@
   <string name="tab_size_4">4 个空格</string>
   <string name="tab_size_6">6 个空格</string>
   <string name="tab_size_8">8 个空格</string>
-
   <string name="pref_line_height">行高</string>
   <string name="pref_line_height_desc">行间距</string>
   <string name="line_height_1">1（紧凑）</string>
   <string name="line_height_2">2（正常）</string>
   <string name="line_height_3">3（舒适）</string>
   <string name="line_height_4">4（大）</string>
-
   <string name="pref_cursor_blink_period">光标闪烁周期</string>
   <string name="pref_cursor_blink_period_desc">闪烁间隔（毫秒）</string>
   <string name="pref_minimap">迷你地图</string>
@@ -112,8 +111,6 @@
   <string name="editorac_notopenfile">没有打开的文件</string>
   <string name="editorac_wassaved">当前文件已保存。</string>
   <string name="editorac_errorfargment">未找到错误片段</string>
-
-  <!-- new String -->
   <string name="pref_language">应用语言</string>
   <string name="pref_language_desc">选择应用的显示语言</string>
   <string name="pref_show_tab_icon_title">显示标签图标</string>
@@ -221,7 +218,66 @@
   <string name="batch_rename">批量重命名</string>
   <string name="shortcut_menu_item">在主屏幕创建快捷方式</string>
   <string name="shortcut_dialog_title">创建快捷方式</string>
-  <string name="shortcut_dialog_message">是否要在主屏幕为"%1$s"创建快捷方式？</string>
+  <string name="shortcut_dialog_message">是否要在主屏幕为&quot;%1$s&quot;创建快捷方式？</string>
   <string name="yes">是</string>
   <string name="no">否</string>
+  <string name="diag_title">系统诊断</string>
+  <string name="diag_device_info">设备信息</string>
+  <string name="diag_display">显示与渲染</string>
+  <string name="diag_memory">运行时和内存</string>
+  <string name="diag_storage">贮存</string>
+  <string name="copyfullpath">复制完整路径</string>
+  <string name="zip_extract_here">在这里提取</string>
+  <string name="zip_extract_to">解压到文件夹</string>
+  <string name="zip_info">邮政编码信息</string>
+  <string name="zip_info_files">文件：%d</string>
+  <string name="zip_info_dirs">文件夹：%d</string>
+  <string name="zip_info_original">原始尺寸：%s</string>
+  <string name="zip_info_compressed">压缩大小：%s</string>
+  <string name="zip_info_ratio">压缩比：%d%%</string>
+  <string name="zip_info_encrypted">已加密：%s</string>
+  <string name="zip_info_yes">是的</string>
+  <string name="zip_info_no">不</string>
+  <string name="zip_extract_dest">提取到：\n%s</string>
+  <string name="zip_extracted_ok">提取成功</string>
+  <string name="zip_deleted_ok">已删除</string>
+  <string name="zip_renamed_ok">更名</string>
+  <string name="zip_error_prefix">错误：%s</string>
+  <string name="ftp_connect">FTP/SFTP</string>
+  <string name="ftp_download_success">下载到当前文件夹</string>
+  <string name="ftp_download_error">下载失败</string>
+  <string name="ftp_connection_error">连接失败</string>
+  <string name="grid_title">网格模组</string>
+  <string name="grid_subtitle">为文件管理器启用 Grid Mod</string>
+  <string name="sd_card_menu_item">SD卡</string>
+  <string name="sd_card_label">SD卡</string>
+  <string name="internal_storage_label">内部存储</string>
+  <string name="sd_card_not_found">未检测到 SD 卡</string>
+  <string name="sd_card_space_info">SD 卡：%1$s 不含 %2$s</string>
+  <string name="pref_animation_battery_threshold_desc">动画电池阈值</string>
+  <string name="pref_animation_battery_threshold">动画电池</string>
+  <string name="pref_grid">网格数 %s</string>
+  <string name="pref_grid_title">选择网格数</string>
+  <string name="pref_grid_subtitle">在文件管理器中设置网格连接</string>
+  <string name="pref_show_hidden_files">显示隐藏文件</string>
+  <string name="pref_show_hidden_files_desc">显示以点 (.) 开头的文件和文件夹</string>
+  <string name="pref_show_background">显示背景</string>
+  <string name="pref_show_background_desc">在主题中显示背景图片</string>
+  <string name="pref_openrouter_api_key">OpenRouter API 密钥</string>
+  <string name="module_hint_libraries">图书馆（可选）</string>
+  <string name="module_helper_libraries">group:artifact:version — 每行一个或以逗号分隔</string>
+  <string name="module_error_lib_format">格式无效：\&quot;%s\&quot; — 使用组：工件：版本</string>
+  <string name="translator_title">翻译字符串.xml</string>
+  <string name="translator_select_all">全部</string>
+  <string name="translator_deselect_all">没有任何</string>
+  <string name="translator_start">开始翻译</string>
+  <string name="translator_cancel">取消</string>
+  <string name="translator_done">翻译完成</string>
+  <string name="translator_cancelled">翻译取消</string>
+  <string name="translator_error_file_not_found">找不到 Strings.xml 文件</string>
+  <string name="setting_lineinfopaneltitle">显示项目行面板</string>
+  <string name="setting_lineinfopanelsubtitle">使用此选项，您可以选择行和列选择面板。</string>
+  <string name="serachdata">搜索文件或目录</string>
+  <string name="store">店铺</string>
+  <string name="aboutapp">关于应用程序</string>
 </resources>
