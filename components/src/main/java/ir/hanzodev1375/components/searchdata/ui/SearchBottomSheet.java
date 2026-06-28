@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,6 +22,7 @@ import ir.hanzodev1375.components.searchdata.model.SearchMode;
 import ir.hanzodev1375.components.searchdata.model.SearchQuery;
 import ir.hanzodev1375.components.searchdata.model.SearchType;
 import ir.hanzodev1375.components.searchdata.viewmodel.SearchViewModel;
+import java.util.regex.Pattern;
 
 public class SearchBottomSheet extends BottomSheetDialogFragment {
   public static final String TAG = "SearchBottomSheet";
@@ -65,19 +67,23 @@ public class SearchBottomSheet extends BottomSheetDialogFragment {
   }
 
   private void expandSheet() {
+    /*
     View bottomSheet =
         requireDialog().findViewById(com.google.android.material.R.id.design_bottom_sheet);
     if (bottomSheet != null) {
       BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
       behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
       behavior.setSkipCollapsed(true);
+
       bottomSheet.post(
           () -> {
             ViewGroup.LayoutParams lp = bottomSheet.getLayoutParams();
             lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
             bottomSheet.setLayoutParams(lp);
           });
+
     }
+    */
   }
 
   private void setupRecyclerView() {
@@ -129,7 +135,7 @@ public class SearchBottomSheet extends BottomSheetDialogFragment {
     binding.btnSearch.setOnClickListener(v -> triggerSearch());
     binding.etSearch.setOnEditorActionListener(
         (v, actionId, event) -> {
-          if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+          if (actionId == EditorInfo.IME_ACTION_SEARCH) {
             triggerSearch();
             return true;
           }
@@ -179,7 +185,7 @@ public class SearchBottomSheet extends BottomSheetDialogFragment {
 
   private boolean isValidRegex(String pattern) {
     try {
-      java.util.regex.Pattern.compile(pattern);
+      Pattern.compile(pattern);
       return true;
     } catch (Exception e) {
       return false;
