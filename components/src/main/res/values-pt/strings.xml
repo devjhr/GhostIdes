@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="empty">vazio</string>
+  <string name="dialog_rename">Renomear?</string>
+  <string name="dialog_rename_massges">Renomear item %s</string>
+  <string name="ftp_connect_title">Conecte-se ao servidor</string>
+  <string name="ftp_protocol_ftp">FTP</string>
+  <string name="ftp_protocol_sftp">SFTP</string>
+  <string name="ftp_hint_host">Anfitrião/IP</string>
+  <string name="ftp_hint_port">Porta</string>
+  <string name="ftp_hint_username">Nome de usuário</string>
+  <string name="ftp_hint_password">Senha</string>
+  <string name="ftp_host_hint">Hospedar</string>
+  <string name="ftp_port_hint">Porta</string>
+  <string name="ftp_username_hint">Nome de usuário</string>
+  <string name="ftp_password_hint">Senha</string>
+  <string name="ftp_share_hint">Compartilhar nome</string>
+  <string name="ftp_btn_connect">Conectar</string>
+  <string name="ftp_connecting">Conectando…</string>
+  <string name="ftp_browser_title">Arquivos remotos</string>
+  <string name="ftp_empty_folder">Pasta vazia</string>
+  <string name="ftp_btn_download">Download</string>
+  <string name="ftp_menu_download">Download</string>
+  <string name="ftp_menu_delete">Excluir</string>
+  <string name="ftp_menu_rename">Renomear</string>
+  <string name="ftp_delete_confirm">Excluir %s?</string>
+  <string name="ftp_error_host">Insira o endereço do host</string>
+  <string name="ftp_error_port">Porta inválida</string>
+  <string name="ftp_error_connect">Falha na conexão: %s</string>
+  <string name="ftp_error_list">Erro ao carregar arquivos: %s</string>
+  <string name="ftp_error_delete">Falha na exclusão: %s</string>
+  <string name="ftp_error_rename">Falha ao renomear: %s</string>
+  <string name="search_title">Procurar</string>
+  <string name="search_hint">Pesquisar arquivos…</string>
+  <string name="search_mode_normal">Normal</string>
+  <string name="search_mode_regex">Regex</string>
+  <string name="search_mode_case">Ah</string>
+  <string name="search_type_filename">Nome do arquivo</string>
+  <string name="search_type_content">Contente</string>
+  <string name="search_no_results">Nenhum resultado encontrado</string>
+  <string name="search_result_count">%d resultados</string>
+  <string name="search_found">%d arquivos encontrados</string>
+  <string name="search_error_invalid_regex">Padrão Regex inválido</string>
+</resources>

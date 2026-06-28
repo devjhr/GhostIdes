@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="empty">خالی</string>
+  <string name="dialog_rename">تغییر نام دهید؟</string>
+  <string name="dialog_rename_massges">تغییر نام مورد %s</string>
+  <string name="ftp_connect_title">به سرور متصل شوید</string>
+  <string name="ftp_protocol_ftp">FTP</string>
+  <string name="ftp_protocol_sftp">SFTP</string>
+  <string name="ftp_hint_host">میزبان / IP</string>
+  <string name="ftp_hint_port">بندر</string>
+  <string name="ftp_hint_username">نام کاربری</string>
+  <string name="ftp_hint_password">رمز عبور</string>
+  <string name="ftp_host_hint">میزبان</string>
+  <string name="ftp_port_hint">بندر</string>
+  <string name="ftp_username_hint">نام کاربری</string>
+  <string name="ftp_password_hint">رمز عبور</string>
+  <string name="ftp_share_hint">نام را به اشتراک بگذارید</string>
+  <string name="ftp_btn_connect">اتصال</string>
+  <string name="ftp_connecting">در حال اتصال…</string>
+  <string name="ftp_browser_title">فایل های راه دور</string>
+  <string name="ftp_empty_folder">پوشه خالی</string>
+  <string name="ftp_btn_download">دانلود کنید</string>
+  <string name="ftp_menu_download">دانلود کنید</string>
+  <string name="ftp_menu_delete">حذف کنید</string>
+  <string name="ftp_menu_rename">تغییر نام دهید</string>
+  <string name="ftp_delete_confirm">%s حذف شود؟</string>
+  <string name="ftp_error_host">آدرس میزبان را وارد کنید</string>
+  <string name="ftp_error_port">پورت نامعتبر است</string>
+  <string name="ftp_error_connect">اتصال ناموفق بود: %s</string>
+  <string name="ftp_error_list">خطا در بارگیری فایل: %s</string>
+  <string name="ftp_error_delete">حذف نشد: %s</string>
+  <string name="ftp_error_rename">تغییر نام انجام نشد: %s</string>
+  <string name="search_title">جستجو کنید</string>
+  <string name="search_hint">جستجوی فایل ها…</string>
+  <string name="search_mode_normal">عادی</string>
+  <string name="search_mode_regex">Regex</string>
+  <string name="search_mode_case">Aa</string>
+  <string name="search_type_filename">نام فایل</string>
+  <string name="search_type_content">محتوا</string>
+  <string name="search_no_results">هیچ نتیجه ای یافت نشد</string>
+  <string name="search_result_count">%d نتیجه</string>
+  <string name="search_found">%d فایل پیدا شد</string>
+  <string name="search_error_invalid_regex">الگوی Regex نامعتبر است</string>
+</resources>

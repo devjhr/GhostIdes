@@ -3,6 +3,7 @@ package ir.hanzodev1375.ghostide.project;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import java.util.ArrayList;
+import java.util.List;
 import ir.hanzodev1375.ghostide.R;
 
 public class NewModuleDialog {
@@ -39,13 +42,15 @@ public class NewModuleDialog {
     TextView tvRoot = view.findViewById(R.id.tvProjectRoot);
     CheckBox box = view.findViewById(R.id.box);
 
+    TextInputLayout tilLibs = view.findViewById(R.id.tilLibraries);
+    TextInputEditText etLibs = view.findViewById(R.id.etLibraries);
+
     tvRoot.setText(context.getString(R.string.module_project_root, projectRootPath));
 
-    // track if user manually edited package
     final boolean[] pkgEditedByUser = {false};
 
     etPkg.addTextChangedListener(
-        new android.text.TextWatcher() {
+        new TextWatcher() {
           @Override
           public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
 
@@ -54,13 +59,12 @@ public class NewModuleDialog {
 
           @Override
           public void onTextChanged(CharSequence s, int st, int b, int c) {
-            // only mark as manual if the user typed (count > 0 or deletion happened)
             if (etPkg.hasFocus()) pkgEditedByUser[0] = true;
           }
         });
 
     etName.addTextChangedListener(
-        new android.text.TextWatcher() {
+        new TextWatcher() {
           @Override
           public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
 
@@ -113,6 +117,13 @@ public class NewModuleDialog {
                     }
                     tilPkg.setError(null);
 
+                    String libsRaw =
+                        etLibs != null && etLibs.getText() != null
+                            ? etLibs.getText().toString().trim()
+                            : "";
+                    List<LibraryManager.Library> libraries = parseLibraries(libsRaw, tilLibs);
+                    if (libraries == null) return;
+
                     dialog.dismiss();
 
                     var progress =
@@ -123,6 +134,8 @@ public class NewModuleDialog {
                     progress.show();
 
                     mod = new ModuleCreator(context);
+                    mod.setDslType(box.isChecked() ? DslType.KOTLIN : DslType.GROOVY);
+                    mod.setLibraries(libraries);
                     mod.create(
                         projectRootPath,
                         name,
@@ -144,11 +157,61 @@ public class NewModuleDialog {
                                 .show();
                           }
                         });
-                    mod.setDslType(box.isChecked() ? DslType.KOTLIN : DslType.GROOVY);
                   });
         });
 
     dialog.show();
+  }
+
+  /**
+   * رشته ورودی کاربر را به لیستی از {@link LibraryManager.Library} تبدیل می‌کند.
+   *
+   * <p>فرمت پشتیبانی‌شده (هر خط یا با کاما جدا شده):
+   *
+   * <pre>
+   *   group:artifact:version
+   *   مثال: com.squareup.retrofit2:retrofit:2.11.0
+   * </pre>
+   *
+   * @return لیست کتابخانه‌ها، یا لیست خالی اگر ورودی خالی باشد. اگر فرمت نادرست باشد {@code null}
+   *     برمی‌گرداند و خطا را در {@code tilLibs} نشان می‌دهد.
+   */
+  private List<LibraryManager.Library> parseLibraries(String raw, TextInputLayout tilLibs) {
+    List<LibraryManager.Library> result = new ArrayList<>();
+
+    if (raw.isEmpty()) return result;
+
+    String[] entries = raw.split("[,\n]+");
+
+    for (String entry : entries) {
+      String trimmed = entry.trim();
+      if (trimmed.isEmpty()) continue;
+
+      String[] parts = trimmed.split(":");
+      if (parts.length != 3) {
+        if (tilLibs != null) {
+          tilLibs.setError(context.getString(R.string.module_error_lib_format, trimmed));
+        }
+        return null;
+      }
+
+      String group = parts[0].trim();
+      String artifact = parts[1].trim();
+      String version = parts[2].trim();
+
+      if (group.isEmpty() || artifact.isEmpty() || version.isEmpty()) {
+        if (tilLibs != null) {
+          tilLibs.setError(context.getString(R.string.module_error_lib_format, trimmed));
+        }
+        return null;
+      }
+
+      String alias = artifact;
+      result.add(new LibraryManager.Library(alias, group, artifact, version));
+    }
+
+    if (tilLibs != null) tilLibs.setError(null);
+    return result;
   }
 
   private boolean isValidPackage(String pkg) {

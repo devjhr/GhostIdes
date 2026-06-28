@@ -236,7 +236,7 @@ public class SettingActivity extends BaseCompat {
     // OpenRouter
     items.add(
         new SettingItem(
-            "OpenRouter API Key",
+            getString(R.string.pref_openrouter_api_key),
             aiPrefs.hasOpenRouterApiKey() ? "*********" : getString(R.string.not_set),
             false,
             0,
@@ -481,12 +481,12 @@ public class SettingActivity extends BaseCompat {
             0,
             prefs::setGridMod));
     items.add(
-        new SettingItem(
-            "show back",
-            "show backgroundImage in theme",
-            prefs.isShowBackground(),
-            0,
-            prefs::setShowBackground));
+    new SettingItem(
+        getString(R.string.pref_show_background),
+        getString(R.string.pref_show_background_desc),
+        prefs.isShowBackground(),
+        0,
+        prefs::setShowBackground));
     items.add(
         new SettingItem(
             getString(R.string.pref_animation_battery_threshold),
@@ -504,6 +504,13 @@ public class SettingActivity extends BaseCompat {
             false,
             0,
             null));
+    items.add(
+    new SettingItem(
+        getString(R.string.pref_show_hidden_files),
+        getString(R.string.pref_show_hidden_files_desc),
+        prefs.isShowHiddenFiles(),
+        0,
+        prefs::setShowHiddenFiles));
     return items;
   }
 
@@ -894,7 +901,7 @@ public class SettingActivity extends BaseCompat {
         position = 4;
         break;
       case "openrouter":
-        title = "OpenRouter API Key";
+        title = getString(R.string.pref_openrouter_api_key);
         currentKey = aiPrefs.getOpenRouterApiKey();
         position = 5;
         break;

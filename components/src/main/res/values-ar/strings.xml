@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="empty">فارغ</string>
+  <string name="dialog_rename">إعادة تسمية؟</string>
+  <string name="dialog_rename_massges">إعادة تسمية العنصر %s</string>
+  <string name="ftp_connect_title">الاتصال بالخادم</string>
+  <string name="ftp_protocol_ftp">بروتوكول نقل الملفات</string>
+  <string name="ftp_protocol_sftp">سفتب</string>
+  <string name="ftp_hint_host">المضيف / IP</string>
+  <string name="ftp_hint_port">ميناء</string>
+  <string name="ftp_hint_username">اسم المستخدم</string>
+  <string name="ftp_hint_password">كلمة المرور</string>
+  <string name="ftp_host_hint">يستضيف</string>
+  <string name="ftp_port_hint">ميناء</string>
+  <string name="ftp_username_hint">اسم المستخدم</string>
+  <string name="ftp_password_hint">كلمة المرور</string>
+  <string name="ftp_share_hint">اسم المشاركة</string>
+  <string name="ftp_btn_connect">يتصل</string>
+  <string name="ftp_connecting">جارٍ الاتصال…</string>
+  <string name="ftp_browser_title">الملفات البعيدة</string>
+  <string name="ftp_empty_folder">مجلد فارغ</string>
+  <string name="ftp_btn_download">تحميل</string>
+  <string name="ftp_menu_download">تحميل</string>
+  <string name="ftp_menu_delete">يمسح</string>
+  <string name="ftp_menu_rename">إعادة تسمية</string>
+  <string name="ftp_delete_confirm">هل تريد حذف %s؟</string>
+  <string name="ftp_error_host">أدخل عنوان المضيف</string>
+  <string name="ftp_error_port">منفذ غير صالح</string>
+  <string name="ftp_error_connect">فشل الاتصال: %s</string>
+  <string name="ftp_error_list">خطأ في تحميل الملفات: %s</string>
+  <string name="ftp_error_delete">فشل الحذف: %s</string>
+  <string name="ftp_error_rename">فشلت إعادة التسمية: %s</string>
+  <string name="search_title">يبحث</string>
+  <string name="search_hint">البحث عن الملفات...</string>
+  <string name="search_mode_normal">طبيعي</string>
+  <string name="search_mode_regex">التعبير العادي</string>
+  <string name="search_mode_case">أأ</string>
+  <string name="search_type_filename">اسم الملف</string>
+  <string name="search_type_content">محتوى</string>
+  <string name="search_no_results">لم يتم العثور على نتائج</string>
+  <string name="search_result_count">%d نتيجة</string>
+  <string name="search_found">تم العثور على %d ملف</string>
+  <string name="search_error_invalid_regex">نمط التعبير العادي غير صالح</string>
+</resources>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="empty">खाली</string>
+  <string name="dialog_rename">नाम बदलें?</string>
+  <string name="dialog_rename_massges">आइटम %s का नाम बदलें</string>
+  <string name="ftp_connect_title">सर्वर से कनेक्ट करें</string>
+  <string name="ftp_protocol_ftp">एफ़टीपी</string>
+  <string name="ftp_protocol_sftp">एसएफटीपी</string>
+  <string name="ftp_hint_host">होस्ट/आईपी</string>
+  <string name="ftp_hint_port">पत्तन</string>
+  <string name="ftp_hint_username">उपयोगकर्ता नाम</string>
+  <string name="ftp_hint_password">पासवर्ड</string>
+  <string name="ftp_host_hint">मेज़बान</string>
+  <string name="ftp_port_hint">पत्तन</string>
+  <string name="ftp_username_hint">उपयोगकर्ता नाम</string>
+  <string name="ftp_password_hint">पासवर्ड</string>
+  <string name="ftp_share_hint">नाम साझा करें</string>
+  <string name="ftp_btn_connect">जोड़ना</string>
+  <string name="ftp_connecting">कनेक्ट हो रहा है...</string>
+  <string name="ftp_browser_title">दूरस्थ फ़ाइलें</string>
+  <string name="ftp_empty_folder">काली फ़ाइल</string>
+  <string name="ftp_btn_download">डाउनलोड करना</string>
+  <string name="ftp_menu_download">डाउनलोड करना</string>
+  <string name="ftp_menu_delete">मिटाना</string>
+  <string name="ftp_menu_rename">नाम बदलें</string>
+  <string name="ftp_delete_confirm">%s हटाएँ?</string>
+  <string name="ftp_error_host">होस्ट पता दर्ज करें</string>
+  <string name="ftp_error_port">अमान्य पोर्ट</string>
+  <string name="ftp_error_connect">कनेक्शन विफल: %s</string>
+  <string name="ftp_error_list">फ़ाइलें लोड करने में त्रुटि: %s</string>
+  <string name="ftp_error_delete">हटाना विफल: %s</string>
+  <string name="ftp_error_rename">नाम बदलना विफल: %s</string>
+  <string name="search_title">खोज</string>
+  <string name="search_hint">फ़ाइलें खोजें…</string>
+  <string name="search_mode_normal">सामान्य</string>
+  <string name="search_mode_regex">regex</string>
+  <string name="search_mode_case">आ</string>
+  <string name="search_type_filename">फ़ाइलनाम</string>
+  <string name="search_type_content">सामग्री</string>
+  <string name="search_no_results">कोई परिणाम नहीं मिला</string>
+  <string name="search_result_count">%d परिणाम</string>
+  <string name="search_found">%d फ़ाइलें मिलीं</string>
+  <string name="search_error_invalid_regex">अमान्य रेगेक्स पैटर्न</string>
+</resources>

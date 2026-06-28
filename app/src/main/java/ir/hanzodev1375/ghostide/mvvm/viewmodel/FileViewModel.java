@@ -23,6 +23,7 @@ import java.util.concurrent.Future;
 import android.os.Environment;
 import ir.hanzodev1375.ghostide.enums.FileState;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 
 public class FileViewModel extends AndroidViewModel {
 
@@ -35,6 +36,7 @@ public class FileViewModel extends AndroidViewModel {
   private MutableLiveData<DeleteProgress> deleteProgress = new MutableLiveData<>();
   private PathManager pathManager;
   private FileState fileState = FileState.NONE;
+  private PreferencesUtils prefs;
 
   private final ExecutorService ioExecutor =
       Executors.newFixedThreadPool(Math.min(4, Runtime.getRuntime().availableProcessors()));
@@ -90,6 +92,7 @@ public class FileViewModel extends AndroidViewModel {
 
   public FileViewModel(Application app) {
     super(app);
+    prefs = new PreferencesUtils(app.getApplicationContext());
     pathManager = new PathManager(app.getApplicationContext());
     String initialPath;
     if (pathManager.isSaveEnabled()) {
@@ -160,7 +163,7 @@ public class FileViewModel extends AndroidViewModel {
                     .thenComparing(File::getName, String.CASE_INSENSITIVE_ORDER));
             for (File file : files) {
               String name = file.getName();
-              if (!name.startsWith(".")) {
+              if (prefs.isShowHiddenFiles() || !name.startsWith(".")) {
                 list.add(
                     new FileManagerModel(
                         file.getAbsolutePath(), name, fileState, file.lastModified()));

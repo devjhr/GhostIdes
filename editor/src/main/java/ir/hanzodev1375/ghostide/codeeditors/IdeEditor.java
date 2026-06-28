@@ -2,6 +2,7 @@ package ir.hanzodev1375.ghostide.codeeditors;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
@@ -72,7 +73,6 @@ public class IdeEditor extends CodeEditor
   void editorBinder() {
     setLigatureEnabled(true);
     setHighlightCurrentLine(false);
-    setLineInfoTextSize(15f);
     ensureSelectionVisible();
     setRenderFunctionCharacters(true);
     setDisableSoftKbdIfHardKbdAvailable(true);
@@ -285,5 +285,10 @@ public class IdeEditor extends CodeEditor
 
       default:
     }
+  }
+
+  @Override
+  protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
   }
 }

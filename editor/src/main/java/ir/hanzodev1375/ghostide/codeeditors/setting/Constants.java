@@ -56,6 +56,7 @@ public class Constants {
     public static final String KEY_GRIDCOUNT = "filemanager_grid_count";
     public static final String KEY_FILRMB = "filemanager_showbackgroundtheme";
     public static final String KEY_ANIMATION_BATTERY_THRESHOLD = "pref_animation_battery_threshold";
+    public static final String KEY_SHOW_HIDDEN_FILES = "filemanager_show_hidden_files";
 
     private SharedPreferenceKeys() {
       throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

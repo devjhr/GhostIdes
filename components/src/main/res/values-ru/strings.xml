@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="empty">пустой</string>
+  <string name="dialog_rename">Переименовать?</string>
+  <string name="dialog_rename_massges">Переименовать элемент %s</string>
+  <string name="ftp_connect_title">Подключиться к серверу</string>
+  <string name="ftp_protocol_ftp">FTP</string>
+  <string name="ftp_protocol_sftp">SFTP</string>
+  <string name="ftp_hint_host">Хост/IP</string>
+  <string name="ftp_hint_port">Порт</string>
+  <string name="ftp_hint_username">Имя пользователя</string>
+  <string name="ftp_hint_password">Пароль</string>
+  <string name="ftp_host_hint">Хозяин</string>
+  <string name="ftp_port_hint">Порт</string>
+  <string name="ftp_username_hint">Имя пользователя</string>
+  <string name="ftp_password_hint">Пароль</string>
+  <string name="ftp_share_hint">Имя общего доступа</string>
+  <string name="ftp_btn_connect">Соединять</string>
+  <string name="ftp_connecting">Подключение…</string>
+  <string name="ftp_browser_title">Удаленные файлы</string>
+  <string name="ftp_empty_folder">Пустая папка</string>
+  <string name="ftp_btn_download">Скачать</string>
+  <string name="ftp_menu_download">Скачать</string>
+  <string name="ftp_menu_delete">Удалить</string>
+  <string name="ftp_menu_rename">Переименовать</string>
+  <string name="ftp_delete_confirm">Удалить %s?</string>
+  <string name="ftp_error_host">Введите адрес хоста</string>
+  <string name="ftp_error_port">Неверный порт</string>
+  <string name="ftp_error_connect">Не удалось подключиться: %s</string>
+  <string name="ftp_error_list">Ошибка загрузки файлов: %s</string>
+  <string name="ftp_error_delete">Не удалось удалить: %s</string>
+  <string name="ftp_error_rename">Не удалось переименовать: %s</string>
+  <string name="search_title">Поиск</string>
+  <string name="search_hint">Искать файлы…</string>
+  <string name="search_mode_normal">Нормальный</string>
+  <string name="search_mode_regex">регулярное выражение</string>
+  <string name="search_mode_case">Аа</string>
+  <string name="search_type_filename">Имя файла</string>
+  <string name="search_type_content">Содержание</string>
+  <string name="search_no_results">Результаты не найдены</string>
+  <string name="search_result_count">%d результатов</string>
+  <string name="search_found">Найдено %d файлов</string>
+  <string name="search_error_invalid_regex">Неверный шаблон регулярного выражения</string>
+</resources>

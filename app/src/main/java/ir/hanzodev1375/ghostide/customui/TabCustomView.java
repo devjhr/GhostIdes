@@ -25,6 +25,7 @@ public class TabCustomView extends LinearLayout
   private boolean gitChanged = false;
   private final int normalTitleColor;
   private final int gitModifiedTitleColor;
+  private boolean hasStar;
 
   public TabCustomView(Context context) {
     super(context);
@@ -43,12 +44,11 @@ public class TabCustomView extends LinearLayout
     themeutil.applyImageView(binding.tabPinIcon);
     binding.tabIcon.clearColorFilter();
     themeutil.applyImageView(binding.tabIcon);
-    
   }
 
   public void bind(TabModel tabModel) {
     this.currentModel = tabModel;
-    binding.tabTitle.setText(tabModel.getFileName());
+    binding.tabTitle.setText(hasStar ? "*" + tabModel.getFileName() : tabModel.getFileName());
     binding.tabPinIcon.setVisibility(tabModel.isPinned() ? View.VISIBLE : View.GONE);
 
     FileIconHelper icon = new FileIconHelper(tabModel.getFilePath());
@@ -64,7 +64,6 @@ public class TabCustomView extends LinearLayout
 
     updateGitTextColor();
   }
-
 
   public void setGitChanged(boolean changed) {
     if (this.gitChanged == changed) return;
@@ -97,5 +96,13 @@ public class TabCustomView extends LinearLayout
     if (setting != null) {
       setting.getDefaultPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
+  }
+
+  public boolean getHasStar() {
+    return this.hasStar;
+  }
+
+  public void setHasStar(boolean hasStar) {
+    this.hasStar = hasStar;
   }
 }

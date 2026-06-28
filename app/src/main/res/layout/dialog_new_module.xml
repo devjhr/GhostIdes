@@ -58,6 +58,7 @@
         <com.google.android.material.textfield.TextInputLayout
              android:layout_height="wrap_content"
              android:layout_width="match_parent"
+             android:layout_marginBottom="12dp"
              android:hint="@string/module_hint_package"
              app:helperTextEnabled="true"
              app:helperText="@string/module_helper_package"
@@ -68,10 +69,35 @@
             <com.google.android.material.textfield.TextInputEditText
                  android:layout_height="wrap_content"
                  android:layout_width="match_parent"
-                 android:imeOptions="actionDone"
+                 android:imeOptions="actionNext"
                  android:maxLines="1"
                  android:inputType="textNoSuggestions"
                  android:id="@+id/etModulePackage" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:layout_marginBottom="12dp"
+             android:hint="@string/module_hint_libraries"
+             app:helperTextEnabled="true"
+             app:helperText="@string/module_helper_libraries"
+             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+             app:errorEnabled="true"
+             android:id="@+id/tilLibraries">
+
+            <com.google.android.material.textfield.TextInputEditText
+                 android:layout_height="wrap_content"
+                 android:layout_width="match_parent"
+                 android:imeOptions="actionDone"
+                 android:gravity="top"
+                 android:fontFamily="monospace"
+                 android:textSize="13sp"
+                 android:minLines="2"
+                 android:maxLines="5"
+                 android:inputType="textMultiLine|textNoSuggestions"
+                 android:id="@+id/etLibraries" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

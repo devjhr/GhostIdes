@@ -262,4 +262,20 @@
   <string name="pref_grid">Grid Count %s</string>
   <string name="pref_grid_title">Select Grid Count</string>
   <string name="pref_grid_subtitle">Set Grid Connt For in File manager</string>
+  <string name="pref_show_hidden_files">Show Hidden Files</string>
+  <string name="pref_show_hidden_files_desc">Display files and folders starting with a dot (.)</string>
+  <string name="pref_show_background">Show Background</string>
+  <string name="pref_show_background_desc">Show background image in theme</string>
+  <string name="pref_openrouter_api_key">OpenRouter API Key</string>
+  <string name="module_hint_libraries">Libraries (optional)</string>
+  <string name="module_helper_libraries">group:artifact:version — one per line or comma-separated</string>
+  <string name="module_error_lib_format">Invalid format: \"%s\" — use group:artifact:version</string>
+  <string name="translator_title">Translation strings.xml</string>
+  <string name="translator_select_all">All</string>
+  <string name="translator_deselect_all">None</string>
+  <string name="translator_start">Start translation</string>
+  <string name="translator_cancel">Cancel</string>
+  <string name="translator_done">Translation completed </string>
+  <string name="translator_cancelled">Translation canceled</string>
+  <string name="translator_error_file_not_found">Strings.xml file not found</string>
 </resources>

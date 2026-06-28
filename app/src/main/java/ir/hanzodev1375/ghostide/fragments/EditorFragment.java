@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.SelectionChangeEvent;
 import io.github.rosemoe.sora.lang.Language;
+import ir.hanzodev1375.ghostide.activity.EditorActivity;
 import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -72,7 +73,9 @@ public class EditorFragment extends Fragment {
     editor.subscribeEvent(
         ContentChangeEvent.class,
         (event, unevent) -> {
-          if (setting.autoSaveFiles()) saveCurrentFile();
+          if (setting.autoSaveFiles()) {
+            saveCurrentFile();
+          }
         });
     viewModel
         .getLoading()
@@ -291,12 +294,6 @@ public class EditorFragment extends Fragment {
     return editor;
   }
 
-  /**
-   * Applies dynamic bottom padding or margin adjustment so that the given view stays above the soft
-   * keyboard when it appears.
-   *
-   * @param target The view that should remain visible (e.g., bottom sheet, header, etc.)
-   */
   void applyImeInsets(@NonNull final View target) {
     ViewCompat.setOnApplyWindowInsetsListener(
         target,
@@ -304,7 +301,6 @@ public class EditorFragment extends Fragment {
           Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
           Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
           int bottomInset = Math.max(imeInsets.bottom, navInsets.bottom);
-
           v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottomInset);
           return insets;
         });

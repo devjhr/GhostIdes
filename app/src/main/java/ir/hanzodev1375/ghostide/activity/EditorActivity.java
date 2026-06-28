@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.skydoves.powermenu.PowerMenuItem;
 import com.blankj.utilcode.util.FileIOUtils;
+import io.github.rosemoe.sora.event.ContentChangeEvent;
 import ir.hanzodev1375.ghostide.customui.TabCustomView;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
@@ -71,11 +72,12 @@ public class EditorActivity extends BaseCompat {
   private ToolbarListAdapter listAdapter;
   private boolean isShowSys = false;
   private List<ToolbarModel> toolbarModel = new ArrayList<>();
-  private final ExecutorService gitStatusExecutor = Executors .newSingleThreadExecutor();
+  private final ExecutorService gitStatusExecutor = Executors.newSingleThreadExecutor();
   private String gitStatusRepoPath;
   private Set<String> gitChangedPaths = new HashSet<>();
   private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener;
   private long lastGitRefreshTime = 0;
+  private boolean hasStar = false;
   private static final long GIT_REFRESH_DEBOUNCE_MS = 1500;
 
   @Override
@@ -208,7 +210,6 @@ public class EditorActivity extends BaseCompat {
           binding.symbolBarContainer.setLayoutParams(symbolParams);
           return insets;
         });
-
     refreshGitStatus();
   }
 
@@ -538,6 +539,7 @@ public class EditorActivity extends BaseCompat {
               if (position < tabsList.size()) {
                 TabCustomView customView = new TabCustomView(this);
                 customView.bind(tabsList.get(position));
+                customView.setHasStar(hasStar);
                 customView.setGitChanged(isFileGitChanged(tabsList.get(position).getFilePath()));
                 tab.setCustomView(customView);
               }
@@ -683,6 +685,7 @@ public class EditorActivity extends BaseCompat {
       TabLayout.Tab layoutTab = binding.tab.getTabAt(position);
       if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
         ((TabCustomView) layoutTab.getCustomView()).bind(tab);
+        ((TabCustomView) layoutTab.getCustomView()).setHasStar(hasStar);
       }
     }
   }

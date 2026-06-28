@@ -1,41 +1,43 @@
 <resources>
-    <string name="empty">empty</string>
-    <string name="dialog_rename">Rename?</string>
-    <string name="dialog_rename_massges">Rename item %s</string>
-
-    <string name="ftp_connect_title">Connect to Server</string>
-    <string name="ftp_protocol_ftp">FTP</string>
-    <string name="ftp_protocol_sftp">SFTP</string>
-
-    <!-- Legacy hint keys (kept for compatibility if used) -->
-    <string name="ftp_hint_host">Host / IP</string>
-    <string name="ftp_hint_port">Port</string>
-    <string name="ftp_hint_username">Username</string>
-    <string name="ftp_hint_password">Password</string>
-
-    <!-- New hint keys (used in layouts) -->
-    <string name="ftp_host_hint">Host</string>
-    <string name="ftp_port_hint">Port</string>
-    <string name="ftp_username_hint">Username</string>
-    <string name="ftp_password_hint">Password</string>
-    <string name="ftp_share_hint">Share name</string>
-
-    <string name="ftp_btn_connect">Connect</string>
-    <string name="ftp_connecting">Connecting…</string>
-
-    <string name="ftp_browser_title">Remote Files</string>
-    <string name="ftp_empty_folder">Empty folder</string>
-    <string name="ftp_btn_download">Download</string>
-
-    <string name="ftp_menu_download">Download</string>
-    <string name="ftp_menu_delete">Delete</string>
-    <string name="ftp_menu_rename">Rename</string>
-    <string name="ftp_delete_confirm">Delete %s?</string>
-
-    <string name="ftp_error_host">Enter host address</string>
-    <string name="ftp_error_port">Invalid port</string>
-    <string name="ftp_error_connect">Connection failed: %s</string>
-    <string name="ftp_error_list">Error loading files: %s</string>
-    <string name="ftp_error_delete">Delete failed: %s</string>
-    <string name="ftp_error_rename">Rename failed: %s</string>
+  <string name="empty">empty</string>
+  <string name="dialog_rename">Rename?</string>
+  <string name="dialog_rename_massges">Rename item %s</string>
+  <string name="ftp_connect_title">Connect to Server</string>
+  <string name="ftp_protocol_ftp">FTP</string>
+  <string name="ftp_protocol_sftp">SFTP</string>
+  <string name="ftp_hint_host">Host / IP</string>
+  <string name="ftp_hint_port">Port</string>
+  <string name="ftp_hint_username">Username</string>
+  <string name="ftp_hint_password">Password</string>
+  <string name="ftp_host_hint">Host</string>
+  <string name="ftp_port_hint">Port</string>
+  <string name="ftp_username_hint">Username</string>
+  <string name="ftp_password_hint">Password</string>
+  <string name="ftp_share_hint">Share name</string>
+  <string name="ftp_btn_connect">Connect</string>
+  <string name="ftp_connecting">Connecting…</string>
+  <string name="ftp_browser_title">Remote Files</string>
+  <string name="ftp_empty_folder">Empty folder</string>
+  <string name="ftp_btn_download">Download</string>
+  <string name="ftp_menu_download">Download</string>
+  <string name="ftp_menu_delete">Delete</string>
+  <string name="ftp_menu_rename">Rename</string>
+  <string name="ftp_delete_confirm">Delete %s?</string>
+  <string name="ftp_error_host">Enter host address</string>
+  <string name="ftp_error_port">Invalid port</string>
+  <string name="ftp_error_connect">Connection failed: %s</string>
+  <string name="ftp_error_list">Error loading files: %s</string>
+  <string name="ftp_error_delete">Delete failed: %s</string>
+  <string name="ftp_error_rename">Rename failed: %s</string>
+  <string name="search_title">Search</string>
+  <string name="search_hint">Search for files…</string>
+  <string name="search_mode_normal">Normal</string>
+  <string name="search_mode_regex">Regex</string>
+  <string name="search_mode_case">Aa</string>
+  <string name="search_type_filename">Filename</string>
+  <string name="search_type_content">Content</string>
+  <string name="search_no_results">No results found</string>
+  <string name="search_result_count">%d results</string>
+  <string name="search_found">%d files found</string>
+  <string name="search_error_invalid_regex">Invalid Regex pattern</string>
 </resources>
