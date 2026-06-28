@@ -27,18 +27,14 @@
   <string name="branch_rebase">রিবেস</string>
   <string name="branch_delete">মুছুন</string>
   <string name="branch_delete_confirm_title">শাখা মুছুন</string>
-  <!-- اصلاح شده: تبدیل \\' به &apos; -->
   <string name="branch_delete_confirm_msg">&apos;%s&apos; শাখা মুছবেন?</string>
   <string name="branch_merge_confirm_title">শাখা একীভূত করুন</string>
-  <!-- اصلاح شده: تبدیل \\' به &apos; -->
   <string name="branch_merge_confirm_msg">&apos;%1$s&apos; কে &apos;%2$s&apos; এ মার্জ করবেন?</string>
   <string name="branch_rebase_confirm_title">রিবেস</string>
-  <!-- اصلاح شده: تبدیل \\' به &apos; -->
   <string name="branch_rebase_confirm_msg">&apos;%1$s&apos; কে &apos;%2$s&apos;-এ রিবেস করুন?\n\nএটি প্রতিশ্রুতি ইতিহাস পুনঃলিখন করে।</string>
   <string name="remote_add">রিমোট যোগ করুন</string>
   <string name="remote_remove">সরান</string>
   <string name="remote_remove_confirm_title">রিমোট সরান</string>
-  <!-- اصلاح شده: تبدیل \\' به &apos; -->
   <string name="remote_remove_confirm_msg">&apos;%s&apos; সরান?</string>
   <string name="remote_push">ধাক্কা</string>
   <string name="remote_pull">টানুন</string>
@@ -88,7 +84,6 @@
   <string name="tag_create">ট্যাগ তৈরি করুন</string>
   <string name="tag_delete">মুছুন</string>
   <string name="tag_delete_confirm_title">ট্যাগ মুছুন</string>
-  <!-- اصلاح شده: تبدیل \\' به &apos; -->
   <string name="tag_delete_confirm_msg">&apos;%s&apos; ট্যাগ মুছবেন?</string>
   <string name="tag_no_tags">এখনো কোন ট্যাগ নেই</string>
   <string name="gitignore_title">.gitignore সম্পাদক</string>
